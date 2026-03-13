@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DentalFlow HQ — Patients Trusted Dental Partners. Dental care ecosystem for Nigeria and Africa." />
+  <title>DentalFlow HQ</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     SHARED SVG SYMBOLS
+══════════════════════════════════════════════════════════ -->
+<svg style="display:none;">
+  <!-- Logo icon -->
+  <symbol id="dfhq-logo" viewBox="0 0 100 100">
+    <rect width="100" height="100" rx="18" fill="#0D1B3E"/>
+    <rect x="8"  y="42" width="50" height="16" rx="8" fill="#639922"/>
+    <rect x="42" y="42" width="16" height="50" rx="8" fill="#639922"/>
+    <rect x="42" y="8"  width="16" height="50" rx="8" fill="#1a5c2a"/>
+    <rect x="42" y="42" width="50" height="16" rx="8" fill="#1a5c2a"/>
+    <rect x="42" y="42" width="16" height="16"        fill="#1a5c2a"/>
+    <circle cx="50" cy="50" r="15" fill="#6B5CE7"/>
+    <text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700"
+          fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text>
+  </symbol>
+  <!-- Tooth watermark -->
+  <symbol id="tooth-wm" viewBox="0 0 200 220">
+    <path d="M100 10 C60 10,28 40,28 78 C28 105,38 128,50 158
+             C58 180,70 195,82 195 C90 195,94 183,97 166
+             C99 154,100 142,100 142
+             C100 142,101 154,103 166
+             C106 183,110 195,118 195
+             C130 195,142 180,150 158
+             C162 128,172 105,172 78
+             C172 40,140 10,100 10Z" fill="white"/>
+  </symbol>
+</svg>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 1 — LANDING
+══════════════════════════════════════════════════════════ -->
+<div id="s-landing" class="screen">
+
+  <nav class="nav">
+    <a class="nav-logo" onclick="go('s-landing')">
+      <svg width="40" height="40"><use href="#dfhq-logo"/></svg>
+      <div>
+        <div class="logo-name">DENTAL FLOW HQ</div>
+        <div class="logo-tag">Patients Trusted Dental Partners</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a onclick="go('s-patient-login')">For patients</a>
+      <a onclick="go('s-clinic-login')">For clinics</a>
+      <a onclick="go('s-pro-login')">For professionals</a>
+      <button class="btn btn-outline" onclick="go('s-patient-login')">Sign in</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-logo-row">
+      <svg width="80" height="80"><use href="#dfhq-logo"/></svg>
+      <div>
+        <div class="hero-logo-name">DENTAL FLOW HQ</div>
+        <div class="hero-logo-tagline">Patients Trusted Dental Partners</div>
+      </div>
+    </div>
+    <h1 class="hero-headline">Dental care reimagined for Nigeria and Africa</h1>
+    <p class="hero-sub">Find care, manage your clinic, or grow your dental career — all in one place.</p>
+
+    <div class="portals">
+      <div class="portal-card">
+        <div class="portal-card-icon" style="background:rgba(83,74,183,.2);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="6" r="3.5" stroke="#AFA9EC" stroke-width="1.3"/>
+            <path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="#AFA9EC" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>I'm a patient</h3>
+        <p>Find clinics, book appointments, and get personalised before &amp; after care guidance.</p>
+        <button class="btn btn-purple" onclick="go('s-patient-login')">Find care</button>
+      </div>
+
+      <div class="portal-card">
+        <div class="portal-card-icon" style="background:rgba(24,95,165,.2);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="5" width="14" height="12" rx="2" stroke="#85B7EB" stroke-width="1.3"/>
+            <path d="M7 5V4a3 3 0 016 0v1" stroke="#85B7EB" stroke-width="1.3"/>
+            <path d="M7 10h6M7 13h4" stroke="#85B7EB" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>I run a clinic</h3>
+        <p>Manage bookings, schedules, patient data, and post vacancies from one dashboard.</p>
+        <button class="btn btn-blue" onclick="go('s-clinic-login')">Manage clinic</button>
+      </div>
+
+      <div class="portal-card">
+        <div class="portal-card-icon" style="background:rgba(59,109,17,.25);">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2l1.8 3.6L16 6.3l-3 2.9.7 4.1L10 11.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L10 2z"
+                  stroke="#9FE1CB" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M6 16h8M10 13v3" stroke="#9FE1CB" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>I'm a professional</h3>
+        <p>MDCN, DTHRBN, or DTRBN registered? Find jobs, take gigs, and offer home visits.</p>
+        <button class="btn btn-green" onclick="go('s-pro-login')">Find opportunities</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features-title">Everything dental, in one platform</div>
+    <div class="features-sub">Built for patients, clinics, and professionals across Nigeria and Africa</div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-card-icon" style="background:#EEEDFE;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#534AB7" stroke-width="1.2"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#534AB7" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="feat-card-name">Smart patient profiles</div>
+        <div class="feat-card-desc">Health intake completed once — shared with every clinic you book.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon" style="background:#E6F1FB;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="2" stroke="#185FA5" stroke-width="1.2"/><path d="M5 1v4M11 1v4M1 7h14" stroke="#185FA5" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="feat-card-name">Clinic booking manager</div>
+        <div class="feat-card-desc">Schedules, patient alerts, vacancies and revenue — all in one place.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon" style="background:#EAF3DE;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#3B6D11" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="#3B6D11" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="feat-card-name">Gig &amp; home visits</div>
+        <div class="feat-card-desc">MDCN, DTHRBN &amp; DTRBN professionals offer flexible sessional care.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon" style="background:#EEEDFE;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 3 4-6" stroke="#534AB7" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feat-card-name">Earnings dashboard</div>
+        <div class="feat-card-desc">Track ₦ earnings, pending payments and income month by month.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon" style="background:#EAF3DE;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="feat-card-name">Licence verification</div>
+        <div class="feat-card-desc">MDCN, DTHRBN &amp; DTRBN registrations verified with each board.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-card-icon" style="background:#E6F1FB;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="#185FA5" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="feat-card-name">Care guides</div>
+        <div class="feat-card-desc">Personalised before &amp; aftercare instructions for every treatment.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo">
+      <svg width="32" height="32"><use href="#dfhq-logo"/></svg>
+      <div>
+        <div class="footer-logo-name">DENTAL FLOW HQ</div>
+        <div class="footer-logo-tag">Patients Trusted Dental Partners</div>
+      </div>
+    </div>
+    <div class="footer-copy">MVP · Nigeria &amp; Africa · © 2026</div>
+  </footer>
+
+</div><!-- /s-landing -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 2 — PATIENT LOGIN
+══════════════════════════════════════════════════════════ -->
+<div id="s-patient-login" class="screen">
+  <div class="split">
+    <div class="split-side">
+      <div class="split-bg"></div>
+      <svg class="tooth-watermark" width="320" height="350" viewBox="0 0 200 220">
+        <use href="#tooth-wm"/>
+      </svg>
+      <div class="split-side-content">
+        <div class="flex items-center gap-3" style="cursor:pointer;margin-bottom:auto;" onclick="go('s-landing')">
+          <svg width="40" height="40"><use href="#dfhq-logo"/></svg>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#fff;">DENTAL FLOW HQ</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);">Patients Trusted Dental Partners</div>
+          </div>
+        </div>
+        <div style="margin-top:auto;padding-bottom:2rem;">
+          <div class="split-quote">"Your smile deserves a smarter start."</div>
+          <div class="split-sub">Personalised dental care, wherever you are in Nigeria.</div>
+          <div class="flex gap-2" style="margin-top:1.25rem;">
+            <div style="width:18px;height:6px;border-radius:3px;background:#5DCAA5;"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="split-form">
+      <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Welcome back</div>
+      <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Sign in to your patient account</div>
+      <label class="f-label" style="color:#534AB7;">Email address</label>
+      <input class="f-input f-input-purple" type="email" placeholder="you@example.com" />
+      <label class="f-label" style="color:#534AB7;">Password</label>
+      <input class="f-input f-input-purple" type="password" placeholder="••••••••" />
+      <div style="text-align:right;margin-top:-0.5rem;margin-bottom:1rem;">
+        <a style="font-size:12px;color:#7F77DD;cursor:pointer;">Forgot password?</a>
+      </div>
+      <button class="f-btn" style="background:#534AB7;" onclick="go('s-patient-dash')">Sign in</button>
+      <div class="f-link">
+        New to DentalFlow? <a style="color:#534AB7;" onclick="go('s-patient-dash')">Create account</a>
+      </div>
+      <div class="text-center mt2">
+        <a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 3 — PATIENT DASHBOARD
+══════════════════════════════════════════════════════════ -->
+<div id="s-patient-dash" class="screen">
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-top" onclick="go('s-landing')">
+        <svg width="28" height="28"><use href="#dfhq-logo"/></svg>
+        <div>
+          <div class="sidebar-top-name">DENTAL FLOW HQ</div>
+          <div class="sidebar-top-tag">Patient portal</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-label">Main</div>
+        <div class="sidebar-item pu active" data-title="Overview" onclick="setTab('pd-overview',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Overview
+        </div>
+        <div class="sidebar-item pu" data-title="Appointments" onclick="setTab('pd-appts',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Appointments
+          <span class="sidebar-badge badge-pu">2</span>
+        </div>
+        <div class="sidebar-item pu" data-title="My profile" onclick="setTab('pd-profile',this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          My profile
+        </div>
+        <div class="sidebar-label">Discover</div>
+        <div class="sidebar-item pu" data-title="Find a clinic" onclick="setTab('pd-clinics',this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Find a clinic
+        </div>
+        <div class="sidebar-item pu" data-title="Care guides" onclick="setTab('pd-care',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Care guides
+        </div>
+      </nav>
+      <div class="sidebar-bot">
+        <div class="sidebar-item pu" onclick="go('s-landing')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign out
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-main dash-main-pu">
+      <div class="topbar">
+        <div class="topbar-title">Overview</div>
+        <div class="topbar-right">
+          <button class="btn btn-purple btn-sm">Book appointment</button>
+          <div class="topbar-avatar" style="background:#534AB7;">JS</div>
+        </div>
+      </div>
+
+      <!-- Overview -->
+      <div id="pd-overview" class="tab-panel active">
+        <div class="dash-hero">
+          <div class="dash-hero-label">Good morning</div>
+          <div class="dash-hero-name">Jane Smith</div>
+          <div class="dash-hero-sub">Next check-up in 4 days · SmileCare Clinic, Lagos</div>
+          <div class="dash-hero-pill">Profile 92% complete</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Next appointment</div>
+            <div class="stat-value" style="font-size:16px;">Mon 17 Mar</div>
+            <div class="stat-sub text-muted">SmileCare · 9:00am</div>
+            <span class="tag tag-pu mt1" style="display:inline-block;">Check-up</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Profile completeness</div>
+            <div class="stat-value">92%</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:92%;background:#534AB7;"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Last visit</div>
+            <div class="stat-value" style="font-size:16px;">Oct 2024</div>
+            <div class="stat-sub text-muted">Hygiene clean</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active clinics</div>
+            <div class="stat-value">2</div>
+            <div class="stat-sub up">Lagos &amp; Abuja</div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Upcoming appointments</div>
+              <span class="card-link">+ Book new</span>
+            </div>
+            <div class="card-row">
+              <div style="width:38px;height:38px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+                <div style="font-size:14px;font-weight:500;color:#534AB7;line-height:1;">17</div>
+                <div style="font-size:9px;color:#7F77DD;">MAR</div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium">Routine check-up</div>
+                <div class="text-sm text-muted">SmileCare Clinic, Lagos</div>
+              </div>
+              <span class="tag tag-pu">Confirmed</span>
+            </div>
+            <div class="card-row">
+              <div style="width:38px;height:38px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
+                <div style="font-size:14px;font-weight:500;color:#3B6D11;line-height:1;">4</div>
+                <div style="font-size:9px;color:#639922;">APR</div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium">Hygiene clean</div>
+                <div class="text-sm text-muted">BrightSmile Dental, Abuja</div>
+              </div>
+              <span class="tag tag-gr">Requested</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Care guides for you</div></div>
+            <div class="card-row" style="cursor:pointer;">
+              <div class="flex-1"><div class="font-medium">Before your check-up</div><div class="text-sm text-muted">What to do before your visit</div></div>
+              <span style="font-size:12px;color:#534AB7;">↗</span>
+            </div>
+            <div class="card-row" style="cursor:pointer;">
+              <div class="flex-1"><div class="font-medium">Managing dental anxiety</div><div class="text-sm text-muted">Practical tips for anxious patients</div></div>
+              <span style="font-size:12px;color:#534AB7;">↗</span>
+            </div>
+            <div class="card-row" style="cursor:pointer;">
+              <div class="flex-1"><div class="font-medium">After your hygiene clean</div><div class="text-sm text-muted">Post-clean care tips</div></div>
+              <span style="font-size:12px;color:#534AB7;">↗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointments -->
+      <div id="pd-appts" class="tab-panel">
+        <div class="table-wrap">
+          <div class="card-header">
+            <div class="card-title">All appointments</div>
+            <button class="btn btn-purple btn-sm">+ Book new</button>
+          </div>
+          <table>
+            <tr><th>Date</th><th>Treatment</th><th>Clinic</th><th>Status</th></tr>
+            <tr><td>17 Mar 2026</td><td>Check-up</td><td>SmileCare, Lagos</td><td><span class="tag tag-pu">Confirmed</span></td></tr>
+            <tr><td>4 Apr 2026</td><td>Hygiene clean</td><td>BrightSmile, Abuja</td><td><span class="tag tag-gr">Requested</span></td></tr>
+            <tr><td>Oct 2024</td><td>Hygiene clean</td><td>SmileCare, Lagos</td><td><span class="tag tag-neu">Completed</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div id="pd-profile" class="tab-panel">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Health profile</div><button class="btn btn-sm" style="border:0.5px solid #e0daf5;background:#fff;color:#534AB7;">Edit</button></div>
+          <div class="card-row"><div class="flex-1">Dental anxiety</div><span class="tag tag-red">Dental phobia</span></div>
+          <div class="card-row"><div class="flex-1">Allergies</div><span class="tag tag-neu">None known</span></div>
+          <div class="card-row"><div class="flex-1">Medications</div><span class="tag tag-neu">None</span></div>
+        </div>
+      </div>
+
+      <!-- Find a clinic -->
+      <div id="pd-clinics" class="tab-panel">
+        <div style="font-size:15px;font-weight:500;color:#26215C;margin-bottom:1rem;">Find a clinic near you</div>
+        <button class="btn btn-purple">Search clinics in Lagos ↗</button>
+      </div>
+
+      <!-- Care guides -->
+      <div id="pd-care" class="tab-panel">
+        <div style="font-size:15px;font-weight:500;color:#26215C;margin-bottom:1rem;">Care guides</div>
+        <button class="btn btn-purple">Browse all guides ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 4 — CLINIC LOGIN
+══════════════════════════════════════════════════════════ -->
+<div id="s-clinic-login" class="screen">
+  <div class="split">
+    <div class="split-side">
+      <div class="split-bg"></div>
+      <svg class="tooth-watermark" width="320" height="350" viewBox="0 0 200 220">
+        <use href="#tooth-wm"/>
+      </svg>
+      <div class="split-side-content">
+        <div class="flex items-center gap-3" style="cursor:pointer;margin-bottom:auto;" onclick="go('s-landing')">
+          <svg width="40" height="40"><use href="#dfhq-logo"/></svg>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#fff;">DENTAL FLOW HQ</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);">Patients Trusted Dental Partners</div>
+          </div>
+        </div>
+        <div style="margin-top:auto;padding-bottom:2rem;">
+          <div class="split-quote">"Run a smarter clinic, every day."</div>
+          <div class="split-sub">Bookings, patients, staff and revenue — all in one place.</div>
+          <div class="flex gap-2" style="margin-top:1.25rem;">
+            <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);"></div>
+            <div style="width:18px;height:6px;border-radius:3px;background:#378ADD;"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="split-form">
+      <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Clinic sign in</div>
+      <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Access your clinic dashboard</div>
+      <label class="f-label" style="color:#185FA5;">Email address</label>
+      <input class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
+      <label class="f-label" style="color:#185FA5;">Password</label>
+      <input class="f-input f-input-blue" type="password" placeholder="••••••••" />
+      <div style="text-align:right;margin-top:-0.5rem;margin-bottom:1rem;">
+        <a style="font-size:12px;color:#378ADD;cursor:pointer;">Forgot password?</a>
+      </div>
+      <button class="f-btn" style="background:#185FA5;" onclick="go('s-clinic-dash')">Sign in</button>
+      <div class="f-link">
+        New clinic? <a style="color:#185FA5;" onclick="go('s-clinic-dash')">Register your clinic</a>
+      </div>
+      <div class="text-center mt2">
+        <a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 5 — CLINIC DASHBOARD
+══════════════════════════════════════════════════════════ -->
+<div id="s-clinic-dash" class="screen">
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-top" onclick="go('s-landing')">
+        <svg width="28" height="28"><use href="#dfhq-logo"/></svg>
+        <div>
+          <div class="sidebar-top-name">DENTAL FLOW HQ</div>
+          <div class="sidebar-top-tag">SmileCare Clinic</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-label">Overview</div>
+        <div class="sidebar-item bl active" data-title="Dashboard" onclick="setTab('cd-overview',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Dashboard
+        </div>
+        <div class="sidebar-label">Manage</div>
+        <div class="sidebar-item bl" data-title="Schedule" onclick="setTab('cd-schedule',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Schedule
+          <span class="sidebar-badge badge-bl">8</span>
+        </div>
+        <div class="sidebar-item bl" data-title="Patients" onclick="setTab('cd-patients',this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 14c0-2.761 2.239-5 5-5h1M11 10l2 2 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Patients
+          <span class="sidebar-badge badge-gr">124</span>
+        </div>
+        <div class="sidebar-item bl" data-title="Staff & vacancies" onclick="setTab('cd-staff',this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 14c0-2.209 1.791-4 4-4h2M9 14c0-2.209 1.791-4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Staff &amp; vacancies
+        </div>
+        <div class="sidebar-label">Finance</div>
+        <div class="sidebar-item bl" data-title="Revenue" onclick="setTab('cd-revenue',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Revenue
+        </div>
+      </nav>
+      <div class="sidebar-bot">
+        <div class="sidebar-item bl" onclick="go('s-landing')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign out
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-main dash-main-bl">
+      <div class="topbar">
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-right">
+          <button class="btn btn-blue btn-sm">+ New booking</button>
+          <div class="topbar-avatar" style="background:#185FA5;">AP</div>
+        </div>
+      </div>
+
+      <!-- Overview -->
+      <div id="cd-overview" class="tab-panel active">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Today's appointments</div><div class="stat-value">8</div><div class="stat-sub up">4 done · 4 remaining</div><div class="stat-bar"><div class="stat-bar-fill" style="width:50%;background:#185FA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value">124</div><div class="stat-sub up">↑ 6 new this month</div><div class="stat-bar"><div class="stat-bar-fill" style="width:72%;background:#3B6D11;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Open slots today</div><div class="stat-value">4</div><div class="stat-sub text-muted">2:00pm onwards</div><div class="stat-bar"><div class="stat-bar-fill" style="width:33%;background:#534AB7;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;">₦2.8M</div><div class="stat-sub up">↑ 12% vs last month</div><div class="stat-bar"><div class="stat-bar-fill" style="width:68%;background:#5DCAA5;"></div></div></div>
+        </div>
+        <div class="two-col">
+          <div class="table-wrap" style="margin-bottom:0;">
+            <div class="card-header"><div class="card-title">Today's schedule</div><span class="tag tag-bl">Fri 14 Mar</span></div>
+            <table>
+              <tr><th style="width:65px;">Time</th><th>Patient</th><th>Treatment</th><th style="width:80px;">Status</th></tr>
+              <tr><td class="text-muted">9:00am</td><td>Sarah M.</td><td>Check-up</td><td><span class="tag tag-gr">Done</span></td></tr>
+              <tr><td class="text-muted">10:00am</td><td>James K.</td><td>Whitening</td><td><span class="tag tag-gr">Done</span></td></tr>
+              <tr><td class="text-muted">2:00pm</td><td>Mei L.</td><td>Implant consult</td><td><span class="tag tag-bl">Next up</span></td></tr>
+              <tr><td class="text-muted">3:00pm</td><td>David R.</td><td>Hygiene</td><td><span class="tag tag-neu">Upcoming</span></td></tr>
+              <tr><td class="text-muted">4:00pm</td><td style="color:#B4B2A9;">— open —</td><td></td><td><span class="tag tag-neu">Free</span></td></tr>
+            </table>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-header"><div class="card-title">Flags &amp; alerts</div></div>
+              <div class="card-row"><div class="flex-1 text-sm">Jane S. — <strong>dental phobia</strong></div><span class="tag tag-red">Mon 17</span></div>
+              <div class="card-row"><div class="flex-1 text-sm">Tom B. — <strong>blood thinners</strong></div><span class="tag tag-red">Today</span></div>
+              <div class="card-row"><div class="flex-1 text-sm">3 incomplete profiles</div><span class="tag tag-neu">Review</span></div>
+            </div>
+            <div class="table-wrap" style="margin-bottom:0;">
+              <div class="card-header"><div class="card-title">This week</div></div>
+              <table>
+                <tr><th>Day</th><th>Bookings</th><th>Slots</th></tr>
+                <tr><td>Mon 17</td><td>6</td><td><span class="tag tag-gr">2 free</span></td></tr>
+                <tr><td>Tue 18</td><td>8</td><td><span class="tag tag-red">Full</span></td></tr>
+                <tr><td>Wed 19</td><td>4</td><td><span class="tag tag-gr">4 free</span></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule -->
+      <div id="cd-schedule" class="tab-panel">
+        <div class="table-wrap">
+          <div class="card-header"><div class="card-title">Weekly schedule — w/c 17 Mar 2026</div></div>
+          <table>
+            <tr><th style="width:70px;">Time</th><th>Mon 17</th><th>Tue 18</th><th>Wed 19</th></tr>
+            <tr>
+              <td class="text-muted">9:00am</td>
+              <td><span style="background:#EEEDFE;color:#534AB7;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Jane S. — check-up</span></td>
+              <td><span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Oliver T. — filling</span></td>
+              <td><span style="background:#E6F1FB;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Amara K. — whitening</span></td>
+            </tr>
+            <tr>
+              <td class="text-muted">10:30am</td>
+              <td><span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Ravi M. — hygiene</span></td>
+              <td><span style="background:#EEEDFE;color:#534AB7;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Lucy P. — braces</span></td>
+              <td style="color:#B4B2A9;font-size:11px;">— free —</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Patients -->
+      <div id="cd-patients" class="tab-panel">
+        <div class="table-wrap">
+          <div class="card-header">
+            <div class="card-title">Patient records</div>
+            <input style="padding:6px 12px;border:0.5px solid #e0daf5;border-radius:8px;font-size:12px;outline:none;width:180px;" placeholder="Search patients..." />
+          </div>
+          <table>
+            <tr><th>Name</th><th>Age</th><th>Last visit</th><th>Flags</th><th>Status</th></tr>
+            <tr><td><strong>Jane Smith</strong></td><td>34</td><td>Oct 2024</td><td><span class="tag tag-red">Dental phobia</span></td><td><span class="tag tag-pu">Active</span></td></tr>
+            <tr><td><strong>Tom Barnes</strong></td><td>52</td><td>Jan 2025</td><td><span class="tag tag-red">Blood thinners</span></td><td><span class="tag tag-bl">Today</span></td></tr>
+            <tr><td><strong>Mei Liu</strong></td><td>45</td><td>Dec 2024</td><td><span class="tag tag-red">Diabetic</span></td><td><span class="tag tag-bl">Today</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Staff -->
+      <div id="cd-staff" class="tab-panel">
+        <div class="two-col">
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header"><div class="card-title">Active staff</div></div>
+            <div class="card-row">
+              <div style="width:36px;height:36px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#185FA5;flex-shrink:0;">AP</div>
+              <div class="flex-1"><div class="font-medium">Dr. Aisha Patel</div><div class="text-sm text-muted">Principal Dentist · On duty</div></div>
+              <span class="tag tag-gr">5 today</span>
+            </div>
+            <div class="card-row">
+              <div style="width:36px;height:36px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#534AB7;flex-shrink:0;">JM</div>
+              <div class="flex-1"><div class="font-medium">James Morgan</div><div class="text-sm text-muted">Hygienist · On duty</div></div>
+              <span class="tag tag-gr">3 today</span>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title">Open vacancies</div>
+              <button class="btn btn-blue btn-sm">+ Post role</button>
+            </div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Dental Hygienist</div><div class="text-sm text-muted">DTHRBN required</div></div><span class="tag tag-pu">4 applicants</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Associate Dentist</div><div class="text-sm text-muted">MDCN required</div></div><span class="tag tag-bl">11 applicants</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue -->
+      <div id="cd-revenue" class="tab-panel">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;">₦2.8M</div><div class="stat-sub up">↑ 12% vs Feb</div></div>
+          <div class="stat-card"><div class="stat-label">Avg per patient</div><div class="stat-value" style="font-size:17px;">₦22,500</div></div>
+          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:17px;">₦115,000</div><div class="stat-sub dn">3 invoices</div></div>
+          <div class="stat-card"><div class="stat-label">Projected (Mar)</div><div class="stat-value" style="font-size:17px;">₦3.1M</div><div class="stat-sub up">On track</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 6 — PROFESSIONALS LOGIN
+══════════════════════════════════════════════════════════ -->
+<div id="s-pro-login" class="screen">
+  <div class="split">
+    <div class="split-side">
+      <div class="split-bg"></div>
+      <svg class="tooth-watermark" width="320" height="350" viewBox="0 0 200 220">
+        <use href="#tooth-wm"/>
+      </svg>
+      <div class="split-side-content">
+        <div class="flex items-center gap-3" style="cursor:pointer;margin-bottom:auto;" onclick="go('s-landing')">
+          <svg width="40" height="40"><use href="#dfhq-logo"/></svg>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#fff;">DENTAL FLOW HQ</div>
+            <div style="font-size:9px;color:rgba(255,255,255,.4);">Patients Trusted Dental Partners</div>
+          </div>
+        </div>
+        <div style="margin-top:auto;padding-bottom:2rem;">
+          <div class="split-quote">"Your expertise, your schedule, your career."</div>
+          <div class="split-sub">Join clinics across Nigeria — work on your terms.</div>
+          <div class="flex gap-2" style="margin-top:1.25rem;">
+            <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);"></div>
+            <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);"></div>
+            <div style="width:18px;height:6px;border-radius:3px;background:#5DCAA5;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="split-form">
+      <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Professional sign in</div>
+      <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Access your jobs, gigs, and earnings</div>
+      <div style="font-size:12px;color:#3B6D11;font-weight:500;margin-bottom:8px;">I am a...</div>
+      <div class="prof-chips">
+        <div class="prof-chip active" onclick="selectProfType(this,'MDCN')">Dental Surgeon</div>
+        <div class="prof-chip" onclick="selectProfType(this,'DTHRBN')">Therapist / Hygienist</div>
+        <div class="prof-chip" onclick="selectProfType(this,'DTRBN')">Dental Technologist</div>
+      </div>
+      <div id="reg-hint" class="reg-hint">
+        Regulated by the <strong>Medical and Dental Council of Nigeria (MDCN)</strong>
+      </div>
+      <label class="f-label" style="color:#3B6D11;">Email address</label>
+      <input class="f-input f-input-green" type="email" placeholder="you@example.com" />
+      <label class="f-label" style="color:#3B6D11;">Password</label>
+      <input class="f-input f-input-green" type="password" placeholder="••••••••" />
+      <button class="f-btn" style="background:#3B6D11;" onclick="go('s-pro-dash')">Sign in</button>
+      <div class="f-link">
+        New professional? <a style="color:#3B6D11;" onclick="go('s-pro-dash')">Create profile</a>
+      </div>
+      <div class="text-center mt2">
+        <a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 7 — PROFESSIONALS DASHBOARD
+══════════════════════════════════════════════════════════ -->
+<div id="s-pro-dash" class="screen">
+  <div class="dash">
+    <div class="sidebar">
+      <div class="sidebar-top" onclick="go('s-landing')">
+        <svg width="28" height="28"><use href="#dfhq-logo"/></svg>
+        <div>
+          <div class="sidebar-top-name">DENTAL FLOW HQ</div>
+          <div class="sidebar-top-tag">Professionals</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-label">Overview</div>
+        <div class="sidebar-item gr active" data-title="Dashboard" onclick="setTab('pro-overview',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Dashboard
+        </div>
+        <div class="sidebar-label">Work</div>
+        <div class="sidebar-item gr" data-title="Job listings" onclick="setTab('pro-jobs',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M2 8h12" stroke="currentColor" stroke-width="1.2"/></svg>
+          Job listings
+          <span class="sidebar-badge badge-gr">14</span>
+        </div>
+        <div class="sidebar-item gr" data-title="Gig & home visits" onclick="setTab('pro-gigs',this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Gig &amp; home visits
+          <span class="sidebar-badge badge-gr">3</span>
+        </div>
+        <div class="sidebar-label">Finance</div>
+        <div class="sidebar-item gr" data-title="Earnings" onclick="setTab('pro-earn',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Earnings
+        </div>
+        <div class="sidebar-label">Profile</div>
+        <div class="sidebar-item gr" data-title="My profile" onclick="setTab('pro-profile',this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          My profile
+          <span class="sidebar-badge" style="background:#534AB7;">88%</span>
+        </div>
+      </nav>
+      <div class="sidebar-bot">
+        <div class="sidebar-item gr" onclick="go('s-landing')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sign out
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-main dash-main-gr">
+      <div class="topbar">
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-right">
+          <button class="btn btn-green btn-sm">Update availability</button>
+          <div class="topbar-avatar" style="background:#3B6D11;">KO</div>
+        </div>
+      </div>
+
+      <!-- Overview -->
+      <div id="pro-overview" class="tab-panel active">
+        <div class="dash-hero">
+          <div class="dash-hero-label">Good morning</div>
+          <div class="dash-hero-name">Dr. Kwame Osei</div>
+          <div class="dash-hero-sub">Dental Surgeon · MDCN Reg. No. DS/2018/04521 · Lagos</div>
+          <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
+            <div class="dash-hero-pill">MDCN licence active</div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.7);">3 gigs this month</div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.7);">4 applications pending</div>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Earnings this month</div><div class="stat-value" style="font-size:17px;">₦485,000</div><div class="stat-sub up">↑ 18%</div><div class="stat-bar"><div class="stat-bar-fill" style="width:65%;background:#3B6D11;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Applications</div><div class="stat-value">4</div><div class="stat-sub text-muted">1 offer received</div><div class="stat-bar"><div class="stat-bar-fill" style="width:50%;background:#534AB7;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Gigs completed</div><div class="stat-value">3</div><div class="stat-sub up">This month</div><div class="stat-bar"><div class="stat-bar-fill" style="width:40%;background:#5DCAA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Profile views</div><div class="stat-value">28</div><div class="stat-sub up">↑ 9 this week</div><div class="stat-bar"><div class="stat-bar-fill" style="width:75%;background:#378ADD;"></div></div></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upcoming gigs</div></div>
+            <div class="card-row">
+              <div style="width:40px;height:40px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#3B6D11;line-height:1;">17</div><div style="font-size:9px;color:#639922;">MAR</div></div>
+              <div class="flex-1"><div class="font-medium">Home visit — check-up</div><div class="text-sm text-muted">Lekki Phase 1 · 10:00am</div></div>
+              <div style="font-size:13px;font-weight:500;color:#3B6D11;">₦42,000</div>
+            </div>
+            <div class="card-row">
+              <div style="width:40px;height:40px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#534AB7;line-height:1;">19</div><div style="font-size:9px;color:#7F77DD;">MAR</div></div>
+              <div class="flex-1"><div class="font-medium">Sessional — SmileCare Abuja</div><div class="text-sm text-muted">9:00am–1:00pm</div></div>
+              <div style="font-size:13px;font-weight:500;color:#534AB7;">₦110,000</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Applications</div></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Associate Dentist</div><div class="text-sm text-muted">BrightSmile Dental, Lagos</div></div><span class="tag tag-gr">Offer received</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Dental Officer</div><div class="text-sm text-muted">Reddington Hospital</div></div><span class="tag tag-bl">In review</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Principal Dentist</div><div class="text-sm text-muted">Eko Dental Clinic</div></div><span class="tag tag-bl">In review</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs -->
+      <div id="pro-jobs" class="tab-panel">
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+          <div style="background:#fff;border:1.5px solid #3B6D11;border-radius:12px;padding:1.25rem;">
+            <div style="font-size:10px;background:#EAF3DE;color:#3B6D11;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;">Best match</div>
+            <div class="font-medium">BrightSmile Dental</div>
+            <div class="text-sm text-muted mt1">Associate Dentist · Full-time · Victoria Island, Lagos</div>
+            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">MDCN required · ₦600,000–₦900,000/mo</div>
+            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
+          </div>
+          <div style="background:#fff;border:0.5px solid #d8ecd0;border-radius:12px;padding:1.25rem;">
+            <div class="font-medium">Reddington Hospital</div>
+            <div class="text-sm text-muted mt1">Dental Officer · Sessional · Port Harcourt</div>
+            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">MDCN required · ₦180,000–₦250,000/wk</div>
+            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
+          </div>
+          <div style="background:#fff;border:0.5px solid #d8ecd0;border-radius:12px;padding:1.25rem;">
+            <div class="font-medium">Home Visit Network</div>
+            <div class="text-sm text-muted mt1">Dental Therapist · Gig · Lagos</div>
+            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">DTHRBN required · ₦25,000–₦45,000/visit</div>
+            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
+          </div>
+          <div style="background:#fff;border:0.5px solid #d8ecd0;border-radius:12px;padding:1.25rem;">
+            <div class="font-medium">OrthoLab Nigeria</div>
+            <div class="text-sm text-muted mt1">Dental Technologist · Full-time · Ikeja</div>
+            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">DTRBN required · ₦150,000–₦200,000/mo</div>
+            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gigs -->
+      <div id="pro-gigs" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Upcoming gigs &amp; sessions</div>
+            <button class="btn btn-green btn-sm">+ Add availability</button>
+          </div>
+          <div class="card-row">
+            <div style="width:40px;height:40px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#3B6D11;line-height:1;">17</div><div style="font-size:9px;color:#639922;">MAR</div></div>
+            <div class="flex-1"><div class="font-medium">Home visit — check-up · Mrs. Adaeze O.</div><div class="text-sm text-muted">Lekki Phase 1 · 10:00–11:00am</div></div>
+            <div style="text-align:right;"><div style="font-size:13px;font-weight:500;color:#3B6D11;">₦42,000</div><span class="tag tag-gr mt1" style="display:inline-block;">Confirmed</span></div>
+          </div>
+          <div class="card-row">
+            <div style="width:40px;height:40px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#534AB7;line-height:1;">19</div><div style="font-size:9px;color:#7F77DD;">MAR</div></div>
+            <div class="flex-1"><div class="font-medium">Sessional — SmileCare Abuja · 6 patients</div><div class="text-sm text-muted">9:00am–1:00pm</div></div>
+            <div style="text-align:right;"><div style="font-size:13px;font-weight:500;color:#534AB7;">₦110,000</div><span class="tag tag-pu mt1" style="display:inline-block;">Confirmed</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Earnings -->
+      <div id="pro-earn" class="tab-panel">
+        <div style="background:linear-gradient(120deg,#0f2a1a 0%,#26215C 100%);border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;">
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px;">Total earnings — March 2026</div>
+          <div style="font-size:36px;font-weight:500;color:#fff;line-height:1;">₦485,000</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);margin-top:6px;">Across 3 gigs + 1 sessional shift</div>
+          <div style="display:inline-flex;align-items:center;gap:6px;margin-top:1rem;background:rgba(93,202,165,.15);border:0.5px solid rgba(93,202,165,.3);border-radius:20px;padding:5px 12px;font-size:12px;color:#5DCAA5;">↑ 18% vs February</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Gig income</div><div class="stat-value" style="font-size:17px;">₦182,000</div><div class="stat-sub up">3 completed</div></div>
+          <div class="stat-card"><div class="stat-label">Sessional</div><div class="stat-value" style="font-size:17px;">₦220,000</div><div class="stat-sub up">2 shifts</div></div>
+          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="font-size:17px;">₦83,000</div><div class="stat-sub text-muted">1 gig</div></div>
+          <div class="stat-card"><div class="stat-label">YTD</div><div class="stat-value" style="font-size:17px;">₦1.24M</div><div class="stat-sub up">On track</div></div>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div id="pro-profile" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Credentials &amp; licences</div>
+            <button class="btn btn-green btn-sm">Edit profile ↗</button>
+          </div>
+          <div class="card-row"><div class="flex-1"><div class="font-medium">MDCN Registration</div><div class="text-sm text-muted">Reg. No. DS/2018/04521</div></div><span class="tag tag-gr">Verified</span></div>
+          <div class="card-row"><div class="flex-1"><div class="font-medium">BDS — University of Lagos</div><div class="text-sm text-muted">2016</div></div><span class="tag tag-gr">Verified</span></div>
+          <div class="card-row"><div class="flex-1"><div class="font-medium">NYSC Discharge Certificate</div><div class="text-sm text-muted">2017</div></div><span class="tag tag-gr">Verified</span></div>
+          <div class="card-row"><div class="flex-1"><div class="font-medium">Professional indemnity</div><div class="text-sm text-muted">Not yet uploaded</div></div><button class="btn btn-sm" style="border:0.5px solid #d8ecd0;background:#fff;color:#3B6D11;">Upload ↗</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -982,76 +982,54 @@ tr:last-child td { border-bottom: none; }
       <!-- Overview -->
       <div id="pd-overview" class="tab-panel active">
         <div class="dash-hero">
-          <div class="dash-hero-label">Good morning</div>
-          <div class="dash-hero-name">Jane Smith</div>
-          <div class="dash-hero-sub">Next check-up in 4 days · SmileCare Clinic, Lagos</div>
-          <div class="dash-hero-pill">Profile 92% complete</div>
+          <div class="dash-hero-label">Welcome to DentalFlow HQ</div>
+          <div class="dash-hero-name" id="pd-hero-name">Your Name</div>
+          <div class="dash-hero-sub">Your dental care journey starts here.</div>
         </div>
         <div class="stat-grid">
           <div class="stat-card">
             <div class="stat-label">Next appointment</div>
-            <div class="stat-value" style="font-size:16px;">Mon 17 Mar</div>
-            <div class="stat-sub text-muted">SmileCare · 9:00am</div>
-            <span class="tag tag-pu mt1" style="display:inline-block;">Check-up</span>
+            <div class="stat-value text-muted" style="font-size:14px;">No appointments yet</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Profile completeness</div>
-            <div class="stat-value">92%</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:92%;background:#534AB7;"></div></div>
+            <div class="stat-value">0%</div>
+            <div class="stat-bar"><div class="stat-bar-fill" style="width:0%;background:#534AB7;"></div></div>
+            <div class="stat-sub text-muted mt1">Complete your profile to get started</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Last visit</div>
-            <div class="stat-value" style="font-size:16px;">Oct 2024</div>
-            <div class="stat-sub text-muted">Hygiene clean</div>
+            <div class="stat-value text-muted" style="font-size:14px;">No visits recorded</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Active clinics</div>
-            <div class="stat-value">2</div>
-            <div class="stat-sub up">Lagos &amp; Abuja</div>
+            <div class="stat-value">0</div>
+            <div class="stat-sub text-muted">Find a clinic to get started</div>
           </div>
         </div>
         <div class="two-col">
           <div class="card">
             <div class="card-header">
               <div class="card-title">Upcoming appointments</div>
-              <span class="card-link">+ Book new</span>
             </div>
-            <div class="card-row">
-              <div style="width:38px;height:38px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
-                <div style="font-size:14px;font-weight:500;color:#534AB7;line-height:1;">17</div>
-                <div style="font-size:9px;color:#7F77DD;">MAR</div>
-              </div>
-              <div class="flex-1">
-                <div class="font-medium">Routine check-up</div>
-                <div class="text-sm text-muted">SmileCare Clinic, Lagos</div>
-              </div>
-              <span class="tag tag-pu">Confirmed</span>
-            </div>
-            <div class="card-row">
-              <div style="width:38px;height:38px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;">
-                <div style="font-size:14px;font-weight:500;color:#3B6D11;line-height:1;">4</div>
-                <div style="font-size:9px;color:#639922;">APR</div>
-              </div>
-              <div class="flex-1">
-                <div class="font-medium">Hygiene clean</div>
-                <div class="text-sm text-muted">BrightSmile Dental, Abuja</div>
-              </div>
-              <span class="tag tag-gr">Requested</span>
+            <div style="padding:2rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments yet.</div>
+              <button class="btn btn-purple btn-sm">Find a clinic</button>
             </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Care guides for you</div></div>
-            <div class="card-row" style="cursor:pointer;">
-              <div class="flex-1"><div class="font-medium">Before your check-up</div><div class="text-sm text-muted">What to do before your visit</div></div>
-              <span style="font-size:12px;color:#534AB7;">↗</span>
+            <div class="card-header"><div class="card-title">Getting started</div></div>
+            <div class="card-row">
+              <div class="flex-1"><div class="font-medium">1. Complete your health profile</div><div class="text-sm text-muted">Takes about 3 minutes</div></div>
+              <span style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="setTab('pd-profile', document.querySelector('[onclick*=pd-profile]'))">→</span>
             </div>
-            <div class="card-row" style="cursor:pointer;">
-              <div class="flex-1"><div class="font-medium">Managing dental anxiety</div><div class="text-sm text-muted">Practical tips for anxious patients</div></div>
-              <span style="font-size:12px;color:#534AB7;">↗</span>
+            <div class="card-row">
+              <div class="flex-1"><div class="font-medium">2. Find a clinic near you</div><div class="text-sm text-muted">Search by location</div></div>
+              <span style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="setTab('pd-clinics', document.querySelector('[onclick*=pd-clinics]'))">→</span>
             </div>
-            <div class="card-row" style="cursor:pointer;">
-              <div class="flex-1"><div class="font-medium">After your hygiene clean</div><div class="text-sm text-muted">Post-clean care tips</div></div>
-              <span style="font-size:12px;color:#534AB7;">↗</span>
+            <div class="card-row">
+              <div class="flex-1"><div class="font-medium">3. Book your first appointment</div><div class="text-sm text-muted">Available 24/7</div></div>
+              <span style="font-size:12px;color:#534AB7;">→</span>
             </div>
           </div>
         </div>
@@ -1059,27 +1037,28 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Appointments -->
       <div id="pd-appts" class="tab-panel">
-        <div class="table-wrap">
+        <div class="card">
           <div class="card-header">
             <div class="card-title">All appointments</div>
-            <button class="btn btn-purple btn-sm">+ Book new</button>
           </div>
-          <table>
-            <tr><th>Date</th><th>Treatment</th><th>Clinic</th><th>Status</th></tr>
-            <tr><td>17 Mar 2026</td><td>Check-up</td><td>SmileCare, Lagos</td><td><span class="tag tag-pu">Confirmed</span></td></tr>
-            <tr><td>4 Apr 2026</td><td>Hygiene clean</td><td>BrightSmile, Abuja</td><td><span class="tag tag-gr">Requested</span></td></tr>
-            <tr><td>Oct 2024</td><td>Hygiene clean</td><td>SmileCare, Lagos</td><td><span class="tag tag-neu">Completed</span></td></tr>
-          </table>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments yet. Find a clinic to book your first one.</div>
+            <button class="btn btn-purple btn-sm">Find a clinic</button>
+          </div>
         </div>
       </div>
 
       <!-- Profile -->
       <div id="pd-profile" class="tab-panel">
         <div class="card">
-          <div class="card-header"><div class="card-title">Health profile</div><button class="btn btn-sm" style="border:0.5px solid #e0daf5;background:#fff;color:#534AB7;">Edit</button></div>
-          <div class="card-row"><div class="flex-1">Dental anxiety</div><span class="tag tag-red">Dental phobia</span></div>
-          <div class="card-row"><div class="flex-1">Allergies</div><span class="tag tag-neu">None known</span></div>
-          <div class="card-row"><div class="flex-1">Medications</div><span class="tag tag-neu">None</span></div>
+          <div class="card-header">
+            <div class="card-title">Health profile</div>
+            <span class="tag tag-neu">Not yet completed</span>
+          </div>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">Complete your health profile so clinics can prepare for your visit.</div>
+            <button class="btn btn-purple btn-sm">Complete profile — coming soon</button>
+          </div>
         </div>
       </div>
 
@@ -1173,7 +1152,7 @@ tr:last-child td { border-bottom: none; }
         <svg width="28" height="28"><use href="#dfhq-logo"/></svg>
         <div>
           <div class="sidebar-top-name">DENTAL FLOW HQ</div>
-          <div class="sidebar-top-tag">SmileCare Clinic</div>
+          <div class="sidebar-top-tag" id="cd-sidebar-tag">Your Clinic</div>
         </div>
       </div>
       <nav class="sidebar-nav">
@@ -1222,79 +1201,53 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Overview -->
       <div id="cd-overview" class="tab-panel active">
+        <div class="dash-hero">
+          <div class="dash-hero-label">Welcome to DentalFlow HQ</div>
+          <div class="dash-hero-name" id="cd-hero-name">Your Clinic</div>
+          <div class="dash-hero-sub">Start by setting up your clinic profile.</div>
+        </div>
         <div class="stat-grid">
-          <div class="stat-card"><div class="stat-label">Today's appointments</div><div class="stat-value">8</div><div class="stat-sub up">4 done · 4 remaining</div><div class="stat-bar"><div class="stat-bar-fill" style="width:50%;background:#185FA5;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value">124</div><div class="stat-sub up">↑ 6 new this month</div><div class="stat-bar"><div class="stat-bar-fill" style="width:72%;background:#3B6D11;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Open slots today</div><div class="stat-value">4</div><div class="stat-sub text-muted">2:00pm onwards</div><div class="stat-bar"><div class="stat-bar-fill" style="width:33%;background:#534AB7;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;">₦2.8M</div><div class="stat-sub up">↑ 12% vs last month</div><div class="stat-bar"><div class="stat-bar-fill" style="width:68%;background:#5DCAA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Today's appointments</div><div class="stat-value text-muted" style="font-size:14px;">None booked</div></div>
+          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value">0</div><div class="stat-sub text-muted">No patients yet</div></div>
+          <div class="stat-card"><div class="stat-label">Open slots today</div><div class="stat-value text-muted" style="font-size:14px;">Set up schedule</div></div>
+          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value text-muted" style="font-size:14px;">₦0</div></div>
         </div>
         <div class="two-col">
-          <div class="table-wrap" style="margin-bottom:0;">
-            <div class="card-header"><div class="card-title">Today's schedule</div><span class="tag tag-bl">Fri 14 Mar</span></div>
-            <table>
-              <tr><th style="width:65px;">Time</th><th>Patient</th><th>Treatment</th><th style="width:80px;">Status</th></tr>
-              <tr><td class="text-muted">9:00am</td><td>Sarah M.</td><td>Check-up</td><td><span class="tag tag-gr">Done</span></td></tr>
-              <tr><td class="text-muted">10:00am</td><td>James K.</td><td>Whitening</td><td><span class="tag tag-gr">Done</span></td></tr>
-              <tr><td class="text-muted">2:00pm</td><td>Mei L.</td><td>Implant consult</td><td><span class="tag tag-bl">Next up</span></td></tr>
-              <tr><td class="text-muted">3:00pm</td><td>David R.</td><td>Hygiene</td><td><span class="tag tag-neu">Upcoming</span></td></tr>
-              <tr><td class="text-muted">4:00pm</td><td style="color:#B4B2A9;">— open —</td><td></td><td><span class="tag tag-neu">Free</span></td></tr>
-            </table>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Today's schedule</div></div>
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments scheduled for today.</div>
+            </div>
           </div>
-          <div>
-            <div class="card" style="margin-bottom:12px;">
-              <div class="card-header"><div class="card-title">Flags &amp; alerts</div></div>
-              <div class="card-row"><div class="flex-1 text-sm">Jane S. — <strong>dental phobia</strong></div><span class="tag tag-red">Mon 17</span></div>
-              <div class="card-row"><div class="flex-1 text-sm">Tom B. — <strong>blood thinners</strong></div><span class="tag tag-red">Today</span></div>
-              <div class="card-row"><div class="flex-1 text-sm">3 incomplete profiles</div><span class="tag tag-neu">Review</span></div>
-            </div>
-            <div class="table-wrap" style="margin-bottom:0;">
-              <div class="card-header"><div class="card-title">This week</div></div>
-              <table>
-                <tr><th>Day</th><th>Bookings</th><th>Slots</th></tr>
-                <tr><td>Mon 17</td><td>6</td><td><span class="tag tag-gr">2 free</span></td></tr>
-                <tr><td>Tue 18</td><td>8</td><td><span class="tag tag-red">Full</span></td></tr>
-                <tr><td>Wed 19</td><td>4</td><td><span class="tag tag-gr">4 free</span></td></tr>
-              </table>
-            </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Getting started</div></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your clinic profile</div><div class="text-sm text-muted">Add address, hours, and services</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">2. Add your staff</div><div class="text-sm text-muted">Invite dentists and hygienists</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">3. Post a vacancy</div><div class="text-sm text-muted">Attract MDCN/DTHRBN professionals</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
           </div>
         </div>
       </div>
 
       <!-- Schedule -->
       <div id="cd-schedule" class="tab-panel">
-        <div class="table-wrap">
-          <div class="card-header"><div class="card-title">Weekly schedule — w/c 17 Mar 2026</div></div>
-          <table>
-            <tr><th style="width:70px;">Time</th><th>Mon 17</th><th>Tue 18</th><th>Wed 19</th></tr>
-            <tr>
-              <td class="text-muted">9:00am</td>
-              <td><span style="background:#EEEDFE;color:#534AB7;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Jane S. — check-up</span></td>
-              <td><span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Oliver T. — filling</span></td>
-              <td><span style="background:#E6F1FB;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Amara K. — whitening</span></td>
-            </tr>
-            <tr>
-              <td class="text-muted">10:30am</td>
-              <td><span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Ravi M. — hygiene</span></td>
-              <td><span style="background:#EEEDFE;color:#534AB7;font-size:11px;padding:3px 8px;border-radius:6px;display:inline-block;">Lucy P. — braces</span></td>
-              <td style="color:#B4B2A9;font-size:11px;">— free —</td>
-            </tr>
-          </table>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Weekly schedule</div></div>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;">No schedule set up yet. This will show your weekly bookings once patients start booking.</div>
+          </div>
         </div>
       </div>
 
       <!-- Patients -->
       <div id="cd-patients" class="tab-panel">
-        <div class="table-wrap">
+        <div class="card">
           <div class="card-header">
             <div class="card-title">Patient records</div>
             <input style="padding:6px 12px;border:0.5px solid #e0daf5;border-radius:8px;font-size:12px;outline:none;width:180px;" placeholder="Search patients..." />
           </div>
-          <table>
-            <tr><th>Name</th><th>Age</th><th>Last visit</th><th>Flags</th><th>Status</th></tr>
-            <tr><td><strong>Jane Smith</strong></td><td>34</td><td>Oct 2024</td><td><span class="tag tag-red">Dental phobia</span></td><td><span class="tag tag-pu">Active</span></td></tr>
-            <tr><td><strong>Tom Barnes</strong></td><td>52</td><td>Jan 2025</td><td><span class="tag tag-red">Blood thinners</span></td><td><span class="tag tag-bl">Today</span></td></tr>
-            <tr><td><strong>Mei Liu</strong></td><td>45</td><td>Dec 2024</td><td><span class="tag tag-red">Diabetic</span></td><td><span class="tag tag-bl">Today</span></td></tr>
-          </table>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;">No patients registered yet. Patients will appear here once they book with your clinic.</div>
+          </div>
         </div>
       </div>
 
@@ -1303,15 +1256,8 @@ tr:last-child td { border-bottom: none; }
         <div class="two-col">
           <div class="card" style="margin-bottom:0;">
             <div class="card-header"><div class="card-title">Active staff</div></div>
-            <div class="card-row">
-              <div style="width:36px;height:36px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#185FA5;flex-shrink:0;">AP</div>
-              <div class="flex-1"><div class="font-medium">Dr. Aisha Patel</div><div class="text-sm text-muted">Principal Dentist · On duty</div></div>
-              <span class="tag tag-gr">5 today</span>
-            </div>
-            <div class="card-row">
-              <div style="width:36px;height:36px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#534AB7;flex-shrink:0;">JM</div>
-              <div class="flex-1"><div class="font-medium">James Morgan</div><div class="text-sm text-muted">Hygienist · On duty</div></div>
-              <span class="tag tag-gr">3 today</span>
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;">No staff added yet.</div>
             </div>
           </div>
           <div class="card" style="margin-bottom:0;">
@@ -1319,8 +1265,9 @@ tr:last-child td { border-bottom: none; }
               <div class="card-title">Open vacancies</div>
               <button class="btn btn-blue btn-sm">+ Post role</button>
             </div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Dental Hygienist</div><div class="text-sm text-muted">DTHRBN required</div></div><span class="tag tag-pu">4 applicants</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Associate Dentist</div><div class="text-sm text-muted">MDCN required</div></div><span class="tag tag-bl">11 applicants</span></div>
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;">No vacancies posted yet.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1328,10 +1275,15 @@ tr:last-child td { border-bottom: none; }
       <!-- Revenue -->
       <div id="cd-revenue" class="tab-panel">
         <div class="stat-grid">
-          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;">₦2.8M</div><div class="stat-sub up">↑ 12% vs Feb</div></div>
-          <div class="stat-card"><div class="stat-label">Avg per patient</div><div class="stat-value" style="font-size:17px;">₦22,500</div></div>
-          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:17px;">₦115,000</div><div class="stat-sub dn">3 invoices</div></div>
-          <div class="stat-card"><div class="stat-label">Projected (Mar)</div><div class="stat-value" style="font-size:17px;">₦3.1M</div><div class="stat-sub up">On track</div></div>
+          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
+          <div class="stat-card"><div class="stat-label">Avg per patient</div><div class="stat-value text-muted" style="font-size:14px;">No data yet</div></div>
+          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
+          <div class="stat-card"><div class="stat-label">Projected (this month)</div><div class="stat-value text-muted" style="font-size:14px;">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;">Revenue data will appear here once you start receiving bookings.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1472,71 +1424,39 @@ tr:last-child td { border-bottom: none; }
       <!-- Overview -->
       <div id="pro-overview" class="tab-panel active">
         <div class="dash-hero">
-          <div class="dash-hero-label">Good morning</div>
-          <div class="dash-hero-name">Dr. Kwame Osei</div>
-          <div class="dash-hero-sub">Dental Surgeon · MDCN Reg. No. DS/2018/04521 · Lagos</div>
-          <div style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;">
-            <div class="dash-hero-pill">MDCN licence active</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.7);">3 gigs this month</div>
-            <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.7);">4 applications pending</div>
-          </div>
+          <div class="dash-hero-label">Welcome to DentalFlow HQ</div>
+          <div class="dash-hero-name" id="pro-hero-name">Your Name</div>
+          <div class="dash-hero-sub" id="pro-hero-sub">Complete your profile to start finding work.</div>
         </div>
         <div class="stat-grid">
-          <div class="stat-card"><div class="stat-label">Earnings this month</div><div class="stat-value" style="font-size:17px;">₦485,000</div><div class="stat-sub up">↑ 18%</div><div class="stat-bar"><div class="stat-bar-fill" style="width:65%;background:#3B6D11;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Applications</div><div class="stat-value">4</div><div class="stat-sub text-muted">1 offer received</div><div class="stat-bar"><div class="stat-bar-fill" style="width:50%;background:#534AB7;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Gigs completed</div><div class="stat-value">3</div><div class="stat-sub up">This month</div><div class="stat-bar"><div class="stat-bar-fill" style="width:40%;background:#5DCAA5;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Profile views</div><div class="stat-value">28</div><div class="stat-sub up">↑ 9 this week</div><div class="stat-bar"><div class="stat-bar-fill" style="width:75%;background:#378ADD;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Earnings this month</div><div class="stat-value" style="font-size:17px;">₦0</div><div class="stat-sub text-muted">No gigs yet</div></div>
+          <div class="stat-card"><div class="stat-label">Applications</div><div class="stat-value">0</div><div class="stat-sub text-muted">None submitted yet</div></div>
+          <div class="stat-card"><div class="stat-label">Gigs completed</div><div class="stat-value">0</div><div class="stat-sub text-muted">This month</div></div>
+          <div class="stat-card"><div class="stat-label">Profile views</div><div class="stat-value">0</div><div class="stat-sub text-muted">Complete profile first</div></div>
         </div>
         <div class="two-col">
           <div class="card">
             <div class="card-header"><div class="card-title">Upcoming gigs</div></div>
-            <div class="card-row">
-              <div style="width:40px;height:40px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#3B6D11;line-height:1;">17</div><div style="font-size:9px;color:#639922;">MAR</div></div>
-              <div class="flex-1"><div class="font-medium">Home visit — check-up</div><div class="text-sm text-muted">Lekki Phase 1 · 10:00am</div></div>
-              <div style="font-size:13px;font-weight:500;color:#3B6D11;">₦42,000</div>
-            </div>
-            <div class="card-row">
-              <div style="width:40px;height:40px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#534AB7;line-height:1;">19</div><div style="font-size:9px;color:#7F77DD;">MAR</div></div>
-              <div class="flex-1"><div class="font-medium">Sessional — SmileCare Abuja</div><div class="text-sm text-muted">9:00am–1:00pm</div></div>
-              <div style="font-size:13px;font-weight:500;color:#534AB7;">₦110,000</div>
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No upcoming gigs. Browse job listings to get started.</div>
+              <button class="btn btn-green btn-sm">Browse jobs</button>
             </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Applications</div></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Associate Dentist</div><div class="text-sm text-muted">BrightSmile Dental, Lagos</div></div><span class="tag tag-gr">Offer received</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Dental Officer</div><div class="text-sm text-muted">Reddington Hospital</div></div><span class="tag tag-bl">In review</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Principal Dentist</div><div class="text-sm text-muted">Eko Dental Clinic</div></div><span class="tag tag-bl">In review</span></div>
+            <div class="card-header"><div class="card-title">Getting started</div></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your profile</div><div class="text-sm text-muted">Add your credentials & licence number</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">2. Browse job listings</div><div class="text-sm text-muted">Full-time, sessional & gigs</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">3. Set your availability</div><div class="text-sm text-muted">For gigs and home visits</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
           </div>
         </div>
       </div>
 
       <!-- Jobs -->
       <div id="pro-jobs" class="tab-panel">
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-          <div style="background:#fff;border:1.5px solid #3B6D11;border-radius:12px;padding:1.25rem;">
-            <div style="font-size:10px;background:#EAF3DE;color:#3B6D11;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;">Best match</div>
-            <div class="font-medium">BrightSmile Dental</div>
-            <div class="text-sm text-muted mt1">Associate Dentist · Full-time · Victoria Island, Lagos</div>
-            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">MDCN required · ₦600,000–₦900,000/mo</div>
-            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
-          </div>
-          <div style="background:#fff;border:0.5px solid #d8ecd0;border-radius:12px;padding:1.25rem;">
-            <div class="font-medium">Reddington Hospital</div>
-            <div class="text-sm text-muted mt1">Dental Officer · Sessional · Port Harcourt</div>
-            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">MDCN required · ₦180,000–₦250,000/wk</div>
-            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
-          </div>
-          <div style="background:#fff;border:0.5px solid #d8ecd0;border-radius:12px;padding:1.25rem;">
-            <div class="font-medium">Home Visit Network</div>
-            <div class="text-sm text-muted mt1">Dental Therapist · Gig · Lagos</div>
-            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">DTHRBN required · ₦25,000–₦45,000/visit</div>
-            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
-          </div>
-          <div style="background:#fff;border:0.5px solid #d8ecd0;border-radius:12px;padding:1.25rem;">
-            <div class="font-medium">OrthoLab Nigeria</div>
-            <div class="text-sm text-muted mt1">Dental Technologist · Full-time · Ikeja</div>
-            <div class="text-sm" style="color:#5F5E5A;margin-top:.75rem;">DTRBN required · ₦150,000–₦200,000/mo</div>
-            <button class="btn btn-sm" style="margin-top:1rem;background:#EAF3DE;color:#3B6D11;border:none;">Apply ↗</button>
+        <div class="card">
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">Job listings are coming soon. Complete your profile to be matched with relevant roles.</div>
+            <button class="btn btn-green btn-sm">Complete my profile</button>
           </div>
         </div>
       </div>
@@ -1548,15 +1468,8 @@ tr:last-child td { border-bottom: none; }
             <div class="card-title">Upcoming gigs &amp; sessions</div>
             <button class="btn btn-green btn-sm">+ Add availability</button>
           </div>
-          <div class="card-row">
-            <div style="width:40px;height:40px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#3B6D11;line-height:1;">17</div><div style="font-size:9px;color:#639922;">MAR</div></div>
-            <div class="flex-1"><div class="font-medium">Home visit — check-up · Mrs. Adaeze O.</div><div class="text-sm text-muted">Lekki Phase 1 · 10:00–11:00am</div></div>
-            <div style="text-align:right;"><div style="font-size:13px;font-weight:500;color:#3B6D11;">₦42,000</div><span class="tag tag-gr mt1" style="display:inline-block;">Confirmed</span></div>
-          </div>
-          <div class="card-row">
-            <div style="width:40px;height:40px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;"><div style="font-size:14px;font-weight:500;color:#534AB7;line-height:1;">19</div><div style="font-size:9px;color:#7F77DD;">MAR</div></div>
-            <div class="flex-1"><div class="font-medium">Sessional — SmileCare Abuja · 6 patients</div><div class="text-sm text-muted">9:00am–1:00pm</div></div>
-            <div style="text-align:right;"><div style="font-size:13px;font-weight:500;color:#534AB7;">₦110,000</div><span class="tag tag-pu mt1" style="display:inline-block;">Confirmed</span></div>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;">No gigs booked yet. Add your availability to start receiving gig requests.</div>
           </div>
         </div>
       </div>
@@ -1564,16 +1477,15 @@ tr:last-child td { border-bottom: none; }
       <!-- Earnings -->
       <div id="pro-earn" class="tab-panel">
         <div style="background:linear-gradient(120deg,#0f2a1a 0%,#26215C 100%);border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;">
-          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px;">Total earnings — March 2026</div>
-          <div style="font-size:36px;font-weight:500;color:#fff;line-height:1;">₦485,000</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.6);margin-top:6px;">Across 3 gigs + 1 sessional shift</div>
-          <div style="display:inline-flex;align-items:center;gap:6px;margin-top:1rem;background:rgba(93,202,165,.15);border:0.5px solid rgba(93,202,165,.3);border-radius:20px;padding:5px 12px;font-size:12px;color:#5DCAA5;">↑ 18% vs February</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px;">Total earnings — this month</div>
+          <div style="font-size:36px;font-weight:500;color:#fff;line-height:1;">₦0</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:6px;">Complete gigs to start earning</div>
         </div>
         <div class="stat-grid">
-          <div class="stat-card"><div class="stat-label">Gig income</div><div class="stat-value" style="font-size:17px;">₦182,000</div><div class="stat-sub up">3 completed</div></div>
-          <div class="stat-card"><div class="stat-label">Sessional</div><div class="stat-value" style="font-size:17px;">₦220,000</div><div class="stat-sub up">2 shifts</div></div>
-          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="font-size:17px;">₦83,000</div><div class="stat-sub text-muted">1 gig</div></div>
-          <div class="stat-card"><div class="stat-label">YTD</div><div class="stat-value" style="font-size:17px;">₦1.24M</div><div class="stat-sub up">On track</div></div>
+          <div class="stat-card"><div class="stat-label">Gig income</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
+          <div class="stat-card"><div class="stat-label">Sessional</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
+          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
+          <div class="stat-card"><div class="stat-label">YTD</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
         </div>
       </div>
 
@@ -1582,12 +1494,11 @@ tr:last-child td { border-bottom: none; }
         <div class="card">
           <div class="card-header">
             <div class="card-title">Credentials &amp; licences</div>
-            <button class="btn btn-green btn-sm">Edit profile ↗</button>
+            <button class="btn btn-green btn-sm">Complete profile — coming soon</button>
           </div>
-          <div class="card-row"><div class="flex-1"><div class="font-medium">MDCN Registration</div><div class="text-sm text-muted">Reg. No. DS/2018/04521</div></div><span class="tag tag-gr">Verified</span></div>
-          <div class="card-row"><div class="flex-1"><div class="font-medium">BDS — University of Lagos</div><div class="text-sm text-muted">2016</div></div><span class="tag tag-gr">Verified</span></div>
-          <div class="card-row"><div class="flex-1"><div class="font-medium">NYSC Discharge Certificate</div><div class="text-sm text-muted">2017</div></div><span class="tag tag-gr">Verified</span></div>
-          <div class="card-row"><div class="flex-1"><div class="font-medium">Professional indemnity</div><div class="text-sm text-muted">Not yet uploaded</div></div><button class="btn btn-sm" style="border:0.5px solid #d8ecd0;background:#fff;color:#3B6D11;">Upload ↗</button></div>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;">Add your registration number, qualifications and work preferences. Clinics use this to find and verify you.</div>
+          </div>
         </div>
       </div>
 
@@ -1679,8 +1590,10 @@ function showSuccess(id)     { const el=document.getElementById(id); if(el)el.st
 
 // ── Update dashboard with real user name ───────────────────
 function updateDashName(dashId, name) {
-  const hero = document.querySelector(`#${dashId} .dash-hero-name`);
-  if (hero && name) hero.textContent = name;
+  // target the specific hero name IDs to avoid conflicts
+  const idMap = { 's-patient-dash': 'pd-hero-name', 's-clinic-dash': 'cd-hero-name', 's-pro-dash': 'pro-hero-name' };
+  const heroEl = document.getElementById(idMap[dashId]);
+  if (heroEl && name) heroEl.textContent = name;
   const av = document.querySelector(`#${dashId} .topbar-avatar`);
   if (av && name) {
     const parts = name.trim().split(' ');
@@ -1738,8 +1651,10 @@ async function clinicSignIn() {
   if (error) { showError('clinic-signin-error', error.message); return; }
   currentUser = data.user;
   const name = data.user.user_metadata?.clinic_name || email;
-  const tag = document.querySelector('#s-clinic-dash .sidebar-top-tag');
+  const tag = document.getElementById('cd-sidebar-tag');
   if (tag) tag.textContent = name;
+  const heroName = document.getElementById('cd-hero-name');
+  if (heroName) heroName.textContent = name;
   go('s-clinic-dash');
 }
 async function clinicRegister() {

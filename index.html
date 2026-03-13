@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="DentalFlow HQ — Patients Trusted Dental Partners. Dental care ecosystem for Nigeria and Africa." />
   <title>DentalFlow HQ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
 /* ============================================================
    DentalFlow HQ — Global Styles
@@ -889,21 +890,34 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
     <div class="split-form">
-      <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Welcome back</div>
-      <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Sign in to your patient account</div>
-      <label class="f-label" style="color:#534AB7;">Email address</label>
-      <input class="f-input f-input-purple" type="email" placeholder="you@example.com" />
-      <label class="f-label" style="color:#534AB7;">Password</label>
-      <input class="f-input f-input-purple" type="password" placeholder="••••••••" />
-      <div style="text-align:right;margin-top:-0.5rem;margin-bottom:1rem;">
-        <a style="font-size:12px;color:#7F77DD;cursor:pointer;">Forgot password?</a>
+      <!-- Sign in view -->
+      <div id="patient-signin-view">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Welcome back</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Sign in to your patient account</div>
+        <label class="f-label" style="color:#534AB7;">Email address</label>
+        <input id="patient-signin-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
+        <label class="f-label" style="color:#534AB7;">Password</label>
+        <input id="patient-signin-password" class="f-input f-input-purple" type="password" placeholder="••••••••" />
+        <div id="patient-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <button class="f-btn" style="background:#534AB7;" onclick="patientSignIn()">Sign in</button>
+        <div class="f-link">New to DentalFlow? <a style="color:#534AB7;cursor:pointer;" onclick="togglePatientView('register')">Create account</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
-      <button class="f-btn" style="background:#534AB7;" onclick="go('s-patient-dash')">Sign in</button>
-      <div class="f-link">
-        New to DentalFlow? <a style="color:#534AB7;" onclick="go('s-patient-dash')">Create account</a>
-      </div>
-      <div class="text-center mt2">
-        <a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a>
+      <!-- Register view -->
+      <div id="patient-register-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Create account</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Join DentalFlow HQ as a patient</div>
+        <label class="f-label" style="color:#534AB7;">Full name</label>
+        <input id="patient-reg-name" class="f-input f-input-purple" type="text" placeholder="Your full name" />
+        <label class="f-label" style="color:#534AB7;">Email address</label>
+        <input id="patient-reg-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
+        <label class="f-label" style="color:#534AB7;">Password</label>
+        <input id="patient-reg-password" class="f-input f-input-purple" type="password" placeholder="Min. 6 characters" />
+        <div id="patient-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="patient-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Account created! Check your email to confirm, then sign in.</div>
+        <button class="f-btn" style="background:#534AB7;" onclick="patientRegister()">Create account</button>
+        <div class="f-link">Already have an account? <a style="color:#534AB7;cursor:pointer;" onclick="togglePatientView('signin')">Sign in</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
     </div>
   </div>
@@ -1115,21 +1129,34 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
     <div class="split-form">
-      <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Clinic sign in</div>
-      <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Access your clinic dashboard</div>
-      <label class="f-label" style="color:#185FA5;">Email address</label>
-      <input class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
-      <label class="f-label" style="color:#185FA5;">Password</label>
-      <input class="f-input f-input-blue" type="password" placeholder="••••••••" />
-      <div style="text-align:right;margin-top:-0.5rem;margin-bottom:1rem;">
-        <a style="font-size:12px;color:#378ADD;cursor:pointer;">Forgot password?</a>
+      <!-- Sign in view -->
+      <div id="clinic-signin-view">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Clinic sign in</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Access your clinic dashboard</div>
+        <label class="f-label" style="color:#185FA5;">Email address</label>
+        <input id="clinic-signin-email" class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
+        <label class="f-label" style="color:#185FA5;">Password</label>
+        <input id="clinic-signin-password" class="f-input f-input-blue" type="password" placeholder="••••••••" />
+        <div id="clinic-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <button class="f-btn" style="background:#185FA5;" onclick="clinicSignIn()">Sign in</button>
+        <div class="f-link">New clinic? <a style="color:#185FA5;cursor:pointer;" onclick="toggleClinicView('register')">Register your clinic</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
-      <button class="f-btn" style="background:#185FA5;" onclick="go('s-clinic-dash')">Sign in</button>
-      <div class="f-link">
-        New clinic? <a style="color:#185FA5;" onclick="go('s-clinic-dash')">Register your clinic</a>
-      </div>
-      <div class="text-center mt2">
-        <a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a>
+      <!-- Register view -->
+      <div id="clinic-register-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Register your clinic</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Join DentalFlow HQ as a clinic</div>
+        <label class="f-label" style="color:#185FA5;">Clinic name</label>
+        <input id="clinic-reg-name" class="f-input f-input-blue" type="text" placeholder="e.g. SmileCare Dental Clinic" />
+        <label class="f-label" style="color:#185FA5;">Email address</label>
+        <input id="clinic-reg-email" class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
+        <label class="f-label" style="color:#185FA5;">Password</label>
+        <input id="clinic-reg-password" class="f-input f-input-blue" type="password" placeholder="Min. 6 characters" />
+        <div id="clinic-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="clinic-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Clinic registered! Check your email to confirm, then sign in.</div>
+        <button class="f-btn" style="background:#185FA5;" onclick="clinicRegister()">Register clinic</button>
+        <div class="f-link">Already registered? <a style="color:#185FA5;cursor:pointer;" onclick="toggleClinicView('signin')">Sign in</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
     </div>
   </div>
@@ -1342,27 +1369,41 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
     <div class="split-form">
-      <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Professional sign in</div>
-      <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Access your jobs, gigs, and earnings</div>
-      <div style="font-size:12px;color:#3B6D11;font-weight:500;margin-bottom:8px;">I am a...</div>
-      <div class="prof-chips">
-        <div class="prof-chip active" onclick="selectProfType(this,'MDCN')">Dental Surgeon</div>
-        <div class="prof-chip" onclick="selectProfType(this,'DTHRBN')">Therapist / Hygienist</div>
-        <div class="prof-chip" onclick="selectProfType(this,'DTRBN')">Dental Technologist</div>
+      <!-- Sign in view -->
+      <div id="pro-signin-view">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Professional sign in</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Access your jobs, gigs, and earnings</div>
+        <label class="f-label" style="color:#3B6D11;">Email address</label>
+        <input id="pro-signin-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
+        <label class="f-label" style="color:#3B6D11;">Password</label>
+        <input id="pro-signin-password" class="f-input f-input-green" type="password" placeholder="••••••••" />
+        <div id="pro-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <button class="f-btn" style="background:#3B6D11;" onclick="proSignIn()">Sign in</button>
+        <div class="f-link">New professional? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('register')">Create profile</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
-      <div id="reg-hint" class="reg-hint">
-        Regulated by the <strong>Medical and Dental Council of Nigeria (MDCN)</strong>
-      </div>
-      <label class="f-label" style="color:#3B6D11;">Email address</label>
-      <input class="f-input f-input-green" type="email" placeholder="you@example.com" />
-      <label class="f-label" style="color:#3B6D11;">Password</label>
-      <input class="f-input f-input-green" type="password" placeholder="••••••••" />
-      <button class="f-btn" style="background:#3B6D11;" onclick="go('s-pro-dash')">Sign in</button>
-      <div class="f-link">
-        New professional? <a style="color:#3B6D11;" onclick="go('s-pro-dash')">Create profile</a>
-      </div>
-      <div class="text-center mt2">
-        <a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a>
+      <!-- Register view -->
+      <div id="pro-register-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Create your profile</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1rem;">Join DentalFlow HQ as a dental professional</div>
+        <label class="f-label" style="color:#3B6D11;">Full name</label>
+        <input id="pro-reg-name" class="f-input f-input-green" type="text" placeholder="e.g. Dr. Kwame Osei" />
+        <label class="f-label" style="color:#3B6D11;">Email address</label>
+        <input id="pro-reg-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
+        <label class="f-label" style="color:#3B6D11;">Password</label>
+        <input id="pro-reg-password" class="f-input f-input-green" type="password" placeholder="Min. 6 characters" />
+        <div style="font-size:12px;color:#3B6D11;font-weight:500;margin-bottom:8px;">I am a...</div>
+        <div class="prof-chips" id="pro-reg-chips">
+          <div class="prof-chip active" onclick="selectProfType(this,'MDCN')">Dental Surgeon</div>
+          <div class="prof-chip" onclick="selectProfType(this,'DTHRBN')">Therapist / Hygienist</div>
+          <div class="prof-chip" onclick="selectProfType(this,'DTRBN')">Dental Technologist</div>
+        </div>
+        <div id="reg-hint" class="reg-hint">Regulated by the <strong>Medical and Dental Council of Nigeria (MDCN)</strong></div>
+        <div id="pro-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="pro-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Profile created! Check your email to confirm, then sign in.</div>
+        <button class="f-btn" style="background:#3B6D11;" onclick="proRegister()">Create profile</button>
+        <div class="f-link">Already have an account? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('signin')">Sign in</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
     </div>
   </div>
@@ -1595,31 +1636,174 @@ function setTab(tabId, el) {
   }
 }
 
-// ── Professional type selector on login ────────────────────
+// ── Supabase init ──────────────────────────────────────────
+const SUPABASE_URL  = 'https://dqbdwsidubucpeimowwz.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmR3c2lkdWJ1Y3BlaW1vd3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjU3MDUsImV4cCI6MjA4OTAwMTcwNX0.tK1VuFxpqB-0Wj6Jb0UuURCylikAKJMfPEWJGAzat4M';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser = null;
+let selectedProfKey = 'MDCN';
+
+// ── Professional type selector ─────────────────────────────
 const REGULATOR_HINTS = {
   MDCN:   'Regulated by the <strong>Medical and Dental Council of Nigeria (MDCN)</strong>',
   DTHRBN: 'Regulated by the <strong>Dental Therapists & Hygienists Registration Board of Nigeria (DTHRBN)</strong>',
   DTRBN:  'Regulated by the <strong>Dental Technologists Registration Board of Nigeria (DTRBN)</strong>'
 };
-
 function selectProfType(el, key) {
+  selectedProfKey = key;
   document.querySelectorAll('.prof-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   const hint = document.getElementById('reg-hint');
   if (hint) hint.innerHTML = REGULATOR_HINTS[key] || '';
 }
 
-// ── Smooth scroll to section (landing page) ────────────────
-function scrollTo(selector) {
-  const el = document.querySelector(selector);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ── Toggle login/register views ────────────────────────────
+function togglePatientView(view) {
+  document.getElementById('patient-signin-view').style.display   = view === 'signin'   ? 'block' : 'none';
+  document.getElementById('patient-register-view').style.display = view === 'register' ? 'block' : 'none';
+}
+function toggleClinicView(view) {
+  document.getElementById('clinic-signin-view').style.display   = view === 'signin'   ? 'block' : 'none';
+  document.getElementById('clinic-register-view').style.display = view === 'register' ? 'block' : 'none';
+}
+function toggleProView(view) {
+  document.getElementById('pro-signin-view').style.display   = view === 'signin'   ? 'block' : 'none';
+  document.getElementById('pro-register-view').style.display = view === 'register' ? 'block' : 'none';
 }
 
-// ── Init on page load ──────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Show landing screen by default
-  const landing = document.getElementById('s-landing');
-  if (landing) landing.classList.add('active');
+// ── Error/success helpers ──────────────────────────────────
+function showError(id, msg) { const el=document.getElementById(id); if(el){el.textContent=msg;el.style.display='block';} }
+function hideError(id)       { const el=document.getElementById(id); if(el)el.style.display='none'; }
+function showSuccess(id)     { const el=document.getElementById(id); if(el)el.style.display='block'; }
+
+// ── Update dashboard with real user name ───────────────────
+function updateDashName(dashId, name) {
+  const hero = document.querySelector(`#${dashId} .dash-hero-name`);
+  if (hero && name) hero.textContent = name;
+  const av = document.querySelector(`#${dashId} .topbar-avatar`);
+  if (av && name) {
+    const parts = name.trim().split(' ');
+    av.textContent = parts.length >= 2
+      ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase()
+      : name.slice(0,2).toUpperCase();
+  }
+}
+
+// ── Sign out ───────────────────────────────────────────────
+async function signOut() {
+  await sb.auth.signOut();
+  currentUser = null;
+  go('s-landing');
+}
+document.querySelectorAll('.sidebar-bot .sidebar-item').forEach(el => {
+  el.addEventListener('click', signOut);
+});
+
+// ══════════════════════════════════════════════════════════
+// PATIENT AUTH
+// ══════════════════════════════════════════════════════════
+async function patientSignIn() {
+  hideError('patient-signin-error');
+  const email    = document.getElementById('patient-signin-email').value.trim();
+  const password = document.getElementById('patient-signin-password').value;
+  if (!email || !password) { showError('patient-signin-error','Please enter your email and password.'); return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { showError('patient-signin-error', error.message); return; }
+  currentUser = data.user;
+  updateDashName('s-patient-dash', data.user.user_metadata?.full_name || email);
+  go('s-patient-dash');
+}
+async function patientRegister() {
+  hideError('patient-reg-error');
+  const name     = document.getElementById('patient-reg-name').value.trim();
+  const email    = document.getElementById('patient-reg-email').value.trim();
+  const password = document.getElementById('patient-reg-password').value;
+  if (!name||!email||!password) { showError('patient-reg-error','Please fill in all fields.'); return; }
+  if (password.length < 6)      { showError('patient-reg-error','Password must be at least 6 characters.'); return; }
+  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient' } } });
+  if (error) { showError('patient-reg-error', error.message); return; }
+  showSuccess('patient-reg-success');
+}
+
+// ══════════════════════════════════════════════════════════
+// CLINIC AUTH
+// ══════════════════════════════════════════════════════════
+async function clinicSignIn() {
+  hideError('clinic-signin-error');
+  const email    = document.getElementById('clinic-signin-email').value.trim();
+  const password = document.getElementById('clinic-signin-password').value;
+  if (!email || !password) { showError('clinic-signin-error','Please enter your email and password.'); return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { showError('clinic-signin-error', error.message); return; }
+  currentUser = data.user;
+  const name = data.user.user_metadata?.clinic_name || email;
+  const tag = document.querySelector('#s-clinic-dash .sidebar-top-tag');
+  if (tag) tag.textContent = name;
+  go('s-clinic-dash');
+}
+async function clinicRegister() {
+  hideError('clinic-reg-error');
+  const name     = document.getElementById('clinic-reg-name').value.trim();
+  const email    = document.getElementById('clinic-reg-email').value.trim();
+  const password = document.getElementById('clinic-reg-password').value;
+  if (!name||!email||!password) { showError('clinic-reg-error','Please fill in all fields.'); return; }
+  if (password.length < 6)      { showError('clinic-reg-error','Password must be at least 6 characters.'); return; }
+  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic' } } });
+  if (error) { showError('clinic-reg-error', error.message); return; }
+  showSuccess('clinic-reg-success');
+}
+
+// ══════════════════════════════════════════════════════════
+// PROFESSIONAL AUTH
+// ══════════════════════════════════════════════════════════
+async function proSignIn() {
+  hideError('pro-signin-error');
+  const email    = document.getElementById('pro-signin-email').value.trim();
+  const password = document.getElementById('pro-signin-password').value;
+  if (!email || !password) { showError('pro-signin-error','Please enter your email and password.'); return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { showError('pro-signin-error', error.message); return; }
+  currentUser = data.user;
+  const name = data.user.user_metadata?.full_name || email;
+  const reg  = data.user.user_metadata?.regulator || 'MDCN';
+  updateDashName('s-pro-dash', name);
+  const sub = document.querySelector('#s-pro-dash .dash-hero-sub');
+  if (sub) sub.textContent = `${reg} registered professional`;
+  go('s-pro-dash');
+}
+async function proRegister() {
+  hideError('pro-reg-error');
+  const name     = document.getElementById('pro-reg-name').value.trim();
+  const email    = document.getElementById('pro-reg-email').value.trim();
+  const password = document.getElementById('pro-reg-password').value;
+  if (!name||!email||!password) { showError('pro-reg-error','Please fill in all fields.'); return; }
+  if (password.length < 6)      { showError('pro-reg-error','Password must be at least 6 characters.'); return; }
+  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey } } });
+  if (error) { showError('pro-reg-error', error.message); return; }
+  showSuccess('pro-reg-success');
+}
+
+// ── Restore session on load ────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const role = session.user.user_metadata?.role || 'patient';
+    const name = session.user.user_metadata?.full_name
+              || session.user.user_metadata?.clinic_name
+              || session.user.email;
+    if (role === 'patient') {
+      updateDashName('s-patient-dash', name); go('s-patient-dash');
+    } else if (role === 'clinic') {
+      const tag = document.querySelector('#s-clinic-dash .sidebar-top-tag');
+      if (tag) tag.textContent = name; go('s-clinic-dash');
+    } else if (role === 'professional') {
+      updateDashName('s-pro-dash', name); go('s-pro-dash');
+    }
+  } else {
+    go('s-landing');
+  }
 });
 
 </script>

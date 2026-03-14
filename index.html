@@ -1918,7 +1918,7 @@ async function patientSignIn() {
   const email    = document.getElementById('patient-signin-email').value.trim();
   const password = document.getElementById('patient-signin-password').value;
   if (!email || !password) { showError('patient-signin-error','Please enter your email and password.'); return; }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await getSb().auth.signInWithPassword({ email, password });
   if (error) { showError('patient-signin-error', error.message); return; }
   currentUser = data.user;
   updateDashName('s-patient-dash', data.user.user_metadata?.full_name || email);
@@ -1944,7 +1944,7 @@ async function clinicSignIn() {
   const email    = document.getElementById('clinic-signin-email').value.trim();
   const password = document.getElementById('clinic-signin-password').value;
   if (!email || !password) { showError('clinic-signin-error','Please enter your email and password.'); return; }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await getSb().auth.signInWithPassword({ email, password });
   if (error) { showError('clinic-signin-error', error.message); return; }
   currentUser = data.user;
   const name = data.user.user_metadata?.clinic_name || email;
@@ -1974,7 +1974,7 @@ async function proSignIn() {
   const email    = document.getElementById('pro-signin-email').value.trim();
   const password = document.getElementById('pro-signin-password').value;
   if (!email || !password) { showError('pro-signin-error','Please enter your email and password.'); return; }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await getSb().auth.signInWithPassword({ email, password });
   if (error) { showError('pro-signin-error', error.message); return; }
   currentUser = data.user;
   const name = data.user.user_metadata?.full_name || email;

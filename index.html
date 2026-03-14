@@ -1022,9 +1022,9 @@ tr:last-child td { border-bottom: none; }
           My profile
         </div>
         <div class="sidebar-label">Discover</div>
-        <div class="sidebar-item pu" data-title="Find a clinic" onclick="setTab('pd-clinics',this)">
+        <div class="sidebar-item pu" data-title="Find care" onclick="setTab('pd-clinics',this)">
           <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-          Find a clinic
+          Find care
         </div>
         <div class="sidebar-item pu" data-title="Care guides" onclick="setTab('pd-care',this)">
           <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -1043,7 +1043,7 @@ tr:last-child td { border-bottom: none; }
       <div class="topbar">
         <div class="topbar-title">Overview</div>
         <div class="topbar-right">
-          <button class="btn btn-purple btn-sm">Book appointment</button>
+          <button class="btn btn-purple btn-sm" onclick="navTo('pd-clinics')">Book appointment</button>
           <div class="topbar-avatar" style="background:#534AB7;">JS</div>
         </div>
       </div>
@@ -1088,7 +1088,7 @@ tr:last-child td { border-bottom: none; }
             <div class="card-header"><div class="card-title" id="pd-nudge-title">Getting started</div></div>
             <div id="pd-nudge-body">
               <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-profile')"><div class="flex-1"><div class="font-medium">1. Complete your health profile</div><div class="text-sm text-muted">Takes about 3 minutes</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
-              <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-clinics')"><div class="flex-1"><div class="font-medium">2. Find a clinic near you</div><div class="text-sm text-muted">Search by location</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-clinics')"><div class="flex-1"><div class="font-medium">2. Find care near you</div><div class="text-sm text-muted">Search clinics &amp; professionals</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
               <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-appts')"><div class="flex-1"><div class="font-medium">3. Book your first appointment</div><div class="text-sm text-muted">Available 24/7</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
             </div>
           </div>

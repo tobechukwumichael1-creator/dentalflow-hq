@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="DentalFlow HQ — Patients Trusted Dental Partners. Dental care ecosystem for Nigeria and Africa." />
   <title>DentalFlow HQ</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <style>
 /* ============================================================
    DentalFlow HQ — Global Styles
@@ -2029,6 +2030,7 @@ document.querySelectorAll('.sidebar-bot .sidebar-item').forEach(el => {
 // ══════════════════════════════════════════════════════════
 async function patientSignIn() {
   hideError('patient-signin-error');
+  if (!getSb()) { showError('patient-signin-error','Still connecting, please try again in a moment.'); return; }
   const email    = document.getElementById('patient-signin-email').value.trim();
   const password = document.getElementById('patient-signin-password').value;
   if (!email || !password) { showError('patient-signin-error','Please enter your email and password.'); return; }
@@ -2056,6 +2058,7 @@ async function patientRegister() {
 // ══════════════════════════════════════════════════════════
 async function clinicSignIn() {
   hideError('clinic-signin-error');
+  if (!getSb()) { showError('clinic-signin-error','Still connecting, please try again in a moment.'); return; }
   const email    = document.getElementById('clinic-signin-email').value.trim();
   const password = document.getElementById('clinic-signin-password').value;
   if (!email || !password) { showError('clinic-signin-error','Please enter your email and password.'); return; }
@@ -2087,6 +2090,7 @@ async function clinicRegister() {
 // ══════════════════════════════════════════════════════════
 async function proSignIn() {
   hideError('pro-signin-error');
+  if (!getSb()) { showError('pro-signin-error','Still connecting, please try again in a moment.'); return; }
   const email    = document.getElementById('pro-signin-email').value.trim();
   const password = document.getElementById('pro-signin-password').value;
   if (!email || !password) { showError('pro-signin-error','Please enter your email and password.'); return; }
@@ -3179,7 +3183,18 @@ function renderProOverview(meta) {
 
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  go('s-landing'); // always show landing immediately - Supabase loads separately
+  go('s-landing'); // show landing immediately
+  // Poll until Supabase SDK is ready (defer loads it async)
+  function waitForSb(tries) {
+    if (window.supabase) {
+      initApp();
+    } else if (tries > 0) {
+      setTimeout(function(){ waitForSb(tries - 1); }, 100);
+    } else {
+      console.warn('Supabase SDK did not load in time');
+    }
+  }
+  waitForSb(50); // poll every 100ms, up to 5 seconds
 });
 
 async function initApp() {
@@ -3214,6 +3229,5 @@ async function initApp() {
 }
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="initApp()" onerror="console.warn('Supabase failed to load')"></script>
 </body>
 </html>

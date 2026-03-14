@@ -2421,14 +2421,21 @@ var CARE_GUIDES = [
 function renderGuides() {
   var grid = document.getElementById('guides-grid');
   if (!grid) return;
-  grid.innerHTML = CARE_GUIDES.map(function(g) {
-    return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:14px;padding:1.25rem;cursor:pointer;transition:box-shadow .15s;" onclick="openGuide('' + g.id + '')" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">' +
-      '<div style="font-size:2rem;margin-bottom:.75rem;">' + g.emoji + '</div>' +
+  grid.innerHTML = '';
+  CARE_GUIDES.forEach(function(g) {
+    var card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border:0.5px solid #e0daf5;border-radius:14px;padding:1.25rem;cursor:pointer;transition:box-shadow .15s;';
+    card.dataset.guideId = g.id;
+    card.onmouseenter = function(){ this.style.boxShadow = '0 4px 20px rgba(0,0,0,.08)'; };
+    card.onmouseleave = function(){ this.style.boxShadow = 'none'; };
+    card.onclick = function(){ openGuide(this.dataset.guideId); };
+    card.innerHTML =
+      '<div style="font-size:1.5rem;font-weight:700;color:#534AB7;margin-bottom:.75rem;">' + g.emoji + '</div>' +
       '<div style="font-size:13px;font-weight:500;color:#26215C;margin-bottom:4px;">' + g.title + '</div>' +
       '<div style="font-size:12px;color:#888780;line-height:1.5;margin-bottom:.875rem;">' + g.summary + '</div>' +
-      '<span style="font-size:11px;font-weight:500;color:' + g.color + ';background:' + g.bg + ';padding:3px 10px;border-radius:20px;">Read guide</span>' +
-      '</div>';
-  }).join('');
+      '<span style="font-size:11px;font-weight:500;color:' + g.color + ';background:' + g.bg + ';padding:3px 10px;border-radius:20px;">Read guide</span>';
+    grid.appendChild(card);
+  });
 }
 
 function openGuide(id) {

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="DentalFlow HQ — Patients Trusted Dental Partners. Dental care ecosystem for Nigeria and Africa." />
   <title>DentalFlow HQ</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
 /* ============================================================
    DentalFlow HQ — Global Styles
@@ -1841,10 +1840,14 @@ function setTab(tabId, el) {
   }
 }
 
-// ── Supabase init ──────────────────────────────────────────
+// ── Supabase init (lazy) ───────────────────────────────────
 const SUPABASE_URL  = 'https://dqbdwsidubucpeimowwz.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmR3c2lkdWJ1Y3BlaW1vd3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjU3MDUsImV4cCI6MjA4OTAwMTcwNX0.tK1VuFxpqB-0Wj6Jb0UuURCylikAKJMfPEWJGAzat4M';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+var sb = null;
+function getSb() {
+  if (!sb && window.supabase) sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  return sb;
+}
 
 let currentUser = null;
 let selectedProfKey = 'MDCN';
@@ -1899,7 +1902,7 @@ function updateDashName(dashId, name) {
 
 // ── Sign out ───────────────────────────────────────────────
 async function signOut() {
-  await sb.auth.signOut();
+  await getSb().auth.signOut();
   currentUser = null;
   go('s-landing');
 }
@@ -1928,7 +1931,7 @@ async function patientRegister() {
   const password = document.getElementById('patient-reg-password').value;
   if (!name||!email||!password) { showError('patient-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('patient-reg-error','Password must be at least 6 characters.'); return; }
-  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient' } } });
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient' } } });
   if (error) { showError('patient-reg-error', error.message); return; }
   showSuccess('patient-reg-success');
 }
@@ -1958,7 +1961,7 @@ async function clinicRegister() {
   const password = document.getElementById('clinic-reg-password').value;
   if (!name||!email||!password) { showError('clinic-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('clinic-reg-error','Password must be at least 6 characters.'); return; }
-  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic' } } });
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic' } } });
   if (error) { showError('clinic-reg-error', error.message); return; }
   showSuccess('clinic-reg-success');
 }
@@ -1988,7 +1991,7 @@ async function proRegister() {
   const password = document.getElementById('pro-reg-password').value;
   if (!name||!email||!password) { showError('pro-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('pro-reg-error','Password must be at least 6 characters.'); return; }
-  const { error } = await sb.auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey } } });
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey } } });
   if (error) { showError('pro-reg-error', error.message); return; }
   showSuccess('pro-reg-success');
 }
@@ -2042,7 +2045,7 @@ async function savePatientProfile() {
     notes: document.getElementById('pd-notes').value.trim(),
     role: 'patient', profile_complete: true
   };
-  const res = await sb.auth.updateUser({ data: profile });
+  const res = await getSb().auth.updateUser({ data: profile });
   if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
   if (profile.full_name) { document.getElementById('pd-hero-name').textContent = profile.full_name; updateDashName('s-patient-dash', profile.full_name); }
   flashSaved('pd-profile-saved');
@@ -2083,7 +2086,7 @@ async function saveClinicProfile() {
     dthrbn_no: document.getElementById('cd-dthrbn').value.trim(),
     staff: staff, role: 'clinic', profile_complete: true
   };
-  const res = await sb.auth.updateUser({ data: profile });
+  const res = await getSb().auth.updateUser({ data: profile });
   if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
   if (profile.clinic_name) { document.getElementById('cd-hero-name').textContent = profile.clinic_name; document.getElementById('cd-sidebar-tag').textContent = profile.clinic_name; }
   flashSaved('cd-staff-saved');
@@ -2118,7 +2121,7 @@ async function saveProProfile() {
     ins_expiry: document.getElementById('pro-ins-exp').value,
     role: 'professional', profile_complete: true
   };
-  const res = await sb.auth.updateUser({ data: profile });
+  const res = await getSb().auth.updateUser({ data: profile });
   if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
   if (profile.full_name) { document.getElementById('pro-hero-name').textContent = profile.full_name; updateDashName('s-pro-dash', profile.full_name); }
   if (profile.regulator && profile.reg_no) { const sub = document.getElementById('pro-hero-sub'); if (sub) sub.textContent = profile.regulator + ' - Reg. No. ' + profile.reg_no; }
@@ -2236,7 +2239,7 @@ async function searchProviders() {
 
   try {
     // Fetch all users via the Supabase admin-safe RPC
-    var res = await sb.rpc('get_providers');
+    var res = await getSb().rpc('get_providers');
 
     // Fallback: if RPC not set up, show helpful message
     if (res.error) {
@@ -2338,7 +2341,7 @@ async function submitBooking() {
     notes:             null
   };
 
-  var res = await sb.from('bookings').insert([booking]);
+  var res = await getSb().from('bookings').insert([booking]);
   if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
 
   sucEl.textContent = 'Booking confirmed with ' + bookingTarget.name + ' for ' + fmtDate(date) + ' at ' + fmtTime(time) + '. They will be in touch to confirm details.';
@@ -2355,7 +2358,7 @@ async function loadPatientBookings() {
   var listEl = document.getElementById('pd-bookings-list');
   if (!listEl) return;
 
-  var res = await sb.from('bookings').select('*').eq('patient_id', currentUser.id).order('preferred_date', { ascending: true });
+  var res = await getSb().from('bookings').select('*').eq('patient_id', currentUser.id).order('preferred_date', { ascending: true });
   if (res.error || !res.data || !res.data.length) {
     listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No bookings yet.</div></div>';
     return;
@@ -2392,7 +2395,7 @@ async function loadClinicBookings() {
   var listEl = document.getElementById('cd-bookings-list');
   if (!listEl) return;
 
-  var res = await sb.from('bookings').select('*').eq('provider_id', currentUser.id).order('preferred_date', { ascending: true });
+  var res = await getSb().from('bookings').select('*').eq('provider_id', currentUser.id).order('preferred_date', { ascending: true });
   if (res.error || !res.data || !res.data.length) {
     listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;">No bookings yet.</div></div>';
     return;
@@ -2427,7 +2430,7 @@ async function loadProBookings() {
   var listEl = document.getElementById('pro-bookings-list');
   if (!listEl) return;
 
-  var res = await sb.from('bookings').select('*').eq('provider_id', currentUser.id).order('preferred_date', { ascending: true });
+  var res = await getSb().from('bookings').select('*').eq('provider_id', currentUser.id).order('preferred_date', { ascending: true });
   if (res.error || !res.data || !res.data.length) {
     listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;">No booking requests yet.</div></div>';
     return;
@@ -2668,13 +2671,12 @@ function renderProOverview(meta) {
 
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  go('s-landing'); // always show landing immediately
-  initApp();
+  go('s-landing'); // always show landing immediately — Supabase loads separately
 });
 
 async function initApp() {
   try {
-    var res = await sb.auth.getSession();
+    var res = await getSb().auth.getSession();
     var session = res.data && res.data.session;
     if (!session) return; // stay on landing
     currentUser = session.user;
@@ -2704,5 +2706,6 @@ async function initApp() {
 }
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="initApp()" onerror="console.warn('Supabase failed to load')"></script>
 </body>
 </html>

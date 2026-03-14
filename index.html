@@ -1791,7 +1791,7 @@ tr:last-child td { border-bottom: none; }
 
 <script>
 /* ============================================================
-   DentalFlow HQ — App Logic
+   DentalFlow HQ - App Logic
    ============================================================ */
 
 // ── Screen navigation ──────────────────────────────────────
@@ -1804,7 +1804,7 @@ function go(screenId) {
   }
 }
 
-// ── navTo — navigate to any tab by panel ID ───────────────
+// ── navTo - navigate to any tab by panel ID ───────────────
 function navTo(tabId) {
   var tab = document.getElementById(tabId);
   if (!tab) return;
@@ -2003,7 +2003,7 @@ function addService() {
   const list = document.getElementById('cd-services-list');
   const row = document.createElement('div');
   row.className = 'service-row';
-  row.innerHTML = '<input class="f-input f-input-blue svc-name" type="text" placeholder="e.g. Dental check-up" style="margin-bottom:0;"/><input class="f-input f-input-blue svc-price" type="number" placeholder="Price in ₦" style="margin-bottom:0;"/><button class="remove-btn" onclick="this.parentElement.remove()">x</button>';
+  row.innerHTML = '<input class="f-input f-input-blue svc-name" type="text" placeholder="e.g. Dental check-up" style="margin-bottom:0;"/><input class="f-input f-input-blue svc-price" type="number" placeholder="Price in N" style="margin-bottom:0;"/><button class="remove-btn" onclick="this.parentElement.remove()">x</button>';
   list.appendChild(row);
 }
 function addStaffMember() {
@@ -2191,7 +2191,7 @@ function providerCard(p, type) {
   var meta = p.raw_user_meta_data || {};
   var name = meta.clinic_name || meta.full_name || p.email;
   var location = meta.location || '';
-  var hours = (meta.open_time && meta.close_time) ? meta.open_time + ' – ' + meta.close_time : '';
+  var hours = (meta.open_time && meta.close_time) ? meta.open_time + ' - ' + meta.close_time : '';
   var payLabels = { cash:'Cash', transfer:'Bank transfer', pos:'POS/Card', hmo:'HMO', mobile:'Mobile money' };
   var pays = (meta.payments || []).map(function(x){ return payLabels[x]||x; }).join(', ');
   var svcs = (meta.services || []).slice(0,3);
@@ -2199,8 +2199,8 @@ function providerCard(p, type) {
   var works = (meta.work_prefs || []).map(function(x){ return workLabels[x]||x; }).join(', ');
 
   var sub = type === 'clinic'
-    ? (location ? location : '') + (hours ? ' · ' + hours : '')
-    : (meta.regulator || '') + (location ? ' · ' + location : '');
+    ? (location ? location : '') + (hours ? ' - ' + hours : '')
+    : (meta.regulator || '') + (location ? ' - ' + location : '');
 
   var svcHtml = '';
   if (type === 'clinic' && svcs.length) {
@@ -2210,7 +2210,7 @@ function providerCard(p, type) {
   }
   if (type === 'professional' && works) {
     svcHtml = '<div style="margin-top:.75rem;font-size:12px;color:#5F5E5A;">Open to: ' + works + '</div>';
-    if (meta.rate_day) svcHtml += '<div style="font-size:12px;color:#3B6D11;margin-top:3px;">Day rate: N' + Number(meta.rate_day).toLocaleString() + ' · Home visit: N' + (meta.rate_home ? Number(meta.rate_home).toLocaleString() : '—') + '</div>';
+    if (meta.rate_day) svcHtml += '<div style="font-size:12px;color:#3B6D11;margin-top:3px;">Day rate: N' + Number(meta.rate_day).toLocaleString() + ' - Home visit: N' + (meta.rate_home ? Number(meta.rate_home).toLocaleString() : '-') + '</div>';
   }
 
   var accent = type === 'clinic' ? '#185FA5' : '#3B6D11';
@@ -2224,7 +2224,7 @@ function providerCard(p, type) {
     svcHtml +
     (pays ? '<div style="font-size:11px;color:#888780;margin-top:.5rem;">Accepts: ' + pays + '</div>' : '') +
     '</div>' +
-    '<button onclick="openBookingModal('' + p.id + '','' + encodeURIComponent(name) + '','' + type + '','' + encodeURIComponent(sub) + '')" ' +
+    '<button onclick="openBookingModal(\'' + p.id + '\',\'' + encodeURIComponent(name) + '\',\'' + type + '\',\'' + encodeURIComponent(sub) + '\')" ' +
     'style="flex-shrink:0;padding:7px 16px;border-radius:8px;border:none;background:' + accent + ';color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Book</button>' +
     '</div>' +
     '</div>';
@@ -2244,14 +2244,14 @@ async function searchProviders() {
     // Fallback: if RPC not set up, show helpful message
     if (res.error) {
       resultsEl.innerHTML = '<div style="background:#FCEBEB;color:#A32D2D;border-radius:10px;padding:1rem;font-size:13px;">' +
-        '<strong>Search not available yet.</strong><br>Run this SQL in Supabase → SQL Editor to enable search:<br><br>' +
+        '<strong>Search not available yet.</strong><br>Run this SQL in Supabase -> SQL Editor to enable search:<br><br>' +
         '<code style="font-size:11px;background:#fff;padding:4px 8px;border-radius:6px;display:block;margin-top:6px;">' +
         'create or replace function get_providers()<br>' +
         'returns table(id uuid, email text, raw_user_meta_data jsonb)<br>' +
         'language sql security definer as $$<br>' +
         'select au.id, au.email, au.raw_user_meta_data<br>' +
         'from auth.users au<br>' +
-        'where au.raw_user_meta_data->>'profile_complete' = 'true';<br>' +
+        'where au.raw_user_meta_data->>&#39;profile_complete&#39; = &#39;true&#39;;<br>' +
         '$$;</code></div>';
       return;
     }
@@ -2373,7 +2373,7 @@ async function loadPatientBookings() {
       '</div>' +
       '<div style="flex:1;">' +
       '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.provider_name + '</div>' +
-      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' · ' + (b.complaint.length > 40 ? b.complaint.slice(0,40)+'...' : b.complaint) + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' - ' + (b.complaint.length > 40 ? b.complaint.slice(0,40)+'...' : b.complaint) + '</div>' +
       '</div>' +
       '<span class="tag ' + (statusStyle[b.status]||'tag-neu') + '">' + b.status + '</span>' +
       '</div>';
@@ -2416,7 +2416,7 @@ async function loadClinicBookings() {
       '</div>' +
       '<div style="flex:1;">' +
       '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.patient_name + '</div>' +
-      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' · ' + (b.complaint.length>45?b.complaint.slice(0,45)+'...':b.complaint) + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' - ' + (b.complaint.length>45?b.complaint.slice(0,45)+'...':b.complaint) + '</div>' +
       (b.service_requested ? '<div style="font-size:11px;color:#185FA5;margin-top:2px;">Service: ' + b.service_requested + '</div>' : '') +
       '</div>' +
       '<span class="tag ' + (isToday?'tag-bl':'tag-gr') + '">' + (isToday?'Today':'Confirmed') + '</span>' +
@@ -2444,7 +2444,7 @@ async function loadProBookings() {
       '</div>' +
       '<div style="flex:1;">' +
       '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.patient_name + '</div>' +
-      '<div style="font-size:11px;color:#888780;">' + fmtDate(b.preferred_date) + ' · ' + fmtTime(b.preferred_time) + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtDate(b.preferred_date) + ' - ' + fmtTime(b.preferred_time) + '</div>' +
       '<div style="font-size:11px;color:#5F5E5A;margin-top:2px;">' + (b.complaint.length>50?b.complaint.slice(0,50)+'...':b.complaint) + '</div>' +
       '</div>' +
       '<span class="tag tag-gr">Confirmed</span>' +
@@ -2478,7 +2478,7 @@ function renderPatientOverview(meta) {
   var nameEl = document.getElementById('pd-hero-name');
   if (nameEl) nameEl.textContent = name;
 
-  // Hero sub — location
+  // Hero sub - location
   var sub = document.getElementById('pd-hero-sub');
   if (sub) sub.textContent = meta.location ? 'Based in ' + meta.location : 'Complete your profile to get started.';
 
@@ -2514,7 +2514,7 @@ function renderPatientOverview(meta) {
   if (lvStat) lvStat.textContent = meta.last_visit || 'Not recorded';
   if (lvStat) lvStat.style.fontSize = '12px';
 
-  // Nudge card — if incomplete show steps, if complete show summary
+  // Nudge card - if incomplete show steps, if complete show summary
   var nudgeTitle = document.getElementById('pd-nudge-title');
   var nudgeBody  = document.getElementById('pd-nudge-body');
   if (pct >= 80) {
@@ -2525,7 +2525,7 @@ function renderPatientOverview(meta) {
       if (meta.allergies) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Allergies</div></div><span style="font-size:12px;color:#888780;">' + meta.allergies + '</span></div>';
       if ((meta.conditions||[]).length) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Conditions flagged</div></div><span class="tag tag-red">' + meta.conditions.length + ' noted</span></div>';
       if (meta.ec_name) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Emergency contact</div></div><span style="font-size:12px;color:#888780;">' + meta.ec_name + '</span></div>';
-      nudgeBody.innerHTML = rows || '<div style="padding:1.25rem;font-size:13px;color:#888780;">Profile complete — nothing missing.</div>';
+      nudgeBody.innerHTML = rows || '<div style="padding:1.25rem;font-size:13px;color:#888780;">Profile complete - nothing missing.</div>';
     }
   }
 }
@@ -2538,14 +2538,14 @@ function renderClinicOverview(meta) {
   var heroName = document.getElementById('cd-hero-name');
   if (heroName) heroName.textContent = name;
 
-  // Hero sub — address + hours
+  // Hero sub - address + hours
   var sub = document.getElementById('cd-hero-sub');
   var subText = '';
   if (meta.address) subText += meta.address;
-  if (meta.open_time && meta.close_time) subText += (subText ? ' · ' : '') + meta.open_time + ' – ' + meta.close_time;
+  if (meta.open_time && meta.close_time) subText += (subText ? ' - ' : '') + meta.open_time + ' - ' + meta.close_time;
   if (sub) sub.textContent = subText || 'Complete your clinic profile to go live.';
 
-  // Pills — payment methods
+  // Pills - payment methods
   var pillsEl = document.getElementById('cd-hero-pills');
   if (pillsEl && (meta.payments||[]).length) {
     var labelMap = { cash:'Cash', transfer:'Bank transfer', pos:'POS/Card', hmo:'HMO', mobile:'Mobile money' };
@@ -2558,7 +2558,7 @@ function renderClinicOverview(meta) {
   var hoursEl = document.getElementById('cd-hours-stat');
   if (hoursEl) {
     if (meta.open_time && meta.close_time) {
-      hoursEl.textContent = meta.open_time + ' – ' + meta.close_time;
+      hoursEl.textContent = meta.open_time + ' - ' + meta.close_time;
       hoursEl.className = 'stat-value';
       hoursEl.style.fontSize = '14px';
     }
@@ -2605,10 +2605,10 @@ function renderProOverview(meta) {
   var nameEl = document.getElementById('pro-hero-name');
   if (nameEl) nameEl.textContent = name;
 
-  // Hero sub — regulator + reg no
+  // Hero sub - regulator + reg no
   var sub = document.getElementById('pro-hero-sub');
   if (sub) {
-    if (meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' · Reg. No. ' + meta.reg_no;
+    if (meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
     else sub.textContent = 'Complete your profile to start finding work.';
   }
 
@@ -2671,7 +2671,7 @@ function renderProOverview(meta) {
 
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  go('s-landing'); // always show landing immediately — Supabase loads separately
+  go('s-landing'); // always show landing immediately - Supabase loads separately
 });
 
 async function initApp() {

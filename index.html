@@ -1052,9 +1052,10 @@ tr:last-child td { border-bottom: none; }
       <!-- Overview -->
       <div id="pd-overview" class="tab-panel active">
         <div class="dash-hero">
-          <div class="dash-hero-label">Welcome to DentalFlow HQ</div>
+          <div class="dash-hero-label" id="pd-greeting">Welcome to DentalFlow HQ</div>
           <div class="dash-hero-name" id="pd-hero-name">Your Name</div>
-          <div class="dash-hero-sub">Your dental care journey starts here.</div>
+          <div class="dash-hero-sub" id="pd-hero-sub">Your dental care journey starts here.</div>
+          <div id="pd-hero-pill" style="display:none;" class="dash-hero-pill"></div>
         </div>
         <div class="stat-grid">
           <div class="stat-card">
@@ -1063,43 +1064,33 @@ tr:last-child td { border-bottom: none; }
           </div>
           <div class="stat-card">
             <div class="stat-label">Profile completeness</div>
-            <div class="stat-value">0%</div>
-            <div class="stat-bar"><div class="stat-bar-fill" style="width:0%;background:#534AB7;"></div></div>
-            <div class="stat-sub text-muted mt1">Complete your profile to get started</div>
+            <div class="stat-value" id="pd-pct">0%</div>
+            <div class="stat-bar"><div class="stat-bar-fill" id="pd-pct-bar" style="width:0%;background:#534AB7;"></div></div>
+            <div class="stat-sub text-muted mt1" id="pd-pct-sub">Complete your profile to get started</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Last visit</div>
-            <div class="stat-value text-muted" style="font-size:14px;">No visits recorded</div>
+            <div class="stat-label">Location</div>
+            <div class="stat-value text-muted" style="font-size:14px;" id="pd-loc-stat">Not set</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Active clinics</div>
-            <div class="stat-value">0</div>
-            <div class="stat-sub text-muted">Find a clinic to get started</div>
+            <div class="stat-label">Last dental visit</div>
+            <div class="stat-value text-muted" style="font-size:14px;" id="pd-lastvisit-stat">Not recorded</div>
           </div>
         </div>
         <div class="two-col">
           <div class="card">
-            <div class="card-header">
-              <div class="card-title">Upcoming appointments</div>
-            </div>
+            <div class="card-header"><div class="card-title">Upcoming appointments</div></div>
             <div style="padding:2rem 1.25rem;text-align:center;">
               <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments yet.</div>
               <button class="btn btn-purple btn-sm">Find a clinic</button>
             </div>
           </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">Getting started</div></div>
-            <div class="card-row">
-              <div class="flex-1"><div class="font-medium">1. Complete your health profile</div><div class="text-sm text-muted">Takes about 3 minutes</div></div>
-              <span style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="setTab('pd-profile', document.querySelector('[onclick*=pd-profile]'))">→</span>
-            </div>
-            <div class="card-row">
-              <div class="flex-1"><div class="font-medium">2. Find a clinic near you</div><div class="text-sm text-muted">Search by location</div></div>
-              <span style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="setTab('pd-clinics', document.querySelector('[onclick*=pd-clinics]'))">→</span>
-            </div>
-            <div class="card-row">
-              <div class="flex-1"><div class="font-medium">3. Book your first appointment</div><div class="text-sm text-muted">Available 24/7</div></div>
-              <span style="font-size:12px;color:#534AB7;">→</span>
+          <div id="pd-nudge-card" class="card">
+            <div class="card-header"><div class="card-title" id="pd-nudge-title">Getting started</div></div>
+            <div id="pd-nudge-body">
+              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your health profile</div><div class="text-sm text-muted">Takes about 3 minutes</div></div><span style="font-size:12px;color:#534AB7;cursor:pointer;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">2. Find a clinic near you</div><div class="text-sm text-muted">Search by location</div></div><span style="font-size:12px;color:#534AB7;cursor:pointer;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">3. Book your first appointment</div><div class="text-sm text-muted">Available 24/7</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
             </div>
           </div>
         </div>
@@ -1311,26 +1302,32 @@ tr:last-child td { border-bottom: none; }
         <div class="dash-hero">
           <div class="dash-hero-label">Welcome to DentalFlow HQ</div>
           <div class="dash-hero-name" id="cd-hero-name">Your Clinic</div>
-          <div class="dash-hero-sub">Start by setting up your clinic profile.</div>
+          <div class="dash-hero-sub" id="cd-hero-sub">Start by setting up your clinic profile.</div>
+          <div id="cd-hero-pills" style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;"></div>
         </div>
         <div class="stat-grid">
           <div class="stat-card"><div class="stat-label">Today's appointments</div><div class="stat-value text-muted" style="font-size:14px;">None booked</div></div>
-          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value">0</div><div class="stat-sub text-muted">No patients yet</div></div>
-          <div class="stat-card"><div class="stat-label">Open slots today</div><div class="stat-value text-muted" style="font-size:14px;">Set up schedule</div></div>
+          <div class="stat-card"><div class="stat-label">Services offered</div><div class="stat-value" id="cd-svc-count">0</div><div class="stat-sub text-muted" id="cd-svc-sub">Add services in your profile</div></div>
+          <div class="stat-card"><div class="stat-label">Opening hours</div><div class="stat-value text-muted" style="font-size:13px;line-height:1.3;" id="cd-hours-stat">Not set</div></div>
           <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value text-muted" style="font-size:14px;">₦0</div></div>
         </div>
         <div class="two-col">
           <div class="card">
-            <div class="card-header"><div class="card-title">Today's schedule</div></div>
-            <div style="padding:2.5rem 1.25rem;text-align:center;">
-              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments scheduled for today.</div>
+            <div class="card-header"><div class="card-title">Services &amp; pricing</div></div>
+            <div id="cd-svc-overview">
+              <div style="padding:2rem 1.25rem;text-align:center;">
+                <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No services added yet.</div>
+                <button class="btn btn-blue btn-sm">Add services in profile</button>
+              </div>
             </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Getting started</div></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your clinic profile</div><div class="text-sm text-muted">Add address, hours, and services</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">2. Add your staff</div><div class="text-sm text-muted">Invite dentists and hygienists</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">3. Post a vacancy</div><div class="text-sm text-muted">Attract MDCN/DTHRBN professionals</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+            <div class="card-header"><div class="card-title" id="cd-nudge-title">Clinic info</div></div>
+            <div id="cd-nudge-body">
+              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your clinic profile</div><div class="text-sm text-muted">Add address, hours, and services</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">2. Add your staff</div><div class="text-sm text-muted">Invite dentists and hygienists</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">3. Post a vacancy</div><div class="text-sm text-muted">Attract MDCN/DTHRBN professionals</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1582,29 +1579,33 @@ tr:last-child td { border-bottom: none; }
       <!-- Overview -->
       <div id="pro-overview" class="tab-panel active">
         <div class="dash-hero">
-          <div class="dash-hero-label">Welcome to DentalFlow HQ</div>
+          <div class="dash-hero-label" id="pro-greeting">Welcome to DentalFlow HQ</div>
           <div class="dash-hero-name" id="pro-hero-name">Your Name</div>
           <div class="dash-hero-sub" id="pro-hero-sub">Complete your profile to start finding work.</div>
+          <div id="pro-hero-pills" style="display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap;"></div>
         </div>
         <div class="stat-grid">
           <div class="stat-card"><div class="stat-label">Earnings this month</div><div class="stat-value" style="font-size:17px;">₦0</div><div class="stat-sub text-muted">No gigs yet</div></div>
-          <div class="stat-card"><div class="stat-label">Applications</div><div class="stat-value">0</div><div class="stat-sub text-muted">None submitted yet</div></div>
-          <div class="stat-card"><div class="stat-label">Gigs completed</div><div class="stat-value">0</div><div class="stat-sub text-muted">This month</div></div>
-          <div class="stat-card"><div class="stat-label">Profile views</div><div class="stat-value">0</div><div class="stat-sub text-muted">Complete profile first</div></div>
+          <div class="stat-card"><div class="stat-label">Profile completeness</div><div class="stat-value" id="pro-pct">0%</div><div class="stat-bar"><div class="stat-bar-fill" id="pro-pct-bar" style="width:0%;background:#3B6D11;"></div></div><div class="stat-sub text-muted mt1" id="pro-pct-sub">Complete your profile</div></div>
+          <div class="stat-card"><div class="stat-label">Day rate</div><div class="stat-value text-muted" style="font-size:14px;" id="pro-rate-stat">Not set</div></div>
+          <div class="stat-card"><div class="stat-label">Home visit rate</div><div class="stat-value text-muted" style="font-size:14px;" id="pro-home-stat">Not set</div></div>
         </div>
         <div class="two-col">
           <div class="card">
-            <div class="card-header"><div class="card-title">Upcoming gigs</div></div>
-            <div style="padding:2.5rem 1.25rem;text-align:center;">
-              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No upcoming gigs. Browse job listings to get started.</div>
-              <button class="btn btn-green btn-sm">Browse jobs</button>
+            <div class="card-header"><div class="card-title">Work preferences</div></div>
+            <div id="pro-prefs-body">
+              <div style="padding:2rem 1.25rem;text-align:center;">
+                <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No preferences set. Complete your profile to show what work you are open to.</div>
+              </div>
             </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Getting started</div></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your profile</div><div class="text-sm text-muted">Add your credentials & licence number</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">2. Browse job listings</div><div class="text-sm text-muted">Full-time, sessional & gigs</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">3. Set your availability</div><div class="text-sm text-muted">For gigs and home visits</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+            <div class="card-header"><div class="card-title" id="pro-nudge-title">Getting started</div></div>
+            <div id="pro-nudge-body">
+              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your profile</div><div class="text-sm text-muted">Add credentials & licence number</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">2. Browse job listings</div><div class="text-sm text-muted">Full-time, sessional & gigs</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">3. Set your availability</div><div class="text-sm text-muted">For gigs and home visits</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1971,6 +1972,7 @@ async function savePatientProfile() {
   if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
   if (profile.full_name) { document.getElementById('pd-hero-name').textContent = profile.full_name; updateDashName('s-patient-dash', profile.full_name); }
   flashSaved('pd-profile-saved');
+  renderPatientOverview(profile);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2011,6 +2013,7 @@ async function saveClinicProfile() {
   if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
   if (profile.clinic_name) { document.getElementById('cd-hero-name').textContent = profile.clinic_name; document.getElementById('cd-sidebar-tag').textContent = profile.clinic_name; }
   flashSaved('cd-staff-saved');
+  renderClinicOverview(profile);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2046,6 +2049,7 @@ async function saveProProfile() {
   if (profile.full_name) { document.getElementById('pro-hero-name').textContent = profile.full_name; updateDashName('s-pro-dash', profile.full_name); }
   if (profile.regulator && profile.reg_no) { const sub = document.getElementById('pro-hero-sub'); if (sub) sub.textContent = profile.regulator + ' - Reg. No. ' + profile.reg_no; }
   flashSaved('pro-profile-saved');
+  renderProOverview(profile);
 }
 
 // ── Load saved data back into forms on login ───────────────
@@ -2082,6 +2086,223 @@ function loadProfileIntoForms(meta) {
   }
 }
 
+// ══════════════════════════════════════════════════════════
+// DYNAMIC OVERVIEW RENDERERS
+// ══════════════════════════════════════════════════════════
+
+function getHour() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+function pill(text, style) {
+  return '<div style="display:inline-flex;align-items:center;gap:6px;background:' + style.bg + ';border:0.5px solid ' + style.border + ';border-radius:20px;padding:5px 12px;font-size:12px;color:' + style.color + ';">' + text + '</div>';
+}
+
+// ── PATIENT overview renderer ──────────────────────────────
+function renderPatientOverview(meta) {
+  if (!meta || meta.role !== 'patient') return;
+
+  // Greeting
+  var name = meta.full_name || 'there';
+  var el = document.getElementById('pd-greeting');
+  if (el) el.textContent = getHour() + ',';
+  var nameEl = document.getElementById('pd-hero-name');
+  if (nameEl) nameEl.textContent = name;
+
+  // Hero sub — location
+  var sub = document.getElementById('pd-hero-sub');
+  if (sub) sub.textContent = meta.location ? 'Based in ' + meta.location : 'Complete your profile to get started.';
+
+  // Profile completeness
+  var fields = ['full_name','dob','phone','location','ec_name','ec_phone','last_visit','allergies'];
+  var filled = fields.filter(function(f){ return meta[f] && meta[f].toString().trim() !== ''; }).length;
+  var hasCond = (meta.conditions||[]).length > 0;
+  if (hasCond) filled++;
+  var total = fields.length + 1;
+  var pct = Math.round((filled / total) * 100);
+
+  var pctEl = document.getElementById('pd-pct');
+  var barEl = document.getElementById('pd-pct-bar');
+  var subEl = document.getElementById('pd-pct-sub');
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (barEl) barEl.style.width = pct + '%';
+  if (subEl) subEl.textContent = pct === 100 ? 'Profile complete!' : (total - filled) + ' field(s) remaining';
+
+  // Hero pill
+  var pillEl = document.getElementById('pd-hero-pill');
+  if (pillEl) {
+    pillEl.style.display = 'inline-flex';
+    pillEl.textContent = 'Profile ' + pct + '% complete';
+  }
+
+  // Location stat
+  var locStat = document.getElementById('pd-loc-stat');
+  if (locStat) locStat.textContent = meta.location || 'Not set';
+  if (locStat) locStat.className = meta.location ? 'stat-value' : 'stat-value text-muted';
+
+  // Last visit stat
+  var lvStat = document.getElementById('pd-lastvisit-stat');
+  if (lvStat) lvStat.textContent = meta.last_visit || 'Not recorded';
+  if (lvStat) lvStat.style.fontSize = '12px';
+
+  // Nudge card — if incomplete show steps, if complete show summary
+  var nudgeTitle = document.getElementById('pd-nudge-title');
+  var nudgeBody  = document.getElementById('pd-nudge-body');
+  if (pct >= 80) {
+    if (nudgeTitle) nudgeTitle.textContent = 'Your health summary';
+    if (nudgeBody) {
+      var rows = '';
+      if (meta.phone) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Phone</div></div><span style="font-size:12px;color:#888780;">' + meta.phone + '</span></div>';
+      if (meta.allergies) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Allergies</div></div><span style="font-size:12px;color:#888780;">' + meta.allergies + '</span></div>';
+      if ((meta.conditions||[]).length) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Conditions flagged</div></div><span class="tag tag-red">' + meta.conditions.length + ' noted</span></div>';
+      if (meta.ec_name) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Emergency contact</div></div><span style="font-size:12px;color:#888780;">' + meta.ec_name + '</span></div>';
+      nudgeBody.innerHTML = rows || '<div style="padding:1.25rem;font-size:13px;color:#888780;">Profile complete — nothing missing.</div>';
+    }
+  }
+}
+
+// ── CLINIC overview renderer ───────────────────────────────
+function renderClinicOverview(meta) {
+  if (!meta || meta.role !== 'clinic') return;
+
+  var name = meta.clinic_name || 'Your Clinic';
+  var heroName = document.getElementById('cd-hero-name');
+  if (heroName) heroName.textContent = name;
+
+  // Hero sub — address + hours
+  var sub = document.getElementById('cd-hero-sub');
+  var subText = '';
+  if (meta.address) subText += meta.address;
+  if (meta.open_time && meta.close_time) subText += (subText ? ' · ' : '') + meta.open_time + ' – ' + meta.close_time;
+  if (sub) sub.textContent = subText || 'Complete your clinic profile to go live.';
+
+  // Pills — payment methods
+  var pillsEl = document.getElementById('cd-hero-pills');
+  if (pillsEl && (meta.payments||[]).length) {
+    var labelMap = { cash:'Cash', transfer:'Bank transfer', pos:'POS/Card', hmo:'HMO', mobile:'Mobile money' };
+    pillsEl.innerHTML = (meta.payments||[]).map(function(p){
+      return pill(labelMap[p]||p, { bg:'rgba(255,255,255,.1)', border:'rgba(255,255,255,.2)', color:'rgba(255,255,255,.8)' });
+    }).join('');
+  }
+
+  // Hours stat
+  var hoursEl = document.getElementById('cd-hours-stat');
+  if (hoursEl) {
+    if (meta.open_time && meta.close_time) {
+      hoursEl.textContent = meta.open_time + ' – ' + meta.close_time;
+      hoursEl.className = 'stat-value';
+      hoursEl.style.fontSize = '14px';
+    }
+  }
+
+  // Services count + overview list
+  var svcs = meta.services || [];
+  var svcCount = document.getElementById('cd-svc-count');
+  var svcSub   = document.getElementById('cd-svc-sub');
+  if (svcCount) svcCount.textContent = svcs.length;
+  if (svcSub)   svcSub.textContent   = svcs.length ? svcs.length + ' service(s) listed' : 'Add services in your profile';
+
+  var svcOverview = document.getElementById('cd-svc-overview');
+  if (svcOverview && svcs.length) {
+    svcOverview.innerHTML = svcs.slice(0,5).map(function(s){
+      return '<div class="card-row"><div class="flex-1"><div class="font-medium">' + s.name + '</div></div><span style="font-size:12px;font-weight:500;color:#185FA5;">' + s.price + '</span></div>';
+    }).join('') + (svcs.length > 5 ? '<div style="padding:.5rem 1.25rem;font-size:12px;color:#888780;">+' + (svcs.length-5) + ' more services</div>' : '');
+  }
+
+  // Nudge / info card
+  var nudgeTitle = document.getElementById('cd-nudge-title');
+  var nudgeBody  = document.getElementById('cd-nudge-body');
+  var hasProfile = meta.clinic_name && meta.address && meta.open_time;
+  if (hasProfile) {
+    if (nudgeTitle) nudgeTitle.textContent = 'Clinic at a glance';
+    if (nudgeBody) {
+      var rows = '';
+      if (meta.location) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Location</div></div><span style="font-size:12px;color:#888780;">' + meta.location + '</span></div>';
+      if (meta.phone)    rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Phone</div></div><span style="font-size:12px;color:#888780;">' + meta.phone + '</span></div>';
+      if (meta.mdcn_no)  rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">MDCN licence</div></div><span class="tag tag-gr">' + meta.mdcn_no + '</span></div>';
+      if ((meta.days_open||[]).length) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Days open</div></div><span style="font-size:12px;color:#888780;">' + meta.days_open.join(', ') + '</span></div>';
+      nudgeBody.innerHTML = rows || '';
+    }
+  }
+}
+
+// ── PROFESSIONAL overview renderer ─────────────────────────
+function renderProOverview(meta) {
+  if (!meta || meta.role !== 'professional') return;
+
+  var name = meta.full_name || 'there';
+  var greet = document.getElementById('pro-greeting');
+  if (greet) greet.textContent = getHour() + ',';
+  var nameEl = document.getElementById('pro-hero-name');
+  if (nameEl) nameEl.textContent = name;
+
+  // Hero sub — regulator + reg no
+  var sub = document.getElementById('pro-hero-sub');
+  if (sub) {
+    if (meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' · Reg. No. ' + meta.reg_no;
+    else sub.textContent = 'Complete your profile to start finding work.';
+  }
+
+  // Pills
+  var pillsEl = document.getElementById('pro-hero-pills');
+  if (pillsEl) {
+    var pillsHtml = '';
+    if (meta.regulator) pillsHtml += pill(meta.regulator + ' registered', { bg:'rgba(93,202,165,.15)', border:'rgba(93,202,165,.3)', color:'#5DCAA5' });
+    if (meta.location)  pillsHtml += pill(meta.location, { bg:'rgba(255,255,255,.1)', border:'rgba(255,255,255,.2)', color:'rgba(255,255,255,.7)' });
+    pillsEl.innerHTML = pillsHtml;
+  }
+
+  // Profile completeness
+  var proFields = ['full_name','phone','location','regulator','reg_no','degree','university','grad_year'];
+  var filled = proFields.filter(function(f){ return meta[f] && meta[f].toString().trim()!==''; }).length;
+  var hasPrefs = (meta.work_prefs||[]).length > 0;
+  if (hasPrefs) filled++;
+  var total = proFields.length + 1;
+  var pct = Math.round((filled/total)*100);
+
+  var pctEl  = document.getElementById('pro-pct');
+  var barEl  = document.getElementById('pro-pct-bar');
+  var subEl  = document.getElementById('pro-pct-sub');
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (barEl) barEl.style.width = pct + '%';
+  if (subEl) subEl.textContent = pct===100 ? 'Profile complete!' : (total-filled) + ' field(s) remaining';
+
+  // Rate stats
+  var rateEl = document.getElementById('pro-rate-stat');
+  var homeEl = document.getElementById('pro-home-stat');
+  if (rateEl) {
+    if (meta.rate_day) { rateEl.textContent = 'N' + Number(meta.rate_day).toLocaleString() + '/day'; rateEl.className = 'stat-value'; rateEl.style.fontSize='14px'; }
+  }
+  if (homeEl) {
+    if (meta.rate_home) { homeEl.textContent = 'N' + Number(meta.rate_home).toLocaleString() + '/visit'; homeEl.className = 'stat-value'; homeEl.style.fontSize='14px'; }
+  }
+
+  // Work preferences card
+  var prefsBody = document.getElementById('pro-prefs-body');
+  if (prefsBody && (meta.work_prefs||[]).length) {
+    var labelMap = { fulltime:'Full-time', parttime:'Part-time', sessional:'Sessional / locum', gig:'Gig work', home:'Home visits' };
+    prefsBody.innerHTML = (meta.work_prefs||[]).map(function(p){
+      return '<div class="card-row"><div style="width:8px;height:8px;border-radius:50%;background:#3B6D11;flex-shrink:0;"></div><div class="flex-1" style="font-size:13px;color:#26215C;">' + (labelMap[p]||p) + '</div></div>';
+    }).join('');
+  }
+
+  // Nudge card
+  var nudgeTitle = document.getElementById('pro-nudge-title');
+  var nudgeBody  = document.getElementById('pro-nudge-body');
+  if (pct >= 70 && nudgeTitle && nudgeBody) {
+    nudgeTitle.textContent = 'Your credentials';
+    var rows = '';
+    if (meta.regulator && meta.reg_no) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">' + meta.regulator + ' No.</div></div><span style="font-size:12px;color:#888780;">' + meta.reg_no + '</span></div>';
+    if (meta.degree && meta.university) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">' + meta.degree + '</div></div><span style="font-size:12px;color:#888780;">' + meta.university + '</span></div>';
+    if (meta.insurer) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Indemnity</div></div><span class="tag tag-gr">' + meta.insurer + '</span></div>';
+    if (meta.experience) rows += '<div class="card-row"><div class="flex-1"><div class="font-medium">Experience</div></div><span style="font-size:12px;color:#888780;">' + meta.experience + '</span></div>';
+    nudgeBody.innerHTML = rows || '';
+  }
+}
+
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   const { data: { session } } = await sb.auth.getSession();
@@ -2105,6 +2326,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       go('s-pro-dash');
     }
     loadProfileIntoForms(meta);
+    if (meta.role === 'patient') renderPatientOverview(meta);
+    else if (meta.role === 'clinic') renderClinicOverview(meta);
+    else if (meta.role === 'professional') renderProOverview(meta);
   } else {
     go('s-landing');
   }

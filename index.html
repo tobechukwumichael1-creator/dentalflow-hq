@@ -1380,7 +1380,7 @@ tr:last-child td { border-bottom: none; }
           <div class="card">
             <div class="card-header"><div class="card-title" id="cd-nudge-title">Clinic info</div></div>
             <div id="cd-nudge-body">
-              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your clinic profile</div><div class="text-sm text-muted">Add address, hours, and services</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
+              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your clinic profile</div><div class="text-sm text-muted">Add address, hours, services &amp; staff</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
               <div class="card-row"><div class="flex-1"><div class="font-medium">2. Add your staff</div><div class="text-sm text-muted">Invite dentists and hygienists</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
               <div class="card-row"><div class="flex-1"><div class="font-medium">3. Post a vacancy</div><div class="text-sm text-muted">Attract MDCN/DTHRBN professionals</div></div><span style="font-size:12px;color:#185FA5;">→</span></div>
             </div>
@@ -1419,6 +1419,7 @@ tr:last-child td { border-bottom: none; }
       <!-- Staff -->
       <div id="cd-staff" class="tab-panel">
         <div id="cd-staff-saved" class="save-banner save-banner-bl" style="display:none;">✓ Clinic profile saved successfully</div>
+        <div style="margin-bottom:1.25rem;"><div style="font-size:18px;font-weight:500;color:#26215C;">Clinic profile</div><div style="font-size:13px;color:#888780;margin-top:3px;">Complete your clinic profile so patients can find and book you.</div></div>
         <div class="card mb2">
           <div class="card-header"><div class="card-title">Clinic details</div></div>
           <div class="form-grid" style="padding:1.25rem;">
@@ -2231,34 +2232,52 @@ async function searchProviders() {
   var location = document.getElementById('search-location').value;
   var type = document.getElementById('search-type').value;
   var resultsEl = document.getElementById('search-results');
-  resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">Searching...</div>';
+  resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">Searching...</div>';
 
-  var role = type === 'clinic' ? 'clinic' : 'professional';
-  var res = await sb.rpc('get_users_by_role', { role_param: role });
+  try {
+    // Fetch all users via the Supabase admin-safe RPC
+    var res = await sb.rpc('get_providers');
 
-  if (res.error || !res.data) {
-    resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">Could not load results. Make sure providers have completed their profiles.</div>';
-    return;
+    // Fallback: if RPC not set up, show helpful message
+    if (res.error) {
+      resultsEl.innerHTML = '<div style="background:#FCEBEB;color:#A32D2D;border-radius:10px;padding:1rem;font-size:13px;">' +
+        '<strong>Search not available yet.</strong><br>Run this SQL in Supabase → SQL Editor to enable search:<br><br>' +
+        '<code style="font-size:11px;background:#fff;padding:4px 8px;border-radius:6px;display:block;margin-top:6px;">' +
+        'create or replace function get_providers()<br>' +
+        'returns table(id uuid, email text, raw_user_meta_data jsonb)<br>' +
+        'language sql security definer as $$<br>' +
+        'select au.id, au.email, au.raw_user_meta_data<br>' +
+        'from auth.users au<br>' +
+        'where au.raw_user_meta_data->>'profile_complete' = 'true';<br>' +
+        '$$;</code></div>';
+      return;
+    }
+
+    var role = type === 'clinic' ? 'clinic' : 'professional';
+    var users = (res.data || []).filter(function(u) {
+      var meta = u.raw_user_meta_data || {};
+      if (meta.role !== role) return false;
+      if (location && meta.location !== location) return false;
+      return true;
+    });
+
+    if (!users.length) {
+      resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;padding:.5rem 0;">No ' + type + 's found' +
+        (location ? ' in ' + location : '') +
+        '. Try a different location or browse all.</div>';
+      return;
+    }
+
+    resultsEl.innerHTML =
+      '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + users.length + ' result(s)</div>' +
+      users.map(function(u){ return providerCard(u, type); }).join('');
+
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="font-size:13px;color:#A32D2D;">Error: ' + e.message + '</div>';
   }
-
-  var users = res.data.filter(function(u) {
-    var meta = u.raw_user_meta_data || {};
-    if (!meta.profile_complete) return false;
-    if (location && meta.location !== location) return false;
-    return true;
-  });
-
-  if (!users.length) {
-    resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">No ' + type + 's found' + (location ? ' in ' + location : '') + '. Try a different location or browse all.</div>';
-    return;
-  }
-
-  resultsEl.innerHTML = '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + users.length + ' result(s)</div>' +
-    users.map(function(u){ return providerCard(u, type); }).join('');
 }
 
 async function browseAll() {
-  var type = document.getElementById('search-type').value;
   document.getElementById('search-location').value = '';
   await searchProviders();
 }

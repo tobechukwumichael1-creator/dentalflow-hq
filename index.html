@@ -1223,8 +1223,19 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Care guides -->
       <div id="pd-care" class="tab-panel">
-        <div style="font-size:15px;font-weight:500;color:#26215C;margin-bottom:1rem;">Care guides</div>
-        <div style="font-size:13px;color:#888780;">Care guides coming soon.</div>
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Care guides</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Evidence-based dental health information to keep your smile healthy.</div>
+
+        <!-- Guide reader modal -->
+        <div id="guide-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.55);z-index:1000;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">
+          <div style="background:#fff;border-radius:16px;width:100%;max-width:600px;margin:0 auto;">
+            <div id="guide-modal-content"></div>
+          </div>
+        </div>
+
+        <!-- Guide grid -->
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;" id="guides-grid">
+        </div>
       </div>
     </div>
   </div>
@@ -1329,10 +1340,19 @@ tr:last-child td { border-bottom: none; }
           <svg viewBox="0 0 16 16" fill="none"><circle cx="5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 14c0-2.209 1.791-4 4-4h2M9 14c0-2.209 1.791-4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           Staff &amp; vacancies
         </div>
+        <div class="sidebar-label">Tools</div>
+        <div class="sidebar-item bl" data-title="Walk-in patient" onclick="setTab('cd-walkin',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a2 2 0 100 4 2 2 0 000-4zM4 9a4 4 0 018 0v5H4V9z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Log walk-in
+        </div>
+        <div class="sidebar-item bl" data-title="Inventory" onclick="setTab('cd-inventory',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Inventory
+        </div>
         <div class="sidebar-label">Finance</div>
-        <div class="sidebar-item bl" data-title="Revenue" onclick="setTab('cd-revenue',this)">
+        <div class="sidebar-item bl" data-title="Analytics" onclick="setTab('cd-analytics',this)">
           <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Revenue
+          Analytics
         </div>
       </nav>
       <div class="sidebar-bot">
@@ -1347,7 +1367,7 @@ tr:last-child td { border-bottom: none; }
       <div class="topbar">
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-right">
-          <button class="btn btn-blue btn-sm">+ New booking</button>
+          <button class="btn btn-blue btn-sm" onclick="navTo('cd-walkin')">+ Log walk-in</button>
           <div class="topbar-avatar" style="background:#185FA5;">AP</div>
         </div>
       </div>
@@ -1488,19 +1508,113 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
-      <!-- Revenue -->
-      <div id="cd-revenue" class="tab-panel">
-        <div class="stat-grid">
-          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
-          <div class="stat-card"><div class="stat-label">Avg per patient</div><div class="stat-value text-muted" style="font-size:14px;">No data yet</div></div>
-          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:17px;">₦0</div></div>
-          <div class="stat-card"><div class="stat-label">Projected (this month)</div><div class="stat-value text-muted" style="font-size:14px;">No data yet</div></div>
+      <!-- Analytics -->
+      <div id="cd-analytics" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Analytics</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Track your clinic performance over time.</div>
+        <div class="stat-grid" style="margin-bottom:1.5rem;">
+          <div class="stat-card"><div class="stat-label">Total bookings</div><div class="stat-value" id="an-total">0</div><div class="stat-sub text-muted">All time</div></div>
+          <div class="stat-card"><div class="stat-label">This month</div><div class="stat-value" id="an-month">0</div><div class="stat-sub text-muted">Bookings</div></div>
+          <div class="stat-card"><div class="stat-label">Walk-ins logged</div><div class="stat-value" id="an-walkins">0</div><div class="stat-sub text-muted">All time</div></div>
+          <div class="stat-card"><div class="stat-label">Payments pending</div><div class="stat-value" id="an-pending">0</div><div class="stat-sub text-muted">Walk-ins</div></div>
         </div>
-        <div class="card">
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;">Revenue data will appear here once you start receiving bookings.</div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Bookings over time</div><span class="tag tag-bl">Last 6 months</span></div>
+          <div style="padding:1.25rem 1.25rem .5rem;">
+            <div id="cd-bar-chart" style="height:140px;display:flex;align-items:flex-end;gap:10px;padding:0 4px;"></div>
+            <div id="cd-bar-labels" style="display:flex;gap:10px;margin-top:6px;padding:0 4px;"></div>
           </div>
         </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Top complaints</div></div>
+            <div id="an-complaints"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">Data appears as bookings come in.</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Upcoming this week</div></div>
+            <div id="an-upcoming"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No upcoming bookings this week.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Walk-in logger -->
+      <div id="cd-walkin" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Log a walk-in patient</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Record patients who walk in without a prior booking.</div>
+        <div id="cd-walkin-saved" class="save-banner save-banner-bl" style="display:none;">Walk-in patient logged successfully</div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Patient details</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Patient name</label><input id="wi-name" class="f-input f-input-blue" type="text" placeholder="Full name"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Phone number</label><input id="wi-phone" class="f-input f-input-blue" type="tel" placeholder="e.g. 08012345678"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Age</label><input id="wi-age" class="f-input f-input-blue" type="number" placeholder="e.g. 34"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Gender</label>
+              <select id="wi-gender" class="f-input f-input-blue"><option value="">Select</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
+            </div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Visit details</div></div>
+          <div style="padding:1.25rem;">
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Chief complaint</label><textarea id="wi-complaint" class="f-input f-input-blue" rows="2" placeholder="e.g. Toothache lower left, sensitivity to cold..." style="resize:vertical;"></textarea></div>
+            <div class="form-grid">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Treatment given</label><input id="wi-treatment" class="f-input f-input-blue" type="text" placeholder="e.g. Extraction, filling, scaling"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Attending dentist</label><input id="wi-dentist" class="f-input f-input-blue" type="text" placeholder="e.g. Dr. Aisha Patel"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Visit date</label><input id="wi-date" class="f-input f-input-blue" type="date"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Next appointment</label><input id="wi-next" class="f-input f-input-blue" type="date"/></div>
+            </div>
+            <div class="form-field mt1"><label class="f-label" style="color:#185FA5;">Medical flags / allergies</label><input id="wi-flags" class="f-input f-input-blue" type="text" placeholder="e.g. Penicillin allergy, diabetic - or None"/></div>
+            <div class="form-field mt1"><label class="f-label" style="color:#185FA5;">Clinical notes</label><textarea id="wi-notes" class="f-input f-input-blue" rows="2" placeholder="Additional observations..." style="resize:vertical;"></textarea></div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Payment</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Amount charged (N)</label><input id="wi-amount" class="f-input f-input-blue" type="number" placeholder="e.g. 15000"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Payment status</label>
+              <select id="wi-payment" class="f-input f-input-blue">
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="part-paid">Part paid</option>
+                <option value="waived">Waived</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
+          <button class="btn btn-blue" onclick="logWalkin()">Log walk-in patient</button>
+          <span id="wi-error" style="font-size:12px;color:#A32D2D;display:none;"></span>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent walk-ins</div><button class="btn btn-blue btn-sm" onclick="loadWalkins()">Refresh</button></div>
+          <div id="cd-walkin-list"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No walk-ins logged yet.</div></div>
+        </div>
+      </div>
+
+      <!-- Inventory -->
+      <div id="cd-inventory" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Inventory</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Track dental supplies, monitor usage and get low-stock alerts.</div>
+        <div id="cd-inv-saved" class="save-banner save-banner-bl" style="display:none;">Inventory saved</div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Stock items</div><button class="btn btn-blue btn-sm" onclick="addInvRow()">+ Add item</button></div>
+          <div style="padding:1.25rem;">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:8px;margin-bottom:10px;align-items:center;">
+              <div style="font-size:11px;font-weight:500;color:#888780;">Item name</div>
+              <div style="font-size:11px;font-weight:500;color:#888780;">Qty in stock</div>
+              <div style="font-size:11px;font-weight:500;color:#888780;">Unit</div>
+              <div style="font-size:11px;font-weight:500;color:#888780;">Reorder when below</div>
+              <div></div>
+            </div>
+            <div id="cd-inv-rows"></div>
+            <div id="cd-inv-empty" style="font-size:13px;color:#888780;padding:.5rem 0;">No items yet. Click + Add item to start tracking.</div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Low stock alerts</div></div>
+          <div id="cd-inv-alerts"><div style="padding:1.25rem;font-size:13px;color:#888780;">Add items to see alerts here.</div></div>
+        </div>
+        <button class="btn btn-blue" onclick="saveInventory()" style="margin-bottom:2rem;">Save inventory</button>
       </div>
     </div>
   </div>
@@ -1923,6 +2037,7 @@ async function patientSignIn() {
   currentUser = data.user;
   updateDashName('s-patient-dash', data.user.user_metadata?.full_name || email);
   go('s-patient-dash');
+  try { renderGuides(); loadPatientBookings(); } catch(e){}
 }
 async function patientRegister() {
   hideError('patient-reg-error');
@@ -1953,6 +2068,7 @@ async function clinicSignIn() {
   const heroName = document.getElementById('cd-hero-name');
   if (heroName) heroName.textContent = name;
   go('s-clinic-dash');
+  try { loadAnalytics(); loadWalkins(); loadInventory(data.user.user_metadata||{}); } catch(e){}
 }
 async function clinicRegister() {
   hideError('clinic-reg-error');
@@ -2160,6 +2276,391 @@ function loadProfileIntoForms(meta) {
     set('pro-rate-day', meta.rate_day); set('pro-rate-home', meta.rate_home);
     set('pro-insurer', meta.insurer); set('pro-ins-exp', meta.ins_expiry);
     (meta.work_prefs || []).forEach(function(w){ chk('pro-w-'+w, true); });
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// CARE GUIDES DATA + RENDERER
+// ══════════════════════════════════════════════════════════
+var CARE_GUIDES = [
+  {
+    id:'before-visit', title:'Before your dental visit',
+    color:'#534AB7', bg:'#EEEDFE', emoji:'BEFORE',
+    summary:'Simple steps to prepare for a smooth, stress-free appointment.',
+    sections:[
+      {h:'24 hours before',p:'Avoid eating hard or sticky foods. Make a note of any pain, sensitivity or changes in your mouth you want to mention. Write down any medications you are currently taking.'},
+      {h:'Morning of your visit',p:'Brush and floss thoroughly before arriving - your dentist will appreciate it. Avoid heavy meals directly before your appointment. Arrive 10 minutes early if it is your first visit.'},
+      {h:'What to bring',p:'Your ID, a list of current medications, any previous dental records or X-rays, and your insurance card if applicable. If you are anxious, let the reception team know in advance.'},
+      {h:'If you are nervous',p:'It is completely normal. Let your dentist know before they begin. Agree on a hand signal to pause if you need a break. Deep breathing before and during the visit really helps.'}
+    ]
+  },
+  {
+    id:'brushing', title:'Brushing & flossing basics',
+    color:'#185FA5', bg:'#E6F1FB', emoji:'BRUSH',
+    summary:'The foundation of good oral health - done right, twice a day.',
+    sections:[
+      {h:'How to brush',p:'Use a soft-bristled toothbrush at a 45-degree angle to your gums. Use gentle circular motions - never scrub back and forth aggressively. Spend at least 2 minutes, covering all surfaces: outer, inner, and chewing surfaces. Brush your tongue lightly to remove bacteria.'},
+      {h:'How to floss',p:'Use about 45cm of floss, winding most around your middle fingers. Slide gently between teeth using a C-shape motion. Go just below the gumline and move up and down against each tooth. Never snap or force the floss.'},
+      {h:'When to brush',p:'Brush at least twice daily - morning and before bed. Wait 30 minutes after eating acidic foods or drinks before brushing. Replace your toothbrush every 3 months or when bristles fray.'},
+      {h:'Choosing toothpaste',p:'Use a fluoride toothpaste. For sensitive teeth, look for potassium nitrate or stannous fluoride. Avoid whitening toothpastes with high abrasive content if you have sensitive enamel.'}
+    ]
+  },
+  {
+    id:'extraction', title:'After tooth extraction',
+    color:'#A32D2D', bg:'#FCEBEB', emoji:'TOOTH',
+    summary:'Critical aftercare to ensure proper healing and avoid complications.',
+    sections:[
+      {h:'First 24 hours',p:'Bite firmly on the gauze pad for 30-45 minutes. Avoid rinsing, spitting or using a straw - this can dislodge the blood clot. Do not smoke. Rest and keep your head elevated.'},
+      {h:'Managing bleeding',p:'Some oozing is normal. If bleeding continues, place a fresh gauze pad and bite firmly for another 30 minutes. A damp teabag can also help due to tannins. If heavy bleeding persists, contact your dentist.'},
+      {h:'Swelling & pain',p:'Apply an ice pack to your cheek for 15 minutes on, 15 off in the first 24 hours. Take prescribed or recommended pain medication as directed. Swelling usually peaks at 48-72 hours then subsides.'},
+      {h:'Diet',p:'Eat soft, cool foods for the first 24-48 hours: yoghurt, smoothies, mashed potatoes, soup. Avoid hot, spicy, hard or crunchy foods. Do not use a straw for at least 72 hours.'},
+      {h:'Dry socket warning',p:'If you experience severe pain 3-4 days after extraction, you may have dry socket. Visit your dentist - it is treatable. Signs include intense throbbing pain and a visible empty-looking socket.'}
+    ]
+  },
+  {
+    id:'filling', title:'After a filling',
+    color:'#3B6D11', bg:'#EAF3DE', emoji:'FILL',
+    summary:'What to expect and how to care for your tooth after a filling.',
+    sections:[
+      {h:'Immediately after',p:'Avoid eating until any numbness from anaesthetic has completely worn off - usually 1-3 hours. You may accidentally bite your cheek or tongue without realising. Avoid very hot or cold drinks initially.'},
+      {h:'Sensitivity',p:'Some sensitivity to pressure, heat and cold is normal for a few days to several weeks. This usually resolves on its own. Use a sensitivity toothpaste if needed. If severe or worsening after 2 weeks, contact your dentist.'},
+      {h:'Bite adjustment',p:'If your bite feels uneven or "high" after the numbness wears off, call your dentist. A simple adjustment takes minutes. Do not leave it - an uneven bite can cause jaw pain over time.'},
+      {h:'Long-term care',p:'Avoid chewing hard items like ice, hard sweets or pens directly on the filled tooth. Fillings typically last 7-15 years depending on material. Maintain regular check-ups to monitor them.'}
+    ]
+  },
+  {
+    id:'anxiety', title:'Managing dental anxiety',
+    color:'#534AB7', bg:'#EEEDFE', emoji:'CALM',
+    summary:'Practical, proven techniques for nervous patients.',
+    sections:[
+      {h:'You are not alone',p:'Dental anxiety affects up to 36% of the population. It ranges from mild nervousness to genuine phobia. Telling your dental team you are anxious is the most important first step - it allows them to adjust their approach.'},
+      {h:'Before your appointment',p:'Avoid caffeine on the day. Schedule morning appointments so anxiety does not build up all day. Bring headphones and listen to calming music. Tell someone where you are going - accountability helps.'},
+      {h:'During treatment',p:'Agree on a hand signal to pause at any time - good dentists will always honour this. Try box breathing: inhale for 4 counts, hold 4, exhale 4, hold 4. Focus on relaxing your shoulders and hands.'},
+      {h:'Longer-term',p:'Consider telling your dentist about your anxiety at a consultation before treatment begins. Gradual exposure - starting with simple check-ups - builds trust over time. Sedation options exist for severe anxiety if needed.'}
+    ]
+  },
+  {
+    id:'whitening', title:'Teeth whitening aftercare',
+    color:'#185FA5', bg:'#E6F1FB', emoji:'WHITE',
+    summary:'Protect your results and manage sensitivity after whitening.',
+    sections:[
+      {h:'First 48 hours',p:'Avoid the "white diet" rule: no tea, coffee, red wine, cola, tomato sauce, berries, soy sauce or turmeric. These are the most staining in the vulnerable post-whitening window. Avoid smoking entirely.'},
+      {h:'Sensitivity management',p:'Sensitivity is common for 24-72 hours. Use a sensitivity toothpaste containing potassium nitrate. Avoid very hot or cold foods. Over-the-counter pain relief helps if needed.'},
+      {h:'Maintaining results',p:'Rinse with water after staining drinks. Use a whitening toothpaste 2-3 times per week. Use a straw for cold staining drinks. Touch-up treatments every 6-12 months maintain brightness.'},
+      {h:'What to expect',p:'Results last 6 months to 2 years depending on diet and habits. Professional whitening is significantly more effective than over-the-counter products. Crowns and veneers do not whiten - plan this if you have them.'}
+    ]
+  },
+  {
+    id:'children', title:"Children's dental care",
+    color:'#639922', bg:'#EAF3DE', emoji:'CHILD',
+    summary:"Building good habits from the start - your child's dental health guide.",
+    sections:[
+      {h:'When to start',p:"Begin wiping gums with a damp cloth even before teeth appear. First tooth? Start brushing. First dental visit should happen by age 1 or within 6 months of the first tooth erupting. Early visits build familiarity and catch issues early."},
+      {h:'Brushing for children',p:'Under 3 years: a rice-grain smear of fluoride toothpaste. Ages 3-6: pea-sized amount. Always supervise brushing until age 7-8. Make it fun - let them choose their toothbrush, use a timer, play a song.'},
+      {h:'Diet and decay',p:'The biggest cause of childhood tooth decay is frequent sugar exposure - not just quantity. Limit sugary snacks and drinks to mealtimes. Avoid giving babies juice or sweetened drinks in bottles. Water and milk are best.'},
+      {h:'Common concerns',p:"Thumb sucking is normal until age 4-5. Prolonged habits beyond this may need gentle intervention. Mouth breathing, teeth grinding, and delayed tooth eruption are all worth mentioning to your dentist. Don't panic - most resolve naturally."}
+    ]
+  },
+  {
+    id:'gums', title:'Bleeding gums & gum disease',
+    color:'#A32D2D', bg:'#FCEBEB', emoji:'GUMS',
+    summary:'Understanding, preventing and managing gum disease.',
+    sections:[
+      {h:'Why gums bleed',p:'Bleeding when brushing or flossing is usually a sign of inflammation - called gingivitis. It is caused by plaque buildup at the gumline. The good news: gingivitis is almost entirely reversible with better oral hygiene and a professional clean.'},
+      {h:'Warning signs of gum disease',p:'Persistent bleeding, red or swollen gums, gum recession (teeth looking longer), bad breath that does not go away, loose teeth, pain when chewing. If you have any of these, see a dentist - do not wait.'},
+      {h:'Treating gum disease',p:'Early stage (gingivitis): improved brushing, flossing and a professional clean. Advanced stage (periodontitis): deep cleaning (scaling and root planing), possibly antibiotics. Severe cases may need surgery. Regular maintenance after treatment is essential.'},
+      {h:'Prevention',p:'Brush twice daily, floss daily, use an antiseptic mouthwash. Stop smoking - it is the single biggest risk factor for gum disease. See your dentist every 6 months for professional cleaning even if your teeth feel fine.'}
+    ]
+  },
+  {
+    id:'implants', title:'Dental implant aftercare',
+    color:'#3B6D11', bg:'#EAF3DE', emoji:'IMPL',
+    summary:'Long-term implant success starts with the right aftercare.',
+    sections:[
+      {h:'Immediately after surgery',p:'Expect swelling, bruising and discomfort for 3-5 days. Apply ice for the first 24 hours. Eat only soft foods. Keep the area clean but do not brush the surgical site directly for the first week. Take antibiotics as prescribed.'},
+      {h:'Osseointegration period',p:'The implant takes 3-6 months to fuse with the jawbone (osseointegration). During this time: no smoking, avoid putting direct pressure on the implant, eat soft foods initially, attend all follow-up appointments.'},
+      {h:'Long-term maintenance',p:'Treat your implant like a natural tooth: brush twice daily, floss around it using implant-specific floss or an interdental brush. Use a low-abrasive toothpaste. See your dentist every 6 months. Implants can last a lifetime with proper care.'},
+      {h:'When to call your dentist',p:'Contact your dentist if you experience: persistent pain beyond 5 days, swelling that worsens after 3 days, the implant feeling loose at any stage, difficulty biting, fever, or foul taste.'}
+    ]
+  },
+  {
+    id:'bad-breath', title:'Bad breath causes & fixes',
+    color:'#185FA5', bg:'#E6F1FB', emoji:'BREATH',
+    summary:'Practical guide to understanding and eliminating bad breath.',
+    sections:[
+      {h:'Common causes',p:'90% of bad breath originates in the mouth: bacteria on the tongue (the most common cause), gum disease, decayed teeth, dry mouth, poorly cleaned dentures or bridges. Remaining 10% is systemic: digestive issues, tonsil stones, sinusitis, certain medications.'},
+      {h:'Immediate fixes',p:'Brush your tongue every time you brush your teeth - most bacteria live there. Drink more water throughout the day. Chew sugar-free gum to stimulate saliva. Use an antibacterial mouthwash after brushing.'},
+      {h:'Address the root cause',p:'If you have gum disease, treat it. If you have cavities, fill them. If you have dry mouth from medication, speak to your doctor about alternatives. Chronic bad breath despite good hygiene needs a dentist visit.'},
+      {h:'Daily habits that help',p:'Brush twice, floss daily, clean your tongue. Stay hydrated. Eat breakfast - an empty stomach causes bad breath. Limit coffee, alcohol and strong-smelling foods. Do not smoke.'}
+    ]
+  },
+  {
+    id:'dentures', title:'Denture care',
+    color:'#534AB7', bg:'#EEEDFE', emoji:'DENT',
+    summary:'Keep your dentures clean, comfortable and long-lasting.',
+    sections:[
+      {h:'Daily cleaning routine',p:'Remove dentures at night to rest your gums. Rinse them after every meal. Brush daily with a soft denture brush and denture cleaner - never regular toothpaste, which is too abrasive. Soak overnight in cold water or a denture-soaking solution.'},
+      {h:'Handling dentures',p:'Always hold them over a soft towel or basin of water when cleaning - they are fragile. Never use hot water; it warps the material. Store in water when not worn to prevent warping.'},
+      {h:'Caring for your mouth',p:'Even with full dentures, brush your gums, tongue and palate with a soft brush every morning. This stimulates circulation and removes bacteria. See your dentist annually even with full dentures.'},
+      {h:'When to see your dentist',p:'If dentures become loose, painful, cracked, or no longer fit well. Never try to adjust dentures yourself. Ill-fitting dentures cause sores and bone loss. As your jaw changes shape over years, dentures may need relining or replacing.'}
+    ]
+  },
+  {
+    id:'mouth-odour', title:'How to prevent mouth odour',
+    color:'#3B6D11', bg:'#EAF3DE', emoji:'FRESH',
+    summary:'A complete prevention guide for fresh breath all day.',
+    sections:[
+      {h:'Morning routine',p:'Start with tongue scraping before brushing - this removes the overnight bacterial film. Brush teeth for a full 2 minutes. Rinse with an antiseptic mouthwash. Eat breakfast - skipping it causes increased odour.'},
+      {h:'Throughout the day',p:'Drink water consistently. After meals, rinse with water if brushing is not possible. Chew sugar-free gum or xylitol mints. Avoid prolonged mouth breathing which causes dryness. Limit coffee and alcohol.'},
+      {h:'Foods that cause odour',p:'Garlic and onions: odorous compounds enter the bloodstream and are expelled through the lungs. Effects last 24-72 hours. Dairy, meat and fish: protein breakdown by bacteria creates sulphur compounds. Offset with extra water and fibre.'},
+      {h:'When it persists',p:'If you maintain excellent hygiene and still have bad breath, it may be: tonsil stones (remove with irrigation), post-nasal drip (treat with a GP), acid reflux (dietary changes help), or a dental infection. A dentist visit will identify the cause.'}
+    ]
+  }
+];
+
+function renderGuides() {
+  var grid = document.getElementById('guides-grid');
+  if (!grid) return;
+  grid.innerHTML = CARE_GUIDES.map(function(g) {
+    return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:14px;padding:1.25rem;cursor:pointer;transition:box-shadow .15s;" onclick="openGuide('' + g.id + '')" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">' +
+      '<div style="font-size:2rem;margin-bottom:.75rem;">' + g.emoji + '</div>' +
+      '<div style="font-size:13px;font-weight:500;color:#26215C;margin-bottom:4px;">' + g.title + '</div>' +
+      '<div style="font-size:12px;color:#888780;line-height:1.5;margin-bottom:.875rem;">' + g.summary + '</div>' +
+      '<span style="font-size:11px;font-weight:500;color:' + g.color + ';background:' + g.bg + ';padding:3px 10px;border-radius:20px;">Read guide</span>' +
+      '</div>';
+  }).join('');
+}
+
+function openGuide(id) {
+  var g = CARE_GUIDES.find(function(x){ return x.id === id; });
+  if (!g) return;
+  var sections = g.sections.map(function(s){
+    return '<div style="margin-bottom:1.25rem;">' +
+      '<div style="font-size:13px;font-weight:600;color:#26215C;margin-bottom:5px;">' + s.h + '</div>' +
+      '<div style="font-size:13px;color:#5F5E5A;line-height:1.7;">' + s.p + '</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('guide-modal-content').innerHTML =
+    '<div style="padding:1.5rem;border-bottom:0.5px solid #e0daf5;display:flex;align-items:center;justify-content:space-between;">' +
+    '<div style="display:flex;align-items:center;gap:12px;"><div style="font-size:2rem;">' + g.emoji + '</div><div><div style="font-size:16px;font-weight:500;color:#26215C;">' + g.title + '</div><div style="font-size:12px;color:#888780;margin-top:2px;">' + g.summary + '</div></div></div>' +
+    '<button onclick="closeGuide()" style="border:none;background:none;font-size:22px;color:#888780;cursor:pointer;line-height:1;">x</button>' +
+    '</div>' +
+    '<div style="padding:1.5rem 1.5rem 2rem;">' + sections + '</div>';
+  var modal = document.getElementById('guide-modal');
+  modal.style.display = 'flex';
+}
+
+function closeGuide() {
+  document.getElementById('guide-modal').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════════
+// WALK-IN LOGGER
+// ══════════════════════════════════════════════════════════
+async function logWalkin() {
+  var errEl = document.getElementById('wi-error');
+  errEl.style.display = 'none';
+  var name = document.getElementById('wi-name').value.trim();
+  var complaint = document.getElementById('wi-complaint').value.trim();
+  if (!name) { errEl.textContent = 'Patient name is required.'; errEl.style.display = 'block'; return; }
+  if (!complaint) { errEl.textContent = 'Chief complaint is required.'; errEl.style.display = 'block'; return; }
+  var sb2 = getSb();
+  if (!sb2 || !currentUser) { errEl.textContent = 'Please sign in first.'; errEl.style.display = 'block'; return; }
+  var record = {
+    patient_id: currentUser.id,
+    patient_name: name,
+    patient_email: document.getElementById('wi-phone').value.trim(),
+    provider_id: currentUser.id,
+    provider_name: (currentUser.user_metadata||{}).clinic_name || 'Clinic',
+    provider_type: 'walkin',
+    preferred_date: document.getElementById('wi-date').value || new Date().toISOString().split('T')[0],
+    preferred_time: '00:00',
+    complaint: complaint,
+    service_requested: document.getElementById('wi-treatment').value.trim(),
+    status: document.getElementById('wi-payment').value || 'pending',
+    notes: [
+      document.getElementById('wi-age').value ? 'Age: ' + document.getElementById('wi-age').value : '',
+      document.getElementById('wi-gender').value ? 'Gender: ' + document.getElementById('wi-gender').value : '',
+      document.getElementById('wi-dentist').value ? 'Dentist: ' + document.getElementById('wi-dentist').value : '',
+      document.getElementById('wi-flags').value ? 'Flags: ' + document.getElementById('wi-flags').value : '',
+      document.getElementById('wi-next').value ? 'Next appt: ' + document.getElementById('wi-next').value : '',
+      document.getElementById('wi-amount').value ? 'Amount: N' + document.getElementById('wi-amount').value : '',
+      document.getElementById('wi-notes').value ? document.getElementById('wi-notes').value : ''
+    ].filter(Boolean).join(' | ')
+  };
+  var res = await sb2.from('bookings').insert([record]);
+  if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
+  flashSaved('cd-walkin-saved');
+  // Clear form
+  ['wi-name','wi-phone','wi-age','wi-complaint','wi-treatment','wi-dentist','wi-flags','wi-notes','wi-amount'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  document.getElementById('wi-gender').value = '';
+  document.getElementById('wi-payment').value = 'pending';
+  document.getElementById('wi-date').value = '';
+  document.getElementById('wi-next').value = '';
+  loadWalkins();
+}
+
+async function loadWalkins() {
+  if (!currentUser) return;
+  var listEl = document.getElementById('cd-walkin-list');
+  if (!listEl) return;
+  var res = await getSb().from('bookings').select('*').eq('provider_id', currentUser.id).eq('provider_type','walkin').order('preferred_date', {ascending:false}).limit(20);
+  if (!res.data || !res.data.length) {
+    listEl.innerHTML = '<div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No walk-ins logged yet.</div>';
+    return;
+  }
+  var payStyle = {pending:'tag-pu', paid:'tag-gr', 'part-paid':'tag-bl', waived:'tag-neu'};
+  listEl.innerHTML = res.data.map(function(b){
+    return '<div class="card-row">' +
+      '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:#26215C;">' + b.patient_name + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + b.preferred_date + ' - ' + (b.complaint.length>50?b.complaint.slice(0,50)+'...':b.complaint) + '</div>' +
+      (b.service_requested ? '<div style="font-size:11px;color:#185FA5;margin-top:1px;">Tx: ' + b.service_requested + '</div>' : '') +
+      '</div><span class="tag ' + (payStyle[b.status]||'tag-neu') + '">' + b.status + '</span></div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// INVENTORY MANAGER
+// ══════════════════════════════════════════════════════════
+var INV_KEY = 'dfhq_inventory';
+
+function addInvRow(item) {
+  item = item || {name:'',qty:'',unit:'',reorder:''};
+  var rows = document.getElementById('cd-inv-rows');
+  var empty = document.getElementById('cd-inv-empty');
+  if (empty) empty.style.display = 'none';
+  var row = document.createElement('div');
+  row.className = 'inv-row';
+  row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 36px;gap:8px;margin-bottom:8px;align-items:center;';
+  row.innerHTML =
+    '<input class="f-input f-input-blue inv-name" type="text" placeholder="e.g. Examination gloves" style="margin-bottom:0;" value="' + (item.name||'') + '"/>' +
+    '<input class="f-input f-input-blue inv-qty"  type="number" placeholder="0" style="margin-bottom:0;" value="' + (item.qty||'') + '"/>' +
+    '<input class="f-input f-input-blue inv-unit" type="text" placeholder="boxes" style="margin-bottom:0;" value="' + (item.unit||'') + '"/>' +
+    '<input class="f-input f-input-blue inv-reorder" type="number" placeholder="5" style="margin-bottom:0;" value="' + (item.reorder||'') + '"/>' +
+    '<button class="remove-btn" onclick="this.parentElement.remove();renderInvAlerts();">x</button>';
+  rows.appendChild(row);
+  renderInvAlerts();
+}
+
+function renderInvAlerts() {
+  var rows = document.querySelectorAll('.inv-row');
+  var alerts = [];
+  rows.forEach(function(row){
+    var name = row.querySelector('.inv-name').value.trim();
+    var qty = parseFloat(row.querySelector('.inv-qty').value);
+    var reorder = parseFloat(row.querySelector('.inv-reorder').value);
+    if (name && !isNaN(qty) && !isNaN(reorder) && qty <= reorder) {
+      alerts.push({name:name, qty:qty, reorder:reorder});
+    }
+  });
+  var alertEl = document.getElementById('cd-inv-alerts');
+  if (!alertEl) return;
+  if (!alerts.length) {
+    alertEl.innerHTML = '<div style="padding:1.25rem;font-size:13px;color:#3B6D11;">All items are sufficiently stocked.</div>';
+    return;
+  }
+  alertEl.innerHTML = alerts.map(function(a){
+    return '<div class="card-row"><div style="flex:1;"><div style="font-size:13px;font-weight:500;color:#26215C;">' + a.name + '</div>' +
+      '<div style="font-size:11px;color:#888780;">Current: ' + a.qty + ' - Reorder at: ' + a.reorder + '</div></div>' +
+      '<span class="tag tag-red">Low stock</span></div>';
+  }).join('');
+}
+
+async function saveInventory() {
+  var rows = document.querySelectorAll('.inv-row');
+  var items = [];
+  rows.forEach(function(row){
+    var name = row.querySelector('.inv-name').value.trim();
+    if (name) items.push({
+      name: name,
+      qty: row.querySelector('.inv-qty').value,
+      unit: row.querySelector('.inv-unit').value,
+      reorder: row.querySelector('.inv-reorder').value
+    });
+  });
+  var res = await getSb().auth.updateUser({ data: { inventory: items } });
+  if (!res.error) flashSaved('cd-inv-saved');
+  renderInvAlerts();
+}
+
+function loadInventory(meta) {
+  var items = meta.inventory || [];
+  var empty = document.getElementById('cd-inv-empty');
+  if (items.length && empty) empty.style.display = 'none';
+  items.forEach(function(item){ addInvRow(item); });
+}
+
+// ══════════════════════════════════════════════════════════
+// ANALYTICS RENDERER
+// ══════════════════════════════════════════════════════════
+async function loadAnalytics() {
+  if (!currentUser) return;
+  var res = await getSb().from('bookings').select('*').eq('provider_id', currentUser.id);
+  var walkinRes = await getSb().from('bookings').select('*').eq('provider_id', currentUser.id).eq('provider_type','walkin');
+  var all = res.data || [];
+  var walkins = walkinRes.data || [];
+  var now = new Date();
+  var thisMonth = now.toISOString().slice(0,7);
+  var monthCount = all.filter(function(b){ return (b.preferred_date||'').slice(0,7) === thisMonth; }).length;
+  var pendingCount = walkins.filter(function(b){ return b.status === 'pending'; }).length;
+  var el = function(id){ return document.getElementById(id); };
+  if (el('an-total')) el('an-total').textContent = all.length;
+  if (el('an-month')) el('an-month').textContent = monthCount;
+  if (el('an-walkins')) el('an-walkins').textContent = walkins.length;
+  if (el('an-pending')) el('an-pending').textContent = pendingCount;
+
+  // Bar chart — last 6 months
+  var months = [];
+  for (var i=5; i>=0; i--) {
+    var d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    var key = d.toISOString().slice(0,7);
+    var label = d.toLocaleString('en',{month:'short'});
+    var count = all.filter(function(b){ return (b.preferred_date||'').slice(0,7) === key; }).length;
+    months.push({label:label, count:count});
+  }
+  var max = Math.max.apply(null, months.map(function(m){return m.count;})) || 1;
+  var barEl = document.getElementById('cd-bar-chart');
+  var lblEl = document.getElementById('cd-bar-labels');
+  if (barEl) {
+    barEl.innerHTML = months.map(function(m){
+      var h = Math.max(8, Math.round((m.count/max)*130));
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">' +
+        '<div style="font-size:10px;color:#888780;">' + (m.count||'') + '</div>' +
+        '<div style="width:100%;background:#E6F1FB;border-radius:6px 6px 0 0;height:' + h + 'px;"></div>' +
+        '</div>';
+    }).join('');
+  }
+  if (lblEl) {
+    lblEl.innerHTML = months.map(function(m){
+      return '<div style="flex:1;text-align:center;font-size:11px;color:#888780;">' + m.label + '</div>';
+    }).join('');
+  }
+
+  // Top complaints
+  var complaintMap = {};
+  all.forEach(function(b){ if(b.complaint){ var k = b.complaint.slice(0,30); complaintMap[k] = (complaintMap[k]||0)+1; } });
+  var sorted = Object.entries(complaintMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  var cEl = document.getElementById('an-complaints');
+  if (cEl && sorted.length) {
+    cEl.innerHTML = sorted.map(function(c){
+      return '<div class="card-row"><div class="flex-1"><div style="font-size:12px;color:#26215C;">' + c[0] + (c[0].length===30?'...':'') + '</div></div><span style="font-size:12px;font-weight:500;color:#185FA5;">' + c[1] + 'x</span></div>';
+    }).join('');
+  }
+
+  // Upcoming this week
+  var weekEnd = new Date(now); weekEnd.setDate(weekEnd.getDate()+7);
+  var upcoming = all.filter(function(b){
+    if (!b.preferred_date || b.provider_type==='walkin') return false;
+    var d = new Date(b.preferred_date+'T00:00:00');
+    return d >= now && d <= weekEnd;
+  }).sort(function(a,b){return a.preferred_date.localeCompare(b.preferred_date);});
+  var uEl = document.getElementById('an-upcoming');
+  if (uEl && upcoming.length) {
+    uEl.innerHTML = upcoming.map(function(b){
+      return '<div class="card-row"><div class="flex-1"><div style="font-size:12px;font-weight:500;color:#26215C;">' + b.patient_name + '</div><div style="font-size:11px;color:#888780;">' + b.preferred_date + ' - ' + fmtTime(b.preferred_time) + '</div></div><span class="tag tag-bl">Booked</span></div>';
+    }).join('');
   }
 }
 
@@ -2686,12 +3187,12 @@ async function initApp() {
     if (role === 'patient') {
       updateDashName('s-patient-dash', name);
       go('s-patient-dash');
-      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); } catch(e) { console.warn('patient init', e); }
+      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); } catch(e) { console.warn('patient init', e); }
     } else if (role === 'clinic') {
       var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
       var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
       go('s-clinic-dash');
-      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); } catch(e) { console.warn('clinic init', e); }
+      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); } catch(e) { console.warn('clinic init', e); }
     } else if (role === 'professional') {
       updateDashName('s-pro-dash', name);
       var sub = document.getElementById('pro-hero-sub');

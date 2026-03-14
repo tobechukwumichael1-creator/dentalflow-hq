@@ -1100,11 +1100,14 @@ tr:last-child td { border-bottom: none; }
       <div id="pd-appts" class="tab-panel">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">All appointments</div>
+            <div class="card-title">My bookings</div>
+            <button class="btn btn-purple btn-sm" onclick="setTab('pd-clinics', document.querySelector('[data-title=\"Find a clinic\"]'))">+ New booking</button>
           </div>
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments yet. Find a clinic to book your first one.</div>
-            <button class="btn btn-purple btn-sm">Find a clinic</button>
+          <div id="pd-bookings-list">
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No bookings yet.</div>
+              <button class="btn btn-purple btn-sm" onclick="setTab('pd-clinics', document.querySelector('[data-title=\"Find a clinic\"]'))">Find a clinic</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1160,16 +1163,69 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
-      <!-- Find a clinic -->
+      <!-- Find a clinic / professional -->
       <div id="pd-clinics" class="tab-panel">
-        <div style="font-size:15px;font-weight:500;color:#26215C;margin-bottom:1rem;">Find a clinic near you</div>
-        <button class="btn btn-purple">Search clinics in Lagos ↗</button>
+        <!-- Search bar -->
+        <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
+          <select id="search-location" class="f-input f-input-purple" style="max-width:200px;margin-bottom:0;">
+            <option value="">All locations</option>
+            <option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option>
+            <option>Kano</option><option>Oyo</option><option>Enugu</option>
+            <option>Delta</option><option>Anambra</option><option>Kaduna</option><option>Other</option>
+          </select>
+          <select id="search-type" class="f-input f-input-purple" style="max-width:200px;margin-bottom:0;">
+            <option value="clinic">Clinics</option>
+            <option value="professional">Professionals (home visits)</option>
+          </select>
+          <button class="btn btn-purple" onclick="searchProviders()">Search</button>
+          <button class="btn" style="border:0.5px solid #e0daf5;background:#fff;color:#534AB7;" onclick="browseAll()">Browse all</button>
+        </div>
+        <!-- Results -->
+        <div id="search-results">
+          <div style="font-size:13px;color:#888780;">Search above or browse all to find a clinic or professional.</div>
+        </div>
+      </div>
+
+      <!-- Booking modal overlay -->
+      <div id="booking-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.55);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;width:100%;max-width:480px;margin:1rem;max-height:90vh;overflow-y:auto;">
+          <div style="padding:1.5rem 1.5rem 0;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:16px;font-weight:500;color:#26215C;" id="modal-provider-name">Book appointment</div>
+              <div style="font-size:12px;color:#888780;margin-top:2px;" id="modal-provider-sub"></div>
+            </div>
+            <button onclick="closeBookingModal()" style="border:none;background:none;font-size:20px;color:#888780;cursor:pointer;line-height:1;">×</button>
+          </div>
+          <div style="padding:1.25rem 1.5rem;">
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="f-label" style="color:#534AB7;">Preferred date</label>
+                <input id="book-date" class="f-input f-input-purple" type="date"/>
+              </div>
+              <div class="form-field">
+                <label class="f-label" style="color:#534AB7;">Preferred time</label>
+                <input id="book-time" class="f-input f-input-purple" type="time"/>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="f-label" style="color:#534AB7;">What is your complaint / concern?</label>
+              <textarea id="book-complaint" class="f-input f-input-purple" rows="3" placeholder="e.g. Toothache on my lower left, sensitivity to cold, bleeding gums..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-field">
+              <label class="f-label" style="color:#534AB7;">Specific service requested <span style="font-weight:400;color:#888780;">(optional — leave blank if unsure)</span></label>
+              <input id="book-service" class="f-input f-input-purple" type="text" placeholder="e.g. Tooth extraction, whitening, check-up..."/>
+            </div>
+            <div id="book-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+            <div id="book-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:10px 14px;margin-bottom:.75rem;display:none;"></div>
+            <button class="btn btn-purple" style="width:100%;" onclick="submitBooking()">Send booking request</button>
+          </div>
+        </div>
       </div>
 
       <!-- Care guides -->
       <div id="pd-care" class="tab-panel">
         <div style="font-size:15px;font-weight:500;color:#26215C;margin-bottom:1rem;">Care guides</div>
-        <button class="btn btn-purple">Browse all guides ↗</button>
+        <div style="font-size:13px;color:#888780;">Care guides coming soon.</div>
       </div>
     </div>
   </div>
@@ -1335,9 +1391,14 @@ tr:last-child td { border-bottom: none; }
       <!-- Schedule -->
       <div id="cd-schedule" class="tab-panel">
         <div class="card">
-          <div class="card-header"><div class="card-title">Weekly schedule</div></div>
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;">No schedule set up yet. This will show your weekly bookings once patients start booking.</div>
+          <div class="card-header">
+            <div class="card-title">Incoming bookings</div>
+            <button class="btn btn-blue btn-sm" onclick="loadClinicBookings()">Refresh</button>
+          </div>
+          <div id="cd-bookings-list">
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;">No bookings yet. Once patients find and book your clinic, they will appear here.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1624,11 +1685,13 @@ tr:last-child td { border-bottom: none; }
       <div id="pro-gigs" class="tab-panel">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">Upcoming gigs &amp; sessions</div>
-            <button class="btn btn-green btn-sm">+ Add availability</button>
+            <div class="card-title">Incoming booking requests</div>
+            <button class="btn btn-green btn-sm" onclick="loadProBookings()">Refresh</button>
           </div>
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;">No gigs booked yet. Add your availability to start receiving gig requests.</div>
+          <div id="pro-bookings-list">
+            <div style="padding:2.5rem 1.25rem;text-align:center;">
+              <div style="font-size:13px;color:#888780;">No booking requests yet. Patients will find you once your profile is complete.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -2087,6 +2150,277 @@ function loadProfileIntoForms(meta) {
 }
 
 // ══════════════════════════════════════════════════════════
+// BOOKING SYSTEM
+// ══════════════════════════════════════════════════════════
+
+var bookingTarget = null; // { id, name, type, sub }
+
+// ── Format time for display ────────────────────────────────
+function fmtTime(t) {
+  if (!t) return '';
+  var parts = t.split(':');
+  var h = parseInt(parts[0]);
+  var m = parts[1];
+  var ampm = h >= 12 ? 'pm' : 'am';
+  h = h % 12 || 12;
+  return h + ':' + m + ampm;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  var dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+}
+
+// ── Provider card HTML ─────────────────────────────────────
+function providerCard(p, type) {
+  var meta = p.raw_user_meta_data || {};
+  var name = meta.clinic_name || meta.full_name || p.email;
+  var location = meta.location || '';
+  var hours = (meta.open_time && meta.close_time) ? meta.open_time + ' – ' + meta.close_time : '';
+  var payLabels = { cash:'Cash', transfer:'Bank transfer', pos:'POS/Card', hmo:'HMO', mobile:'Mobile money' };
+  var pays = (meta.payments || []).map(function(x){ return payLabels[x]||x; }).join(', ');
+  var svcs = (meta.services || []).slice(0,3);
+  var workLabels = { fulltime:'Full-time', parttime:'Part-time', sessional:'Sessional', gig:'Gig', home:'Home visits' };
+  var works = (meta.work_prefs || []).map(function(x){ return workLabels[x]||x; }).join(', ');
+
+  var sub = type === 'clinic'
+    ? (location ? location : '') + (hours ? ' · ' + hours : '')
+    : (meta.regulator || '') + (location ? ' · ' + location : '');
+
+  var svcHtml = '';
+  if (type === 'clinic' && svcs.length) {
+    svcHtml = '<div style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:6px;">' +
+      svcs.map(function(s){ return '<span style="font-size:11px;background:#E6F1FB;color:#185FA5;padding:3px 9px;border-radius:20px;">' + s.name + ' <strong>' + s.price + '</strong></span>'; }).join('') +
+      '</div>';
+  }
+  if (type === 'professional' && works) {
+    svcHtml = '<div style="margin-top:.75rem;font-size:12px;color:#5F5E5A;">Open to: ' + works + '</div>';
+    if (meta.rate_day) svcHtml += '<div style="font-size:12px;color:#3B6D11;margin-top:3px;">Day rate: N' + Number(meta.rate_day).toLocaleString() + ' · Home visit: N' + (meta.rate_home ? Number(meta.rate_home).toLocaleString() : '—') + '</div>';
+  }
+
+  var accent = type === 'clinic' ? '#185FA5' : '#3B6D11';
+  var accentLt = type === 'clinic' ? '#E6F1FB' : '#EAF3DE';
+
+  return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:12px;padding:1.25rem;margin-bottom:12px;">' +
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">' +
+    '<div>' +
+    '<div style="font-size:14px;font-weight:500;color:#26215C;">' + name + '</div>' +
+    '<div style="font-size:12px;color:#888780;margin-top:2px;">' + sub + '</div>' +
+    svcHtml +
+    (pays ? '<div style="font-size:11px;color:#888780;margin-top:.5rem;">Accepts: ' + pays + '</div>' : '') +
+    '</div>' +
+    '<button onclick="openBookingModal('' + p.id + '','' + encodeURIComponent(name) + '','' + type + '','' + encodeURIComponent(sub) + '')" ' +
+    'style="flex-shrink:0;padding:7px 16px;border-radius:8px;border:none;background:' + accent + ';color:#fff;font-size:12px;font-weight:500;cursor:pointer;">Book</button>' +
+    '</div>' +
+    '</div>';
+}
+
+// ── Search providers ───────────────────────────────────────
+async function searchProviders() {
+  var location = document.getElementById('search-location').value;
+  var type = document.getElementById('search-type').value;
+  var resultsEl = document.getElementById('search-results');
+  resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">Searching...</div>';
+
+  var role = type === 'clinic' ? 'clinic' : 'professional';
+  var res = await sb.rpc('get_users_by_role', { role_param: role });
+
+  if (res.error || !res.data) {
+    resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">Could not load results. Make sure providers have completed their profiles.</div>';
+    return;
+  }
+
+  var users = res.data.filter(function(u) {
+    var meta = u.raw_user_meta_data || {};
+    if (!meta.profile_complete) return false;
+    if (location && meta.location !== location) return false;
+    return true;
+  });
+
+  if (!users.length) {
+    resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">No ' + type + 's found' + (location ? ' in ' + location : '') + '. Try a different location or browse all.</div>';
+    return;
+  }
+
+  resultsEl.innerHTML = '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + users.length + ' result(s)</div>' +
+    users.map(function(u){ return providerCard(u, type); }).join('');
+}
+
+async function browseAll() {
+  var type = document.getElementById('search-type').value;
+  document.getElementById('search-location').value = '';
+  await searchProviders();
+}
+
+// ── Booking modal ──────────────────────────────────────────
+function openBookingModal(id, name, type, sub) {
+  bookingTarget = { id: id, name: decodeURIComponent(name), type: type, sub: decodeURIComponent(sub) };
+  document.getElementById('modal-provider-name').textContent = 'Book with ' + bookingTarget.name;
+  document.getElementById('modal-provider-sub').textContent = bookingTarget.sub;
+  document.getElementById('book-date').value = '';
+  document.getElementById('book-time').value = '';
+  document.getElementById('book-complaint').value = '';
+  document.getElementById('book-service').value = '';
+  document.getElementById('book-error').style.display = 'none';
+  document.getElementById('book-success').style.display = 'none';
+  var modal = document.getElementById('booking-modal');
+  modal.style.display = 'flex';
+}
+
+function closeBookingModal() {
+  document.getElementById('booking-modal').style.display = 'none';
+  bookingTarget = null;
+}
+
+// ── Submit booking to Supabase ─────────────────────────────
+async function submitBooking() {
+  var errEl = document.getElementById('book-error');
+  var sucEl = document.getElementById('book-success');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!bookingTarget) return;
+  if (!currentUser) { errEl.textContent = 'Please sign in first.'; errEl.style.display = 'block'; return; }
+
+  var date      = document.getElementById('book-date').value;
+  var time      = document.getElementById('book-time').value;
+  var complaint = document.getElementById('book-complaint').value.trim();
+  var service   = document.getElementById('book-service').value.trim();
+
+  if (!date)      { errEl.textContent = 'Please select a preferred date.'; errEl.style.display = 'block'; return; }
+  if (!time)      { errEl.textContent = 'Please select a preferred time.'; errEl.style.display = 'block'; return; }
+  if (!complaint) { errEl.textContent = 'Please describe your complaint or concern.'; errEl.style.display = 'block'; return; }
+
+  var meta = currentUser.user_metadata || {};
+
+  var booking = {
+    patient_id:        currentUser.id,
+    patient_name:      meta.full_name || currentUser.email,
+    patient_email:     currentUser.email,
+    provider_id:       bookingTarget.id,
+    provider_name:     bookingTarget.name,
+    provider_type:     bookingTarget.type,
+    preferred_date:    date,
+    preferred_time:    time,
+    complaint:         complaint,
+    service_requested: service || null,
+    status:            'confirmed',
+    notes:             null
+  };
+
+  var res = await sb.from('bookings').insert([booking]);
+  if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
+
+  sucEl.textContent = 'Booking confirmed with ' + bookingTarget.name + ' for ' + fmtDate(date) + ' at ' + fmtTime(time) + '. They will be in touch to confirm details.';
+  sucEl.style.display = 'block';
+  document.querySelector('#booking-modal button[onclick="submitBooking()"]').style.display = 'none';
+
+  // Refresh patient bookings list
+  loadPatientBookings();
+}
+
+// ── Load patient bookings ──────────────────────────────────
+async function loadPatientBookings() {
+  if (!currentUser) return;
+  var listEl = document.getElementById('pd-bookings-list');
+  if (!listEl) return;
+
+  var res = await sb.from('bookings').select('*').eq('patient_id', currentUser.id).order('preferred_date', { ascending: true });
+  if (res.error || !res.data || !res.data.length) {
+    listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No bookings yet.</div></div>';
+    return;
+  }
+
+  var statusStyle = { confirmed:'tag-gr', pending:'tag-pu', cancelled:'tag-red' };
+  listEl.innerHTML = res.data.map(function(b) {
+    return '<div class="card-row">' +
+      '<div style="flex-shrink:0;width:42px;height:42px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+      '<div style="font-size:13px;font-weight:500;color:#534AB7;line-height:1;">' + new Date(b.preferred_date+'T00:00:00').getDate() + '</div>' +
+      '<div style="font-size:9px;color:#7F77DD;">' + new Date(b.preferred_date+'T00:00:00').toLocaleString('en',{month:'short'}).toUpperCase() + '</div>' +
+      '</div>' +
+      '<div style="flex:1;">' +
+      '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.provider_name + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' · ' + (b.complaint.length > 40 ? b.complaint.slice(0,40)+'...' : b.complaint) + '</div>' +
+      '</div>' +
+      '<span class="tag ' + (statusStyle[b.status]||'tag-neu') + '">' + b.status + '</span>' +
+      '</div>';
+  }).join('');
+
+  // Update overview stat
+  var nextEl = document.querySelector('#pd-overview .stat-card .stat-value.text-muted');
+  if (res.data.length && nextEl) {
+    var next = res.data[0];
+    nextEl.textContent = fmtDate(next.preferred_date);
+    nextEl.className = 'stat-value';
+    nextEl.style.fontSize = '14px';
+  }
+}
+
+// ── Load clinic bookings ───────────────────────────────────
+async function loadClinicBookings() {
+  if (!currentUser) return;
+  var listEl = document.getElementById('cd-bookings-list');
+  if (!listEl) return;
+
+  var res = await sb.from('bookings').select('*').eq('provider_id', currentUser.id).order('preferred_date', { ascending: true });
+  if (res.error || !res.data || !res.data.length) {
+    listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;">No bookings yet.</div></div>';
+    return;
+  }
+
+  // Update stat card
+  var today = new Date().toISOString().split('T')[0];
+  var todayCount = res.data.filter(function(b){ return b.preferred_date === today; }).length;
+  var todayStat = document.querySelector('#cd-overview .stat-card .stat-value.text-muted');
+  if (todayStat) { todayStat.textContent = todayCount || '0'; todayStat.className = 'stat-value'; }
+
+  listEl.innerHTML = res.data.map(function(b) {
+    var isToday = b.preferred_date === today;
+    return '<div class="card-row">' +
+      '<div style="flex-shrink:0;width:42px;height:42px;border-radius:9px;background:' + (isToday?'#E6F1FB':'#f7f6fb') + ';display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+      '<div style="font-size:13px;font-weight:500;color:' + (isToday?'#185FA5':'#534AB7') + ';line-height:1;">' + new Date(b.preferred_date+'T00:00:00').getDate() + '</div>' +
+      '<div style="font-size:9px;color:#888780;">' + new Date(b.preferred_date+'T00:00:00').toLocaleString('en',{month:'short'}).toUpperCase() + '</div>' +
+      '</div>' +
+      '<div style="flex:1;">' +
+      '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.patient_name + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' · ' + (b.complaint.length>45?b.complaint.slice(0,45)+'...':b.complaint) + '</div>' +
+      (b.service_requested ? '<div style="font-size:11px;color:#185FA5;margin-top:2px;">Service: ' + b.service_requested + '</div>' : '') +
+      '</div>' +
+      '<span class="tag ' + (isToday?'tag-bl':'tag-gr') + '">' + (isToday?'Today':'Confirmed') + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+// ── Load professional bookings ─────────────────────────────
+async function loadProBookings() {
+  if (!currentUser) return;
+  var listEl = document.getElementById('pro-bookings-list');
+  if (!listEl) return;
+
+  var res = await sb.from('bookings').select('*').eq('provider_id', currentUser.id).order('preferred_date', { ascending: true });
+  if (res.error || !res.data || !res.data.length) {
+    listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;">No booking requests yet.</div></div>';
+    return;
+  }
+
+  listEl.innerHTML = res.data.map(function(b) {
+    return '<div class="card-row">' +
+      '<div style="flex-shrink:0;width:42px;height:42px;border-radius:9px;background:#EAF3DE;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+      '<div style="font-size:13px;font-weight:500;color:#3B6D11;line-height:1;">' + new Date(b.preferred_date+'T00:00:00').getDate() + '</div>' +
+      '<div style="font-size:9px;color:#639922;">' + new Date(b.preferred_date+'T00:00:00').toLocaleString('en',{month:'short'}).toUpperCase() + '</div>' +
+      '</div>' +
+      '<div style="flex:1;">' +
+      '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.patient_name + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtDate(b.preferred_date) + ' · ' + fmtTime(b.preferred_time) + '</div>' +
+      '<div style="font-size:11px;color:#5F5E5A;margin-top:2px;">' + (b.complaint.length>50?b.complaint.slice(0,50)+'...':b.complaint) + '</div>' +
+      '</div>' +
+      '<span class="tag tag-gr">Confirmed</span>' +
+      '</div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
 // DYNAMIC OVERVIEW RENDERERS
 // ══════════════════════════════════════════════════════════
 
@@ -2326,9 +2660,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       go('s-pro-dash');
     }
     loadProfileIntoForms(meta);
-    if (meta.role === 'patient') renderPatientOverview(meta);
-    else if (meta.role === 'clinic') renderClinicOverview(meta);
-    else if (meta.role === 'professional') renderProOverview(meta);
+    if (meta.role === 'patient') { renderPatientOverview(meta); loadPatientBookings(); }
+    else if (meta.role === 'clinic') { renderClinicOverview(meta); loadClinicBookings(); }
+    else if (meta.role === 'professional') { renderProOverview(meta); loadProBookings(); }
   } else {
     go('s-landing');
   }

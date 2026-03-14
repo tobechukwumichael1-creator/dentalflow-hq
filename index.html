@@ -1082,15 +1082,15 @@ tr:last-child td { border-bottom: none; }
             <div class="card-header"><div class="card-title">Upcoming appointments</div></div>
             <div style="padding:2rem 1.25rem;text-align:center;">
               <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No appointments yet.</div>
-              <button class="btn btn-purple btn-sm">Find a clinic</button>
+              <button class="btn btn-purple btn-sm" onclick="navTo('pd-clinics')">Find a clinic</button>
             </div>
           </div>
           <div id="pd-nudge-card" class="card">
             <div class="card-header"><div class="card-title" id="pd-nudge-title">Getting started</div></div>
             <div id="pd-nudge-body">
-              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your health profile</div><div class="text-sm text-muted">Takes about 3 minutes</div></div><span style="font-size:12px;color:#534AB7;cursor:pointer;">→</span></div>
-              <div class="card-row"><div class="flex-1"><div class="font-medium">2. Find a clinic near you</div><div class="text-sm text-muted">Search by location</div></div><span style="font-size:12px;color:#534AB7;cursor:pointer;">→</span></div>
-              <div class="card-row"><div class="flex-1"><div class="font-medium">3. Book your first appointment</div><div class="text-sm text-muted">Available 24/7</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-profile')"><div class="flex-1"><div class="font-medium">1. Complete your health profile</div><div class="text-sm text-muted">Takes about 3 minutes</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-clinics')"><div class="flex-1"><div class="font-medium">2. Find a clinic near you</div><div class="text-sm text-muted">Search by location</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pd-appts')"><div class="flex-1"><div class="font-medium">3. Book your first appointment</div><div class="text-sm text-muted">Available 24/7</div></div><span style="font-size:12px;color:#534AB7;">→</span></div>
             </div>
           </div>
         </div>
@@ -1101,12 +1101,12 @@ tr:last-child td { border-bottom: none; }
         <div class="card">
           <div class="card-header">
             <div class="card-title">My bookings</div>
-            <button class="btn btn-purple btn-sm" onclick="setTab('pd-clinics', document.querySelector('[data-title=\"Find a clinic\"]'))">+ New booking</button>
+            <button class="btn btn-purple btn-sm" onclick="navTo('pd-clinics')">+ New booking</button>
           </div>
           <div id="pd-bookings-list">
             <div style="padding:2.5rem 1.25rem;text-align:center;">
               <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No bookings yet.</div>
-              <button class="btn btn-purple btn-sm" onclick="setTab('pd-clinics', document.querySelector('[data-title=\"Find a clinic\"]'))">Find a clinic</button>
+              <button class="btn btn-purple btn-sm" onclick="navTo('pd-clinics')">Find a clinic</button>
             </div>
           </div>
         </div>
@@ -1663,9 +1663,9 @@ tr:last-child td { border-bottom: none; }
           <div class="card">
             <div class="card-header"><div class="card-title" id="pro-nudge-title">Getting started</div></div>
             <div id="pro-nudge-body">
-              <div class="card-row"><div class="flex-1"><div class="font-medium">1. Complete your profile</div><div class="text-sm text-muted">Add credentials & licence number</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
-              <div class="card-row"><div class="flex-1"><div class="font-medium">2. Browse job listings</div><div class="text-sm text-muted">Full-time, sessional & gigs</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
-              <div class="card-row"><div class="flex-1"><div class="font-medium">3. Set your availability</div><div class="text-sm text-muted">For gigs and home visits</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pro-profile')"><div class="flex-1"><div class="font-medium">1. Complete your profile</div><div class="text-sm text-muted">Add credentials & licence number</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pro-jobs')"><div class="flex-1"><div class="font-medium">2. Browse job listings</div><div class="text-sm text-muted">Full-time, sessional & gigs</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
+              <div class="card-row" style="cursor:pointer;" onclick="navTo('pro-gigs')"><div class="flex-1"><div class="font-medium">3. View booking requests</div><div class="text-sm text-muted">Patients who want home visits</div></div><span style="font-size:12px;color:#3B6D11;">→</span></div>
             </div>
           </div>
         </div>
@@ -1802,6 +1802,16 @@ function go(screenId) {
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
+}
+
+// ── navTo — navigate to any tab by panel ID ───────────────
+function navTo(tabId) {
+  var tab = document.getElementById(tabId);
+  if (!tab) return;
+  var dash = tab.closest('.dash');
+  if (!dash) return;
+  var sidebarItem = dash.querySelector('[onclick*="' + tabId + '"]');
+  if (sidebarItem) setTab(tabId, sidebarItem);
 }
 
 // ── Tab switching inside dashboards ────────────────────────

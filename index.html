@@ -797,7 +797,7 @@ tr:last-child td { border-bottom: none; }
 <!-- ══════════════════════════════════════════════════════════
      SCREEN 1 — LANDING
 ══════════════════════════════════════════════════════════ -->
-<div id="s-landing" class="screen">
+<div id="s-landing" class="screen active">
 
   <nav class="nav">
     <a class="nav-logo" onclick="go('s-landing')">
@@ -2667,35 +2667,41 @@ function renderProOverview(meta) {
 }
 
 // ── Restore session on load ────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session) {
+document.addEventListener('DOMContentLoaded', function() {
+  go('s-landing'); // always show landing immediately
+  initApp();
+});
+
+async function initApp() {
+  try {
+    var res = await sb.auth.getSession();
+    var session = res.data && res.data.session;
+    if (!session) return; // stay on landing
     currentUser = session.user;
-    const meta = session.user.user_metadata || {};
-    const role = meta.role || 'patient';
-    const name = meta.full_name || meta.clinic_name || session.user.email;
+    var meta = session.user.user_metadata || {};
+    var role = meta.role || 'patient';
+    var name = meta.full_name || meta.clinic_name || session.user.email;
     if (role === 'patient') {
-      updateDashName('s-patient-dash', name); go('s-patient-dash');
+      updateDashName('s-patient-dash', name);
+      go('s-patient-dash');
+      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); } catch(e) { console.warn('patient init', e); }
     } else if (role === 'clinic') {
-      document.getElementById('cd-hero-name').textContent = name;
-      document.getElementById('cd-sidebar-tag').textContent = name;
+      var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
+      var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
       go('s-clinic-dash');
+      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); } catch(e) { console.warn('clinic init', e); }
     } else if (role === 'professional') {
       updateDashName('s-pro-dash', name);
-      if (meta.regulator && meta.reg_no) {
-        const sub = document.getElementById('pro-hero-sub');
-        if (sub) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
-      }
+      var sub = document.getElementById('pro-hero-sub');
+      if (sub && meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
       go('s-pro-dash');
+      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); } catch(e) { console.warn('pro init', e); }
     }
-    loadProfileIntoForms(meta);
-    if (meta.role === 'patient') { renderPatientOverview(meta); loadPatientBookings(); }
-    else if (meta.role === 'clinic') { renderClinicOverview(meta); loadClinicBookings(); }
-    else if (meta.role === 'professional') { renderProOverview(meta); loadProBookings(); }
-  } else {
-    go('s-landing');
+  } catch(err) {
+    console.warn('Session check failed:', err);
+    // landing already visible, nothing to do
   }
-});
+}
 
 </script>
 </body>

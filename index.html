@@ -677,6 +677,76 @@ tr:last-child td { border-bottom: none; }
 .font-medium { font-weight: 500; }
 .text-center { text-align: center; }
 
+/* ── Profile forms ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.25rem;
+}
+.form-field { margin-bottom: 1rem; }
+.form-field textarea.f-input { padding-top: 10px; }
+
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text-mid);
+  cursor: pointer;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 0.5px solid var(--border);
+  background: var(--white);
+  transition: all .12s;
+  user-select: none;
+}
+.check-item:hover { border-color: #B0AAE8; background: var(--purple-lt); }
+.check-item input[type=checkbox] { accent-color: var(--purple); width:14px; height:14px; flex-shrink:0; }
+
+.service-row, .staff-row {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.service-row { grid-template-columns: 1fr 140px 32px; }
+.staff-row   { grid-template-columns: 1fr 1fr 32px; }
+.remove-btn {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  border: 0.5px solid #ffd0d0;
+  background: #fff0f0;
+  color: var(--red);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.save-banner {
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+.save-banner-pu { background: var(--purple-lt); color: var(--purple); }
+.save-banner-bl { background: var(--blue-lt);   color: var(--blue); }
+.save-banner-gr { background: var(--green-lt);  color: var(--green); }
+
+@media (max-width: 640px) {
+  .form-grid  { grid-template-columns: 1fr; }
+  .check-grid { grid-template-columns: 1fr 1fr; }
+  .service-row { grid-template-columns: 1fr 100px 28px; }
+  .staff-row   { grid-template-columns: 1fr 28px; }
+}
+
 /* ── Responsive (basic) ── */
 @media (max-width: 768px) {
   .portals       { grid-template-columns: 1fr; }
@@ -1050,15 +1120,52 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Profile -->
       <div id="pd-profile" class="tab-panel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Health profile</div>
-            <span class="tag tag-neu">Not yet completed</span>
+        <div id="pd-profile-saved" class="save-banner save-banner-pu" style="display:none;">✓ Profile saved successfully</div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Personal details</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Full name</label><input id="pd-name" class="f-input f-input-purple" type="text" placeholder="Your full name"/></div>
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Date of birth</label><input id="pd-dob" class="f-input f-input-purple" type="date"/></div>
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Phone number</label><input id="pd-phone" class="f-input f-input-purple" type="tel" placeholder="e.g. 08012345678"/></div>
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">State / City</label>
+              <select id="pd-location" class="f-input f-input-purple"><option value="">Select location</option><option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option><option>Kano</option><option>Oyo</option><option>Enugu</option><option>Delta</option><option>Anambra</option><option>Kaduna</option><option>Other</option></select>
+            </div>
           </div>
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">Complete your health profile so clinics can prepare for your visit.</div>
-            <button class="btn btn-purple btn-sm">Complete profile — coming soon</button>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Emergency contact</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Contact name</label><input id="pd-ec-name" class="f-input f-input-purple" type="text" placeholder="Full name"/></div>
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Relationship</label>
+              <select id="pd-ec-rel" class="f-input f-input-purple"><option value="">Select</option><option>Spouse</option><option>Parent</option><option>Sibling</option><option>Child</option><option>Friend</option><option>Other</option></select>
+            </div>
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Phone number</label><input id="pd-ec-phone" class="f-input f-input-purple" type="tel" placeholder="e.g. 08012345678"/></div>
           </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Dental &amp; medical history</div></div>
+          <div style="padding:1.25rem;">
+            <div class="form-field mb2"><label class="f-label" style="color:#534AB7;">Last dental visit</label>
+              <select id="pd-last-visit" class="f-input f-input-purple" style="max-width:300px;"><option value="">Select</option><option>Within the last 6 months</option><option>6-12 months ago</option><option>1-2 years ago</option><option>More than 2 years ago</option><option>Never been to a dentist</option></select>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#534AB7;">Medical conditions <span style="font-weight:400;color:#888780;">(select all that apply)</span></label>
+              <div class="check-grid">
+                <label class="check-item"><input type="checkbox" id="pd-c-anxiety"/> Dental anxiety / phobia</label>
+                <label class="check-item"><input type="checkbox" id="pd-c-diabetes"/> Diabetes</label>
+                <label class="check-item"><input type="checkbox" id="pd-c-hbp"/> High blood pressure</label>
+                <label class="check-item"><input type="checkbox" id="pd-c-heart"/> Heart condition</label>
+                <label class="check-item"><input type="checkbox" id="pd-c-bleed"/> Bleeding disorder</label>
+                <label class="check-item"><input type="checkbox" id="pd-c-preg"/> Currently pregnant</label>
+              </div>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#534AB7;">Current medications</label><input id="pd-meds" class="f-input f-input-purple" type="text" placeholder="e.g. Aspirin, Metformin — or leave blank"/></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#534AB7;">Known allergies</label><input id="pd-allergies" class="f-input f-input-purple" type="text" placeholder="e.g. Penicillin — or None"/></div>
+            <div class="form-field"><label class="f-label" style="color:#534AB7;">Anything else your dentist should know?</label><textarea id="pd-notes" class="f-input f-input-purple" rows="3" placeholder="Optional..." style="resize:vertical;"></textarea></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:2rem;">
+          <button class="btn btn-purple" onclick="savePatientProfile()">Save profile</button>
+          <span id="pd-save-error" style="font-size:12px;color:#A32D2D;display:none;"></span>
         </div>
       </div>
 
@@ -1253,22 +1360,73 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Staff -->
       <div id="cd-staff" class="tab-panel">
-        <div class="two-col">
-          <div class="card" style="margin-bottom:0;">
-            <div class="card-header"><div class="card-title">Active staff</div></div>
-            <div style="padding:2.5rem 1.25rem;text-align:center;">
-              <div style="font-size:13px;color:#888780;">No staff added yet.</div>
+        <div id="cd-staff-saved" class="save-banner save-banner-bl" style="display:none;">✓ Clinic profile saved successfully</div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Clinic details</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Clinic name</label><input id="cd-name" class="f-input f-input-blue" type="text" placeholder="e.g. SmileCare Dental Clinic"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Phone number</label><input id="cd-phone" class="f-input f-input-blue" type="tel" placeholder="e.g. 08012345678"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">State / City</label>
+              <select id="cd-location" class="f-input f-input-blue"><option value="">Select location</option><option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option><option>Kano</option><option>Oyo</option><option>Enugu</option><option>Delta</option><option>Anambra</option><option>Kaduna</option><option>Other</option></select>
+            </div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Full address</label><input id="cd-address" class="f-input f-input-blue" type="text" placeholder="Street, area, city"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Opening time</label><input id="cd-open" class="f-input f-input-blue" type="time"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Closing time</label><input id="cd-close" class="f-input f-input-blue" type="time"/></div>
+          </div>
+          <div style="padding:0 1.25rem 1.25rem;">
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Days open <span style="font-weight:400;color:#888780;">(select all that apply)</span></label>
+              <div class="check-grid">
+                <label class="check-item"><input type="checkbox" id="cd-d-mon"/> Monday</label>
+                <label class="check-item"><input type="checkbox" id="cd-d-tue"/> Tuesday</label>
+                <label class="check-item"><input type="checkbox" id="cd-d-wed"/> Wednesday</label>
+                <label class="check-item"><input type="checkbox" id="cd-d-thu"/> Thursday</label>
+                <label class="check-item"><input type="checkbox" id="cd-d-fri"/> Friday</label>
+                <label class="check-item"><input type="checkbox" id="cd-d-sat"/> Saturday</label>
+                <label class="check-item"><input type="checkbox" id="cd-d-sun"/> Sunday</label>
+              </div>
             </div>
           </div>
-          <div class="card" style="margin-bottom:0;">
-            <div class="card-header">
-              <div class="card-title">Open vacancies</div>
-              <button class="btn btn-blue btn-sm">+ Post role</button>
-            </div>
-            <div style="padding:2.5rem 1.25rem;text-align:center;">
-              <div style="font-size:13px;color:#888780;">No vacancies posted yet.</div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Services &amp; pricing</div></div>
+          <div style="padding:1.25rem;">
+            <div style="font-size:12px;color:#888780;margin-bottom:1rem;">Add the services you offer and their prices in ₦. Leave price blank if it varies.</div>
+            <div id="cd-services-list"></div>
+            <button class="btn btn-sm" style="border:0.5px solid #d0e4f0;background:#fff;color:#185FA5;" onclick="addService()">+ Add service</button>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Accepted payment methods</div></div>
+          <div style="padding:1.25rem;">
+            <div class="check-grid">
+              <label class="check-item"><input type="checkbox" id="cd-pay-cash"/> Cash</label>
+              <label class="check-item"><input type="checkbox" id="cd-pay-transfer"/> Bank transfer</label>
+              <label class="check-item"><input type="checkbox" id="cd-pay-pos"/> POS / Card</label>
+              <label class="check-item"><input type="checkbox" id="cd-pay-hmo"/> HMO / Insurance</label>
+              <label class="check-item"><input type="checkbox" id="cd-pay-mobile"/> Mobile money</label>
             </div>
           </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Licences on file</div></div>
+          <div style="padding:1.25rem;">
+            <div class="form-grid">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">MDCN practice licence no.</label><input id="cd-mdcn" class="f-input f-input-blue" type="text" placeholder="e.g. MD/2018/12345"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">DTHRBN licence no. <span style="font-weight:400;color:#888780;">(if applicable)</span></label><input id="cd-dthrbn" class="f-input f-input-blue" type="text" placeholder="Optional"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Staff &amp; dentist info</div></div>
+          <div style="padding:1.25rem;">
+            <div style="font-size:12px;color:#888780;margin-bottom:1rem;">List the practitioners at your clinic. Patients can see this when browsing.</div>
+            <div id="cd-staff-list"></div>
+            <button class="btn btn-sm" style="border:0.5px solid #d0e4f0;background:#fff;color:#185FA5;" onclick="addStaffMember()">+ Add staff member</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:2rem;">
+          <button class="btn btn-blue" onclick="saveClinicProfile()">Save clinic profile</button>
+          <span id="cd-save-error" style="font-size:12px;color:#A32D2D;display:none;"></span>
         </div>
       </div>
 
@@ -1491,14 +1649,75 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Profile -->
       <div id="pro-profile" class="tab-panel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Credentials &amp; licences</div>
-            <button class="btn btn-green btn-sm">Complete profile — coming soon</button>
+        <div id="pro-profile-saved" class="save-banner save-banner-gr" style="display:none;">✓ Profile saved successfully</div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Personal details</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Full name</label><input id="pro-name" class="f-input f-input-green" type="text" placeholder="e.g. Dr. Kwame Osei"/></div>
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Phone number</label><input id="pro-phone" class="f-input f-input-green" type="tel" placeholder="e.g. 08012345678"/></div>
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">State / City</label>
+              <select id="pro-location" class="f-input f-input-green"><option value="">Select location</option><option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option><option>Kano</option><option>Oyo</option><option>Enugu</option><option>Delta</option><option>Anambra</option><option>Kaduna</option><option>Other</option></select>
+            </div>
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Years of experience</label>
+              <select id="pro-exp" class="f-input f-input-green"><option value="">Select</option><option>Less than 1 year</option><option>1-3 years</option><option>3-5 years</option><option>5-10 years</option><option>10+ years</option></select>
+            </div>
           </div>
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;">Add your registration number, qualifications and work preferences. Clinics use this to find and verify you.</div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Registration &amp; licence</div></div>
+          <div class="form-grid" style="padding:1.25rem;">
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Regulatory body</label>
+              <select id="pro-regbody" class="f-input f-input-green"><option value="">Select</option><option>MDCN</option><option>DTHRBN</option><option>DTRBN</option></select>
+            </div>
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Registration number</label><input id="pro-regno" class="f-input f-input-green" type="text" placeholder="e.g. DS/2018/04521"/></div>
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Annual practising licence year</label><input id="pro-apl" class="f-input f-input-green" type="text" placeholder="e.g. 2026"/></div>
           </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Qualifications</div></div>
+          <div style="padding:1.25rem;">
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">Primary degree</label>
+                <select id="pro-degree" class="f-input f-input-green"><option value="">Select</option><option>BDS</option><option>MBChB (Dental)</option><option>BSc Dental Therapy</option><option>BSc Dental Hygiene</option><option>HND Dental Technology</option><option>Other</option></select>
+              </div>
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">University / Institution</label><input id="pro-uni" class="f-input f-input-green" type="text" placeholder="e.g. University of Lagos"/></div>
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">Year of graduation</label><input id="pro-gradyr" class="f-input f-input-green" type="text" placeholder="e.g. 2016"/></div>
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">NYSC year <span style="font-weight:400;color:#888780;">(if applicable)</span></label><input id="pro-nysc" class="f-input f-input-green" type="text" placeholder="e.g. 2017"/></div>
+            </div>
+            <div class="form-field"><label class="f-label" style="color:#3B6D11;">Additional qualifications <span style="font-weight:400;color:#888780;">(optional)</span></label><input id="pro-extra" class="f-input f-input-green" type="text" placeholder="e.g. Fellowship WACS, MSc Orthodontics"/></div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Work preferences &amp; availability</div></div>
+          <div style="padding:1.25rem;">
+            <div class="form-field mb2"><label class="f-label" style="color:#3B6D11;">I am open to <span style="font-weight:400;color:#888780;">(select all that apply)</span></label>
+              <div class="check-grid">
+                <label class="check-item"><input type="checkbox" id="pro-w-fulltime"/> Full-time employment</label>
+                <label class="check-item"><input type="checkbox" id="pro-w-parttime"/> Part-time employment</label>
+                <label class="check-item"><input type="checkbox" id="pro-w-sessional"/> Sessional / locum</label>
+                <label class="check-item"><input type="checkbox" id="pro-w-gig"/> Gig work</label>
+                <label class="check-item"><input type="checkbox" id="pro-w-home"/> Home visits</label>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">Day rate (₦) <span style="font-weight:400;color:#888780;">(sessional)</span></label><input id="pro-rate-day" class="f-input f-input-green" type="number" placeholder="e.g. 80000"/></div>
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">Home visit rate (₦)</label><input id="pro-rate-home" class="f-input f-input-green" type="number" placeholder="e.g. 45000"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Indemnity insurance</div></div>
+          <div style="padding:1.25rem;">
+            <div class="form-grid">
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">Insurer name</label><input id="pro-insurer" class="f-input f-input-green" type="text" placeholder="e.g. Leadway Assurance"/></div>
+              <div class="form-field"><label class="f-label" style="color:#3B6D11;">Policy expiry date</label><input id="pro-ins-exp" class="f-input f-input-green" type="date"/></div>
+            </div>
+            <div style="margin-top:.75rem;font-size:12px;color:#888780;">Document upload coming in the next update. For now, enter your insurer details above.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:2rem;">
+          <button class="btn btn-green" onclick="saveProProfile()">Save profile</button>
+          <span id="pro-save-error" style="font-size:12px;color:#A32D2D;display:none;"></span>
         </div>
       </div>
 
@@ -1699,23 +1918,193 @@ async function proRegister() {
   showSuccess('pro-reg-success');
 }
 
+// ══════════════════════════════════════════════════════════
+// DYNAMIC FORM HELPERS
+// ══════════════════════════════════════════════════════════
+function addService() {
+  const list = document.getElementById('cd-services-list');
+  const row = document.createElement('div');
+  row.className = 'service-row';
+  row.innerHTML = '<input class="f-input f-input-blue svc-name" type="text" placeholder="e.g. Dental check-up" style="margin-bottom:0;"/><input class="f-input f-input-blue svc-price" type="number" placeholder="Price in ₦" style="margin-bottom:0;"/><button class="remove-btn" onclick="this.parentElement.remove()">x</button>';
+  list.appendChild(row);
+}
+function addStaffMember() {
+  const list = document.getElementById('cd-staff-list');
+  const row = document.createElement('div');
+  row.className = 'staff-row';
+  row.innerHTML = '<input class="f-input f-input-blue staff-name" type="text" placeholder="Name & title e.g. Dr. Ada Obi" style="margin-bottom:0;"/><input class="f-input f-input-blue staff-role" type="text" placeholder="Role e.g. Dental Surgeon" style="margin-bottom:0;"/><button class="remove-btn" onclick="this.parentElement.remove()">x</button>';
+  list.appendChild(row);
+}
+function flashSaved(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 3500);
+}
+
+// ══════════════════════════════════════════════════════════
+// SAVE PATIENT PROFILE
+// ══════════════════════════════════════════════════════════
+async function savePatientProfile() {
+  const errorEl = document.getElementById('pd-save-error');
+  errorEl.style.display = 'none';
+  const conditions = [];
+  ['anxiety','diabetes','hbp','heart','bleed','preg'].forEach(function(c) {
+    if (document.getElementById('pd-c-'+c) && document.getElementById('pd-c-'+c).checked) conditions.push(c);
+  });
+  const profile = {
+    full_name: document.getElementById('pd-name').value.trim(),
+    dob: document.getElementById('pd-dob').value,
+    phone: document.getElementById('pd-phone').value.trim(),
+    location: document.getElementById('pd-location').value,
+    ec_name: document.getElementById('pd-ec-name').value.trim(),
+    ec_rel: document.getElementById('pd-ec-rel').value,
+    ec_phone: document.getElementById('pd-ec-phone').value.trim(),
+    last_visit: document.getElementById('pd-last-visit').value,
+    conditions: conditions,
+    medications: document.getElementById('pd-meds').value.trim(),
+    allergies: document.getElementById('pd-allergies').value.trim(),
+    notes: document.getElementById('pd-notes').value.trim(),
+    role: 'patient', profile_complete: true
+  };
+  const res = await sb.auth.updateUser({ data: profile });
+  if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
+  if (profile.full_name) { document.getElementById('pd-hero-name').textContent = profile.full_name; updateDashName('s-patient-dash', profile.full_name); }
+  flashSaved('pd-profile-saved');
+}
+
+// ══════════════════════════════════════════════════════════
+// SAVE CLINIC PROFILE
+// ══════════════════════════════════════════════════════════
+async function saveClinicProfile() {
+  const errorEl = document.getElementById('cd-save-error');
+  errorEl.style.display = 'none';
+  const days = [];
+  ['mon','tue','wed','thu','fri','sat','sun'].forEach(function(d){ if (document.getElementById('cd-d-'+d) && document.getElementById('cd-d-'+d).checked) days.push(d); });
+  const payments = [];
+  ['cash','transfer','pos','hmo','mobile'].forEach(function(p){ if (document.getElementById('cd-pay-'+p) && document.getElementById('cd-pay-'+p).checked) payments.push(p); });
+  const services = [];
+  document.querySelectorAll('#cd-services-list .service-row').forEach(function(row){
+    const name = row.querySelector('.svc-name') && row.querySelector('.svc-name').value.trim();
+    const price = row.querySelector('.svc-price') && row.querySelector('.svc-price').value.trim();
+    if (name) services.push({ name: name, price: price ? 'N'+Number(price).toLocaleString() : 'Varies' });
+  });
+  const staff = [];
+  document.querySelectorAll('#cd-staff-list .staff-row').forEach(function(row){
+    const name = row.querySelector('.staff-name') && row.querySelector('.staff-name').value.trim();
+    const role = row.querySelector('.staff-role') && row.querySelector('.staff-role').value.trim();
+    if (name) staff.push({ name: name, role: role });
+  });
+  const profile = {
+    clinic_name: document.getElementById('cd-name').value.trim(),
+    phone: document.getElementById('cd-phone').value.trim(),
+    location: document.getElementById('cd-location').value,
+    address: document.getElementById('cd-address').value.trim(),
+    open_time: document.getElementById('cd-open').value,
+    close_time: document.getElementById('cd-close').value,
+    days_open: days, services: services, payments: payments,
+    mdcn_no: document.getElementById('cd-mdcn').value.trim(),
+    dthrbn_no: document.getElementById('cd-dthrbn').value.trim(),
+    staff: staff, role: 'clinic', profile_complete: true
+  };
+  const res = await sb.auth.updateUser({ data: profile });
+  if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
+  if (profile.clinic_name) { document.getElementById('cd-hero-name').textContent = profile.clinic_name; document.getElementById('cd-sidebar-tag').textContent = profile.clinic_name; }
+  flashSaved('cd-staff-saved');
+}
+
+// ══════════════════════════════════════════════════════════
+// SAVE PROFESSIONAL PROFILE
+// ══════════════════════════════════════════════════════════
+async function saveProProfile() {
+  const errorEl = document.getElementById('pro-save-error');
+  errorEl.style.display = 'none';
+  const workPrefs = [];
+  ['fulltime','parttime','sessional','gig','home'].forEach(function(w){ if (document.getElementById('pro-w-'+w) && document.getElementById('pro-w-'+w).checked) workPrefs.push(w); });
+  const profile = {
+    full_name: document.getElementById('pro-name').value.trim(),
+    phone: document.getElementById('pro-phone').value.trim(),
+    location: document.getElementById('pro-location').value,
+    experience: document.getElementById('pro-exp').value,
+    regulator: document.getElementById('pro-regbody').value,
+    reg_no: document.getElementById('pro-regno').value.trim(),
+    apl_year: document.getElementById('pro-apl').value.trim(),
+    degree: document.getElementById('pro-degree').value,
+    university: document.getElementById('pro-uni').value.trim(),
+    grad_year: document.getElementById('pro-gradyr').value.trim(),
+    nysc_year: document.getElementById('pro-nysc').value.trim(),
+    extra_quals: document.getElementById('pro-extra').value.trim(),
+    work_prefs: workPrefs,
+    rate_day: document.getElementById('pro-rate-day').value,
+    rate_home: document.getElementById('pro-rate-home').value,
+    insurer: document.getElementById('pro-insurer').value.trim(),
+    ins_expiry: document.getElementById('pro-ins-exp').value,
+    role: 'professional', profile_complete: true
+  };
+  const res = await sb.auth.updateUser({ data: profile });
+  if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
+  if (profile.full_name) { document.getElementById('pro-hero-name').textContent = profile.full_name; updateDashName('s-pro-dash', profile.full_name); }
+  if (profile.regulator && profile.reg_no) { const sub = document.getElementById('pro-hero-sub'); if (sub) sub.textContent = profile.regulator + ' - Reg. No. ' + profile.reg_no; }
+  flashSaved('pro-profile-saved');
+}
+
+// ── Load saved data back into forms on login ───────────────
+function loadProfileIntoForms(meta) {
+  function set(id, val) { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; }
+  function chk(id, val) { const el = document.getElementById(id); if (el) el.checked = !!val; }
+  if (meta.role === 'patient') {
+    set('pd-name', meta.full_name); set('pd-dob', meta.dob); set('pd-phone', meta.phone); set('pd-location', meta.location);
+    set('pd-ec-name', meta.ec_name); set('pd-ec-rel', meta.ec_rel); set('pd-ec-phone', meta.ec_phone);
+    set('pd-last-visit', meta.last_visit); set('pd-meds', meta.medications); set('pd-allergies', meta.allergies); set('pd-notes', meta.notes);
+    (meta.conditions || []).forEach(function(c){ chk('pd-c-'+c, true); });
+  }
+  if (meta.role === 'clinic') {
+    set('cd-name', meta.clinic_name); set('cd-phone', meta.phone); set('cd-location', meta.location);
+    set('cd-address', meta.address); set('cd-open', meta.open_time); set('cd-close', meta.close_time);
+    set('cd-mdcn', meta.mdcn_no); set('cd-dthrbn', meta.dthrbn_no);
+    (meta.days_open || []).forEach(function(d){ chk('cd-d-'+d, true); });
+    (meta.payments  || []).forEach(function(p){ chk('cd-pay-'+p, true); });
+    (meta.services  || []).forEach(function(s){ addService(); });
+    (meta.staff     || []).forEach(function(s){ addStaffMember(); });
+    var svcRows = document.querySelectorAll('#cd-services-list .service-row');
+    var stfRows = document.querySelectorAll('#cd-staff-list .staff-row');
+    (meta.services || []).forEach(function(s, i){ if (svcRows[i]) { svcRows[i].querySelector('.svc-name').value = s.name; svcRows[i].querySelector('.svc-price').value = (s.price||'').replace(/[^\d]/g,''); } });
+    (meta.staff    || []).forEach(function(s, i){ if (stfRows[i]) { stfRows[i].querySelector('.staff-name').value = s.name; stfRows[i].querySelector('.staff-role').value = s.role||''; } });
+  }
+  if (meta.role === 'professional') {
+    set('pro-name', meta.full_name); set('pro-phone', meta.phone); set('pro-location', meta.location);
+    set('pro-exp', meta.experience); set('pro-regbody', meta.regulator); set('pro-regno', meta.reg_no);
+    set('pro-apl', meta.apl_year); set('pro-degree', meta.degree); set('pro-uni', meta.university);
+    set('pro-gradyr', meta.grad_year); set('pro-nysc', meta.nysc_year); set('pro-extra', meta.extra_quals);
+    set('pro-rate-day', meta.rate_day); set('pro-rate-home', meta.rate_home);
+    set('pro-insurer', meta.insurer); set('pro-ins-exp', meta.ins_expiry);
+    (meta.work_prefs || []).forEach(function(w){ chk('pro-w-'+w, true); });
+  }
+}
+
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = session.user;
-    const role = session.user.user_metadata?.role || 'patient';
-    const name = session.user.user_metadata?.full_name
-              || session.user.user_metadata?.clinic_name
-              || session.user.email;
+    const meta = session.user.user_metadata || {};
+    const role = meta.role || 'patient';
+    const name = meta.full_name || meta.clinic_name || session.user.email;
     if (role === 'patient') {
       updateDashName('s-patient-dash', name); go('s-patient-dash');
     } else if (role === 'clinic') {
-      const tag = document.querySelector('#s-clinic-dash .sidebar-top-tag');
-      if (tag) tag.textContent = name; go('s-clinic-dash');
+      document.getElementById('cd-hero-name').textContent = name;
+      document.getElementById('cd-sidebar-tag').textContent = name;
+      go('s-clinic-dash');
     } else if (role === 'professional') {
-      updateDashName('s-pro-dash', name); go('s-pro-dash');
+      updateDashName('s-pro-dash', name);
+      if (meta.regulator && meta.reg_no) {
+        const sub = document.getElementById('pro-hero-sub');
+        if (sub) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
+      }
+      go('s-pro-dash');
     }
+    loadProfileIntoForms(meta);
   } else {
     go('s-landing');
   }

@@ -801,6 +801,113 @@ tr:last-child td { border-bottom: none; }
   .two-col { grid-template-columns:1fr; }
   .check-grid { grid-template-columns:1fr 1fr; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   DARK MODE
+══════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  --white:       #1a1a2e;
+  --off-white:   #16213e;
+  --border:      #2a2a4a;
+  --border-g:    #1a3a2a;
+  --border-b:    #1a2a3a;
+  --text-dark:   #e8e6f0;
+  --text-navy:   #e8e6f0;
+  --text-mid:    #b0aec8;
+  --text-muted:  #7a7890;
+  --text-faint:  #4a4868;
+  --navy:        #0a0a1a;
+  --purple-lt:   #2a2050;
+  --blue-lt:     #0a1a30;
+  --green-lt:    #0a1a10;
+  --red-lt:      #2a1010;
+}
+[data-theme="dark"] body { background: #12121e; color: #e8e6f0; }
+[data-theme="dark"] .nav,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .sidebar-nav,
+[data-theme="dark"] .sidebar-bot,
+[data-theme="dark"] .mob-nav-bar { background: #1a1a2e !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] .dash-main { background: #12121e !important; }
+[data-theme="dark"] .dash-main-pu { background: #14122a !important; }
+[data-theme="dark"] .dash-main-gr { background: #121a12 !important; }
+[data-theme="dark"] .dash-main-bl { background: #12161a !important; }
+[data-theme="dark"] .card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .feat-card,
+[data-theme="dark"] .table-wrap,
+[data-theme="dark"] .tw,
+[data-theme="dark"] .panel,
+[data-theme="dark"] .split-form { background: #1e1e32 !important; border-color: #2a2a4a !important; color: #e8e6f0 !important; }
+[data-theme="dark"] .f-input { background: #12121e !important; color: #e8e6f0 !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] .f-input::placeholder { color: #4a4868 !important; }
+[data-theme="dark"] th { background: #161628 !important; color: #7a7890 !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] td { color: #e8e6f0 !important; border-color: #1e1e32 !important; }
+[data-theme="dark"] tr:hover td { background: #1e1e38 !important; }
+[data-theme="dark"] .card-row { border-color: #2a2a3a !important; }
+[data-theme="dark"] .topbar-title,
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .font-medium { color: #e8e6f0 !important; }
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .stat-sub { color: #7a7890 !important; }
+[data-theme="dark"] .features { background: #12121e !important; }
+[data-theme="dark"] .lp { background: #12121e; }
+[data-theme="dark"] .lp-feat { background: #1e1e32 !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] .lp-feat-title { color: #e8e6f0 !important; }
+[data-theme="dark"] .lp-feat-desc { color: #7a7890 !important; }
+[data-theme="dark"] .lp-portals { background: #12121e !important; }
+[data-theme="dark"] .lp-features { background: #0e0e1e !important; }
+[data-theme="dark"] .lp-nav { background: rgba(18,18,30,.95) !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] .lp-nav-wordmark { color: #e8e6f0 !important; }
+[data-theme="dark"] .lp-section-title { color: #e8e6f0 !important; }
+[data-theme="dark"] .lp-section-sub { color: #7a7890 !important; }
+[data-theme="dark"] .check-item { background: #1e1e32 !important; border-color: #2a2a4a !important; color: #b0aec8 !important; }
+[data-theme="dark"] .save-banner-pu { background: #2a2050 !important; }
+[data-theme="dark"] .save-banner-bl { background: #0a1a30 !important; }
+[data-theme="dark"] .save-banner-gr { background: #0a1a10 !important; }
+[data-theme="dark"] .mob-nav-item { color: #7a7890 !important; }
+[data-theme="dark"] .mob-nav-item.active { color: #534AB7 !important; }
+[data-theme="dark"] .mob-nav-item.active-bl { color: #378ADD !important; }
+[data-theme="dark"] .mob-nav-item.active-gr { color: #639922 !important; }
+[data-theme="dark"] .more-menu { background: #1e1e32 !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] .more-menu-item { color: #b0aec8 !important; border-color: #2a2a4a !important; }
+[data-theme="dark"] .more-menu-item:hover { background: #2a2a4a !important; }
+
+/* MORE MENU (mobile) */
+.more-menu {
+  position: fixed; bottom: 70px; right: 12px;
+  background: #fff; border: 1px solid #e0daf5;
+  border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  z-index: 600; min-width: 180px; overflow: hidden;
+  display: none;
+}
+.more-menu.open { display: block; }
+.more-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; font-size: 14px; color: #26215C;
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: left; border-bottom: 1px solid #f0f0f0;
+  font-family: inherit;
+}
+.more-menu-item:last-child { border-bottom: none; }
+.more-menu-item:hover { background: #f8f6ff; }
+.more-menu-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+.theme-toggle-track {
+  width: 36px; height: 20px; border-radius: 10px; background: #e0daf5;
+  margin-left: auto; position: relative; transition: background .2s;
+  flex-shrink: 0;
+}
+.theme-toggle-track.on { background: #534AB7; }
+.theme-toggle-thumb {
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  position: absolute; top: 2px; left: 2px; transition: left .2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.theme-toggle-track.on .theme-toggle-thumb { left: 18px; }
+
 /* ── Responsive (basic) ── */
 @media (max-width: 768px) {
   .portals       { grid-template-columns: 1fr; }
@@ -1394,7 +1501,8 @@ tr:last-child td { border-bottom: none; }
         <div class="topbar-title">Overview</div>
         <div class="topbar-right">
           <button class="btn btn-purple btn-sm" onclick="navTo('pd-clinics')">Book appointment</button>
-          <div class="topbar-avatar" style="background:#534AB7;">JS</div>
+          <button class="tbtn" onclick="toggleTheme()" title="Toggle dark mode" style="font-size:16px;padding:5px 10px;">🌙</button>
+          <div class="topbar-avatar" style="background:#534AB7;" id="pd-topbar-avatar">JS</div>
         </div>
       </div>
 
@@ -1590,6 +1698,18 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
   <!-- Mobile nav -->
+  <!-- More menu for mobile -->
+  <div class="more-menu" id="pd-more-menu">
+    <button class="more-menu-item" onclick="toggleTheme()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M13 9A6 6 0 117 3a4 4 0 006 6z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Dark mode
+      <div class="theme-toggle-track" id="theme-track"><div class="theme-toggle-thumb"></div></div>
+    </button>
+    <button class="more-menu-item" onclick="signOut()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Sign out
+    </button>
+  </div>
   <div class="mob-nav-bar" id="pd-mob-nav">
     <div class="mob-nav-items">
       <button class="mob-nav-item active" onclick="mobTab('pd','pd-overview',this)" data-title="Overview">
@@ -1604,13 +1724,13 @@ tr:last-child td { border-bottom: none; }
         <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Find care
       </button>
-      <button class="mob-nav-item" onclick="mobTab('pd','pd-care',this)" data-title="Care guides">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Guides
-      </button>
       <button class="mob-nav-item" onclick="mobTab('pd','pd-profile',this)" data-title="My profile">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Profile
+      </button>
+      <button class="mob-nav-item" onclick="toggleMoreMenu('pd')">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="3" r="1.2" fill="currentColor"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/><circle cx="8" cy="13" r="1.2" fill="currentColor"/></svg>
+        More
       </button>
     </div>
   </div>
@@ -1748,7 +1868,8 @@ tr:last-child td { border-bottom: none; }
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-right">
           <button class="btn btn-blue btn-sm" onclick="navTo('cd-walkin')">+ Log walk-in</button>
-          <div class="topbar-avatar" style="background:#185FA5;">AP</div>
+          <button class="tbtn" onclick="toggleTheme()" title="Toggle dark mode" style="font-size:16px;padding:5px 10px;">🌙</button>
+          <div class="topbar-avatar" style="background:#185FA5;" id="cd-topbar-avatar">AP</div>
         </div>
       </div>
 
@@ -2065,6 +2186,13 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
   <!-- Clinic mobile nav -->
+  <div class="more-menu" id="cd-more-menu">
+    <button class="more-menu-item" onclick="toggleTheme()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M13 9A6 6 0 117 3a4 4 0 006 6z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Dark mode
+      <div class="theme-toggle-track" id="theme-track-cd"><div class="theme-toggle-thumb"></div></div>
+    </button>
+    <button class="more-menu-item" onclick="signOut()"><svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Sign out</button>
+  </div>
   <div class="mob-nav-bar" id="cd-mob-nav">
     <div class="mob-nav-items">
       <button class="mob-nav-item active-bl active" onclick="mobTab('cd','cd-overview',this)">
@@ -2079,13 +2207,12 @@ tr:last-child td { border-bottom: none; }
         <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a2 2 0 100 4 2 2 0 000-4zM4 9a4 4 0 018 0v5H4V9z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Walk-in
       </button>
-      <button class="mob-nav-item active-bl" onclick="mobTab('cd','cd-analytics',this)">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Analytics
-      </button>
       <button class="mob-nav-item active-bl" onclick="mobTab('cd','cd-staff',this)">
         <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Profile
+      </button>
+      <button class="mob-nav-item active-bl" onclick="toggleMoreMenu('cd')">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="3" r="1.2" fill="currentColor"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/><circle cx="8" cy="13" r="1.2" fill="currentColor"/></svg> More
       </button>
     </div>
   </div>
@@ -2218,7 +2345,8 @@ tr:last-child td { border-bottom: none; }
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-right">
           <button class="btn btn-green btn-sm">Update availability</button>
-          <div class="topbar-avatar" style="background:#3B6D11;">KO</div>
+          <button class="tbtn" onclick="toggleTheme()" title="Toggle dark mode" style="font-size:16px;padding:5px 10px;">🌙</button>
+          <div class="topbar-avatar" style="background:#3B6D11;" id="pro-topbar-avatar">KO</div>
         </div>
       </div>
 
@@ -2373,6 +2501,13 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
   <!-- Pro mobile nav -->
+  <div class="more-menu" id="pro-more-menu">
+    <button class="more-menu-item" onclick="toggleTheme()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M13 9A6 6 0 117 3a4 4 0 006 6z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Dark mode
+      <div class="theme-toggle-track" id="theme-track-pro"><div class="theme-toggle-thumb"></div></div>
+    </button>
+    <button class="more-menu-item" onclick="signOut()"><svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Sign out</button>
+  </div>
   <div class="mob-nav-bar" id="pro-mob-nav">
     <div class="mob-nav-items">
       <button class="mob-nav-item active-gr active" onclick="mobTab('pro','pro-overview',this)">
@@ -2387,13 +2522,12 @@ tr:last-child td { border-bottom: none; }
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Gigs
       </button>
-      <button class="mob-nav-item active-gr" onclick="mobTab('pro','pro-earn',this)">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Earnings
-      </button>
       <button class="mob-nav-item active-gr" onclick="mobTab('pro','pro-profile',this)">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
         Profile
+      </button>
+      <button class="mob-nav-item active-gr" onclick="toggleMoreMenu('pro')">
+        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="3" r="1.2" fill="currentColor"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/><circle cx="8" cy="13" r="1.2" fill="currentColor"/></svg> More
       </button>
     </div>
   </div>
@@ -2412,6 +2546,70 @@ function go(screenId) {
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
+}
+
+// ── Theme toggle ──────────────────────────────────────────
+function toggleTheme() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('dfhq-theme', newTheme);
+  updateThemeUI(newTheme === 'dark');
+  // Close any open more menus
+  document.querySelectorAll('.more-menu').forEach(function(m){ m.classList.remove('open'); });
+}
+
+function updateThemeUI(isDark) {
+  // Update all toggle tracks
+  document.querySelectorAll('.theme-toggle-track').forEach(function(t){
+    t.classList.toggle('on', isDark);
+  });
+  // Update moon/sun emoji on topbar buttons
+  document.querySelectorAll('[onclick="toggleTheme()"]').forEach(function(btn){
+    if (btn.textContent.trim() === '🌙' || btn.textContent.trim() === '☀️') {
+      btn.textContent = isDark ? '☀️' : '🌙';
+    }
+  });
+}
+
+function initTheme() {
+  var saved = localStorage.getItem('dfhq-theme');
+  var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  updateThemeUI(theme === 'dark');
+}
+initTheme();
+
+// ── More menu toggle (mobile) ──────────────────────────────
+function toggleMoreMenu(prefix) {
+  var menu = document.getElementById(prefix + '-more-menu');
+  if (!menu) return;
+  var isOpen = menu.classList.contains('open');
+  // Close all menus first
+  document.querySelectorAll('.more-menu').forEach(function(m){ m.classList.remove('open'); });
+  if (!isOpen) {
+    menu.classList.add('open');
+    // Update toggle state in this menu
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var track = menu.querySelector('.theme-toggle-track');
+    if (track) track.classList.toggle('on', isDark);
+  }
+}
+
+// Close more menu when tapping outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.more-menu') && !e.target.closest('[onclick*="toggleMoreMenu"]')) {
+    document.querySelectorAll('.more-menu').forEach(function(m){ m.classList.remove('open'); });
+  }
+});
+
+// Expose signOut globally for more menu buttons
+function signOut() {
+  getSb() && getSb().auth.signOut();
+  currentUser = null;
+  go('s-landing');
+  document.querySelectorAll('.more-menu').forEach(function(m){ m.classList.remove('open'); });
 }
 
 // ── Password visibility toggle ────────────────────────────

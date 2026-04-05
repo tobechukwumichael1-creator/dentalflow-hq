@@ -1423,8 +1423,22 @@ tr:last-child td { border-bottom: none; }
         <div class="pw-wrap"><input id="patient-signin-password" class="f-input f-input-purple" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('patient-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
         <div id="patient-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <button class="f-btn" style="background:#534AB7;" onclick="patientSignIn()">Sign in</button>
+        <div class="text-center" style="margin-top:.75rem;">
+          <a style="font-size:12px;color:#7F77DD;cursor:pointer;" onclick="togglePatientView('reset')">Forgot password?</a>
+        </div>
         <div class="f-link">New to DentalFlow? <a style="color:#534AB7;cursor:pointer;" onclick="togglePatientView('register')">Create account</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
+      </div>
+      <!-- Reset password view — patient -->
+      <div id="patient-reset-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Reset your password</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Enter your email and we'll send you a reset link.</div>
+        <label class="f-label" style="color:#534AB7;">Email address</label>
+        <input id="patient-reset-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
+        <div id="patient-reset-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="patient-reset-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Reset link sent — check your email.</div>
+        <button class="f-btn" style="background:#534AB7;" onclick="sendReset('patient')">Send reset link</button>
+        <div class="f-link"><a style="color:#534AB7;cursor:pointer;" onclick="togglePatientView('signin')">← Back to sign in</a></div>
       </div>
       <!-- Register view -->
       <div id="patient-register-view" style="display:none;">
@@ -1777,8 +1791,22 @@ tr:last-child td { border-bottom: none; }
         <div class="pw-wrap"><input id="clinic-signin-password" class="f-input f-input-blue" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
         <div id="clinic-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <button class="f-btn" style="background:#185FA5;" onclick="clinicSignIn()">Sign in</button>
+        <div class="text-center" style="margin-top:.75rem;">
+          <a style="font-size:12px;color:#378ADD;cursor:pointer;" onclick="toggleClinicView('reset')">Forgot password?</a>
+        </div>
         <div class="f-link">New clinic? <a style="color:#185FA5;cursor:pointer;" onclick="toggleClinicView('register')">Register your clinic</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
+      </div>
+      <!-- Reset password view — clinic -->
+      <div id="clinic-reset-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Reset your password</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Enter your clinic email and we'll send a reset link.</div>
+        <label class="f-label" style="color:#185FA5;">Email address</label>
+        <input id="clinic-reset-email" class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
+        <div id="clinic-reset-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="clinic-reset-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Reset link sent — check your email.</div>
+        <button class="f-btn" style="background:#185FA5;" onclick="sendReset('clinic')">Send reset link</button>
+        <div class="f-link"><a style="color:#185FA5;cursor:pointer;" onclick="toggleClinicView('signin')">← Back to sign in</a></div>
       </div>
       <!-- Register view -->
       <div id="clinic-register-view" style="display:none;">
@@ -2371,6 +2399,9 @@ tr:last-child td { border-bottom: none; }
         <div class="pw-wrap"><input id="pro-signin-password" class="f-input f-input-green" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('pro-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
         <div id="pro-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <button class="f-btn" style="background:#3B6D11;" onclick="proSignIn()">Sign in</button>
+        <div class="text-center" style="margin-top:.75rem;">
+          <a style="font-size:12px;color:#639922;cursor:pointer;" onclick="toggleProView('reset')">Forgot password?</a>
+        </div>
         <div class="f-link">New professional? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('register')">Create profile</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
@@ -2396,6 +2427,17 @@ tr:last-child td { border-bottom: none; }
         <button class="f-btn" style="background:#3B6D11;" onclick="proRegister()">Create profile</button>
         <div class="f-link">Already have an account? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('signin')">Sign in</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
+      </div>
+      <!-- Reset password view — professional -->
+      <div id="pro-reset-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Reset your password</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Enter your email and we'll send you a reset link.</div>
+        <label class="f-label" style="color:#3B6D11;">Email address</label>
+        <input id="pro-reset-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
+        <div id="pro-reset-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="pro-reset-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Reset link sent — check your email.</div>
+        <button class="f-btn" style="background:#3B6D11;" onclick="sendReset('pro')">Send reset link</button>
+        <div class="f-link"><a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('signin')">← Back to sign in</a></div>
       </div>
     </div>
   </div>
@@ -3001,18 +3043,42 @@ function selectProfType(el, key) {
   if (hint) hint.innerHTML = REGULATOR_HINTS[key] || '';
 }
 
-// ── Toggle login/register views ────────────────────────────
+// ── Toggle login/register/reset views ─────────────────────
 function togglePatientView(view) {
   document.getElementById('patient-signin-view').style.display   = view === 'signin'   ? 'block' : 'none';
   document.getElementById('patient-register-view').style.display = view === 'register' ? 'block' : 'none';
+  document.getElementById('patient-reset-view').style.display    = view === 'reset'    ? 'block' : 'none';
 }
 function toggleClinicView(view) {
   document.getElementById('clinic-signin-view').style.display   = view === 'signin'   ? 'block' : 'none';
   document.getElementById('clinic-register-view').style.display = view === 'register' ? 'block' : 'none';
+  document.getElementById('clinic-reset-view').style.display    = view === 'reset'    ? 'block' : 'none';
 }
 function toggleProView(view) {
   document.getElementById('pro-signin-view').style.display   = view === 'signin'   ? 'block' : 'none';
   document.getElementById('pro-register-view').style.display = view === 'register' ? 'block' : 'none';
+  document.getElementById('pro-reset-view').style.display    = view === 'reset'    ? 'block' : 'none';
+}
+
+// ── Password reset ─────────────────────────────────────────
+async function sendReset(portal) {
+  const emailEl = document.getElementById(portal + '-reset-email');
+  const errEl   = document.getElementById(portal + '-reset-error');
+  const okEl    = document.getElementById(portal + '-reset-success');
+  if (errEl) errEl.style.display = 'none';
+  if (okEl)  okEl.style.display  = 'none';
+  const email = emailEl ? emailEl.value.trim() : '';
+  if (!email) { if (errEl) { errEl.textContent = 'Please enter your email address.'; errEl.style.display = 'block'; } return; }
+  if (!getSb()) { if (errEl) { errEl.textContent = 'Still connecting — please try again in a moment.'; errEl.style.display = 'block'; } return; }
+  const { error } = await getSb().auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+  if (error) {
+    if (errEl) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+  } else {
+    if (okEl) okEl.style.display = 'block';
+    if (emailEl) emailEl.value = '';
+  }
 }
 
 // ── Error/success helpers ──────────────────────────────────

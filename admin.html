@@ -769,13 +769,13 @@ function renderBookings() {
 // ── VERIFY / REJECT ───────────────────────────────────────
 function actionBtns(userId, currentStatus) {
   var uid = userId;
-  var viewBtn = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" onclick="viewProfile(\'' + uid + '\')">View profile</button> ';
+  var viewBtn = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" data-uid="' + uid + '" onclick="viewProfile(this.dataset.uid)">View profile</button> ';
   if (currentStatus === 'verified') {
-    return viewBtn + '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" onclick="setVerification(\'' + uid + '\',\'rejected\')">Reject</button>';
+    return viewBtn + '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" data-uid="' + uid + '" onclick="setVerification(this.dataset.uid,&quot;rejected&quot;)">Reject</button>';
   }
   return viewBtn +
-         '<button class="action-btn btn-verify" onclick="setVerification(\'' + uid + '\',\'verified\')">Verify</button>' +
-         '<button class="action-btn btn-reject" onclick="setVerification(\'' + uid + '\',\'rejected\')">Reject</button>';
+    '<button class="action-btn btn-verify" data-uid="' + uid + '" onclick="setVerification(this.dataset.uid,&quot;verified&quot;)">Verify</button>' +
+    '<button class="action-btn btn-reject" data-uid="' + uid + '" onclick="setVerification(this.dataset.uid,&quot;rejected&quot;)">Reject</button>';
 }
 
 async function setVerification(userId, status) {
@@ -787,78 +787,76 @@ async function setVerification(userId, status) {
         'apikey': SERVICE_ROLE_KEY,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        user_metadata: { verified: status }
-      })
+      body: JSON.stringify({ user_metadata: { verified: status } })
     });
     if (res.ok) {
       showAlert('User ' + status + ' successfully.', 'ok');
       await loadData();
     } else {
       var err = await res.json();
-      showAlert('Error: ' + (err.message||'Unknown error'), 'err');
+      showAlert('Error: ' + (err.message || 'Unknown error'), 'err');
     }
   } catch(e) {
     showAlert('Error: ' + e.message, 'err');
   }
 }
 
-
 // ── VIEW PROFILE MODAL ─────────────────────────────────────
 function viewProfile(userId) {
-  var user = allUsers.find(function(u){ return u.id === userId; });
+  var user = allUsers.find(function(u) { return u.id === userId; });
   if (!user) { showAlert('User not found.', 'err'); return; }
   var m = user.user_metadata || {};
   var role = m.role || 'unknown';
-  var modal = document.getElementById('profile-modal');
   var content = document.getElementById('profile-modal-content');
+  var modal = document.getElementById('profile-modal');
 
   var rows = [];
-  // Common fields
   rows.push(['Email', user.email]);
   rows.push(['Role', role]);
-  rows.push(['Signed up', new Date(user.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})]);
-  rows.push(['Verification', m.verified || 'Pending']);
+  rows.push(['Signed up', new Date(user.created_at).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})]);
+  rows.push(['Verification status', m.verified || 'Pending']);
 
   if (role === 'patient') {
-    if (m.full_name)    rows.push(['Full name', m.full_name]);
-    if (m.location)     rows.push(['Location', m.location]);
-    if (m.phone)        rows.push(['Phone', m.phone]);
-    if (m.allergies)    rows.push(['Allergies', m.allergies]);
-    if (m.medications)  rows.push(['Medications', m.medications]);
-    if (m.conditions)   rows.push(['Conditions', m.conditions]);
-    if (m.anxiety)      rows.push(['Dental anxiety', m.anxiety]);
-    if (m.last_visit)   rows.push(['Last visit', m.last_visit]);
+    if (m.full_name)   rows.push(['Full name', m.full_name]);
+    if (m.location)    rows.push(['Location', m.location]);
+    if (m.phone)       rows.push(['Phone', m.phone]);
+    if (m.allergies)   rows.push(['Allergies', m.allergies]);
+    if (m.medications) rows.push(['Medications', m.medications]);
+    if (m.conditions)  rows.push(['Conditions', m.conditions]);
+    if (m.anxiety)     rows.push(['Dental anxiety', m.anxiety]);
+    if (m.last_visit)  rows.push(['Last visit', m.last_visit]);
   } else if (role === 'clinic') {
-    if (m.clinic_name)  rows.push(['Clinic name', m.clinic_name]);
-    if (m.location)     rows.push(['Location', m.location]);
-    if (m.address)      rows.push(['Address', m.address]);
-    if (m.phone)        rows.push(['Phone', m.phone]);
-    if (m.open)         rows.push(['Opening time', m.open]);
-    if (m.close)        rows.push(['Closing time', m.close]);
-    if (m.mdcn_no)      rows.push(['MDCN licence no.', m.mdcn_no]);
-    if (m.dthrbn_no)    rows.push(['DTHRBN licence no.', m.dthrbn_no]);
+    if (m.clinic_name) rows.push(['Clinic name', m.clinic_name]);
+    if (m.location)    rows.push(['Location', m.location]);
+    if (m.address)     rows.push(['Address', m.address]);
+    if (m.phone)       rows.push(['Phone', m.phone]);
+    if (m.open)        rows.push(['Opening time', m.open]);
+    if (m.close)       rows.push(['Closing time', m.close]);
+    if (m.mdcn_no)     rows.push(['MDCN licence no.', m.mdcn_no]);
+    if (m.dthrbn_no)   rows.push(['DTHRBN licence no.', m.dthrbn_no]);
     if (m.services && m.services.length) rows.push(['Services', m.services.join(', ')]);
     if (m.payment && m.payment.length)   rows.push(['Payment methods', m.payment.join(', ')]);
-    var days = ['mon','tue','wed','thu','fri','sat','sun'].filter(function(d){ return m['day_'+d]; }).map(function(d){ return d.charAt(0).toUpperCase()+d.slice(1); });
+    var days = ['mon','tue','wed','thu','fri','sat','sun']
+      .filter(function(d) { return m['day_' + d]; })
+      .map(function(d) { return d.charAt(0).toUpperCase() + d.slice(1); });
     if (days.length) rows.push(['Open days', days.join(', ')]);
     if (m.staff_roster && m.staff_roster.length) rows.push(['Staff count', m.staff_roster.length]);
   } else if (role === 'professional') {
-    if (m.full_name)    rows.push(['Full name', m.full_name]);
-    if (m.location)     rows.push(['Location', m.location]);
-    if (m.phone)        rows.push(['Phone', m.phone]);
-    if (m.regulator)    rows.push(['Regulatory body', m.regulator]);
-    if (m.reg_no)       rows.push(['Registration no.', m.reg_no]);
-    if (m.apl)          rows.push(['Practising licence year', m.apl]);
-    if (m.degree)       rows.push(['Degree', m.degree]);
-    if (m.uni)          rows.push(['Institution', m.uni]);
-    if (m.grad_yr)      rows.push(['Graduation year', m.grad_yr]);
-    if (m.nysc)         rows.push(['NYSC year', m.nysc]);
-    if (m.experience)   rows.push(['Experience', m.experience]);
-    if (m.rate_day)     rows.push(['Day rate', '₦' + Number(m.rate_day).toLocaleString()]);
-    if (m.rate_home)    rows.push(['Home visit rate', '₦' + Number(m.rate_home).toLocaleString()]);
-    if (m.insurer)      rows.push(['Insurer', m.insurer]);
-    if (m.ins_exp)      rows.push(['Insurance expiry', m.ins_exp]);
+    if (m.full_name)   rows.push(['Full name', m.full_name]);
+    if (m.location)    rows.push(['Location', m.location]);
+    if (m.phone)       rows.push(['Phone', m.phone]);
+    if (m.regulator)   rows.push(['Regulatory body', m.regulator]);
+    if (m.reg_no)      rows.push(['Registration no.', m.reg_no]);
+    if (m.apl)         rows.push(['Practising licence year', m.apl]);
+    if (m.degree)      rows.push(['Degree', m.degree]);
+    if (m.uni)         rows.push(['Institution', m.uni]);
+    if (m.grad_yr)     rows.push(['Graduation year', m.grad_yr]);
+    if (m.nysc)        rows.push(['NYSC year', m.nysc]);
+    if (m.experience)  rows.push(['Experience', m.experience]);
+    if (m.rate_day)    rows.push(['Day rate', '&#8358;' + Number(m.rate_day).toLocaleString()]);
+    if (m.rate_home)   rows.push(['Home visit rate', '&#8358;' + Number(m.rate_home).toLocaleString()]);
+    if (m.insurer)     rows.push(['Insurer', m.insurer]);
+    if (m.ins_exp)     rows.push(['Insurance expiry', m.ins_exp]);
     var prefs = [];
     if (m.w_fulltime)  prefs.push('Full-time');
     if (m.w_parttime)  prefs.push('Part-time');
@@ -869,15 +867,33 @@ function viewProfile(userId) {
     if (m.extra_quals) rows.push(['Additional qualifications', m.extra_quals]);
   }
 
-  // Completeness check
-  var requiredClinc = ['clinic_name','location','phone','mdcn_no'];
-  var requiredPro   = ['full_name','regulator','reg_no','degree','uni'];
+  var requiredClinic = ['clinic_name', 'location', 'phone', 'mdcn_no'];
+  var requiredPro    = ['full_name', 'regulator', 'reg_no', 'degree', 'uni'];
   var missing = [];
-  if (role === 'clinic')       missing = requiredClinc.filter(function(f){ return !m[f]; });
-  if (role === 'professional') missing = requiredPro.filter(function(f){ return !m[f]; });
+  if (role === 'clinic')       missing = requiredClinic.filter(function(f) { return !m[f]; });
+  if (role === 'professional') missing = requiredPro.filter(function(f) { return !m[f]; });
 
   var avatarColor = role === 'patient' ? '#534AB7' : role === 'clinic' ? '#185FA5' : '#3B6D11';
   var displayName = m.full_name || m.clinic_name || user.email;
+
+  var tableRows = rows.map(function(r) {
+    return '<tr style="border-bottom:1px solid #f5f5f5;">' +
+      '<td style="font-size:12px;color:#888;padding:7px 0;width:45%;font-weight:500;">' + r[0] + '</td>' +
+      '<td style="font-size:13px;color:#26215C;padding:7px 0;">' + (r[1] || '&mdash;') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  var completenessHtml = missing.length
+    ? '<div style="background:#FFF8E6;border:1px solid #F0D060;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#B8860B;">&#9888; Incomplete — missing: ' + missing.map(function(f) { return f.replace(/_/g,' '); }).join(', ') + '</div>'
+    : '<div style="background:#EAF3DE;border-radius:8px;padding:.5rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#3B6D11;">&#10003; Profile appears complete</div>';
+
+  var verifyBtn = m.verified !== 'verified'
+    ? '<button class="action-btn btn-verify" style="padding:8px 16px;font-size:13px;" data-uid="' + user.id + '" onclick="setVerification(this.dataset.uid,&quot;verified&quot;);closeProfileModal()">Verify</button>'
+    : '<span style="font-size:12px;color:#3B6D11;padding:8px 0;">Already verified</span>';
+
+  var rejectBtn = m.verified !== 'rejected'
+    ? '<button class="action-btn btn-reject" style="padding:8px 16px;font-size:13px;margin-left:8px;" data-uid="' + user.id + '" onclick="setVerification(this.dataset.uid,&quot;rejected&quot;);closeProfileModal()">Reject</button>'
+    : '';
 
   content.innerHTML =
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">' +
@@ -885,19 +901,9 @@ function viewProfile(userId) {
       '<div><div style="font-size:17px;font-weight:600;color:#26215C;">' + displayName + '</div>' +
       '<div style="font-size:12px;color:#888;">' + user.email + '</div></div>' +
     '</div>' +
-    (missing.length ? '<div style="background:#FFF8E6;border:1px solid #F0D060;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#B8860B;">⚠ Incomplete profile — missing: ' + missing.map(function(f){ return f.replace(/_/g,' '); }).join(', ') + '</div>' : '<div style="background:#EAF3DE;border-radius:8px;padding:.5rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#3B6D11;">✓ Profile appears complete</div>') +
-    '<table style="width:100%;border-collapse:collapse;">' +
-    rows.map(function(r) {
-      return '<tr style="border-bottom:1px solid #f5f5f5;">' +
-        '<td style="font-size:12px;color:#888;padding:7px 0;width:45%;font-weight:500;">' + r[0] + '</td>' +
-        '<td style="font-size:13px;color:#26215C;padding:7px 0;">' + (r[1] || '—') + '</td>' +
-        '</tr>';
-    }).join('') +
-    '</table>' +
-    '<div style="display:flex;gap:8px;margin-top:1.5rem;">' +
-    (m.verified !== 'verified' ? '<button class="action-btn btn-verify" style="padding:8px 16px;font-size:13px;" onclick="setVerification('' + user.id + '','verified');closeProfileModal()">Verify</button>' : '<span style="font-size:12px;color:#3B6D11;padding:8px 0;">Already verified</span>') +
-    (m.verified !== 'rejected' ? ' <button class="action-btn btn-reject" style="padding:8px 16px;font-size:13px;" onclick="setVerification('' + user.id + '','rejected');closeProfileModal()">Reject</button>' : '') +
-    '</div>';
+    completenessHtml +
+    '<table style="width:100%;border-collapse:collapse;">' + tableRows + '</table>' +
+    '<div style="display:flex;align-items:center;margin-top:1.5rem;">' + verifyBtn + rejectBtn + '</div>';
 
   modal.style.display = 'flex';
 }

@@ -768,11 +768,13 @@ function renderBookings() {
 
 // ── VERIFY / REJECT ───────────────────────────────────────
 function actionBtns(userId, currentStatus) {
+  var viewBtn = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" onclick="viewProfile('' + userId + '')">View profile</button> ';
   if (currentStatus === 'verified') {
-    return '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" onclick="setVerification(\'' + userId + '\',\'rejected\')">Reject</button>';
+    return viewBtn + '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" onclick="setVerification('' + userId + '','rejected')">Reject</button>';
   }
-  return '<button class="action-btn btn-verify" onclick="setVerification(\'' + userId + '\',\'verified\')">Verify</button>' +
-         '<button class="action-btn btn-reject" onclick="setVerification(\'' + userId + '\',\'rejected\')">Reject</button>';
+  return viewBtn +
+         '<button class="action-btn btn-verify" onclick="setVerification('' + userId + '','verified')">Verify</button>' +
+         '<button class="action-btn btn-reject" onclick="setVerification('' + userId + '','rejected')">Reject</button>';
 }
 
 async function setVerification(userId, status) {
@@ -798,6 +800,109 @@ async function setVerification(userId, status) {
   } catch(e) {
     showAlert('Error: ' + e.message, 'err');
   }
+}
+
+
+// ── VIEW PROFILE MODAL ─────────────────────────────────────
+function viewProfile(userId) {
+  var user = allUsers.find(function(u){ return u.id === userId; });
+  if (!user) { showAlert('User not found.', 'err'); return; }
+  var m = user.user_metadata || {};
+  var role = m.role || 'unknown';
+  var modal = document.getElementById('profile-modal');
+  var content = document.getElementById('profile-modal-content');
+
+  var rows = [];
+  // Common fields
+  rows.push(['Email', user.email]);
+  rows.push(['Role', role]);
+  rows.push(['Signed up', new Date(user.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})]);
+  rows.push(['Verification', m.verified || 'Pending']);
+
+  if (role === 'patient') {
+    if (m.full_name)    rows.push(['Full name', m.full_name]);
+    if (m.location)     rows.push(['Location', m.location]);
+    if (m.phone)        rows.push(['Phone', m.phone]);
+    if (m.allergies)    rows.push(['Allergies', m.allergies]);
+    if (m.medications)  rows.push(['Medications', m.medications]);
+    if (m.conditions)   rows.push(['Conditions', m.conditions]);
+    if (m.anxiety)      rows.push(['Dental anxiety', m.anxiety]);
+    if (m.last_visit)   rows.push(['Last visit', m.last_visit]);
+  } else if (role === 'clinic') {
+    if (m.clinic_name)  rows.push(['Clinic name', m.clinic_name]);
+    if (m.location)     rows.push(['Location', m.location]);
+    if (m.address)      rows.push(['Address', m.address]);
+    if (m.phone)        rows.push(['Phone', m.phone]);
+    if (m.open)         rows.push(['Opening time', m.open]);
+    if (m.close)        rows.push(['Closing time', m.close]);
+    if (m.mdcn_no)      rows.push(['MDCN licence no.', m.mdcn_no]);
+    if (m.dthrbn_no)    rows.push(['DTHRBN licence no.', m.dthrbn_no]);
+    if (m.services && m.services.length) rows.push(['Services', m.services.join(', ')]);
+    if (m.payment && m.payment.length)   rows.push(['Payment methods', m.payment.join(', ')]);
+    var days = ['mon','tue','wed','thu','fri','sat','sun'].filter(function(d){ return m['day_'+d]; }).map(function(d){ return d.charAt(0).toUpperCase()+d.slice(1); });
+    if (days.length) rows.push(['Open days', days.join(', ')]);
+    if (m.staff_roster && m.staff_roster.length) rows.push(['Staff count', m.staff_roster.length]);
+  } else if (role === 'professional') {
+    if (m.full_name)    rows.push(['Full name', m.full_name]);
+    if (m.location)     rows.push(['Location', m.location]);
+    if (m.phone)        rows.push(['Phone', m.phone]);
+    if (m.regulator)    rows.push(['Regulatory body', m.regulator]);
+    if (m.reg_no)       rows.push(['Registration no.', m.reg_no]);
+    if (m.apl)          rows.push(['Practising licence year', m.apl]);
+    if (m.degree)       rows.push(['Degree', m.degree]);
+    if (m.uni)          rows.push(['Institution', m.uni]);
+    if (m.grad_yr)      rows.push(['Graduation year', m.grad_yr]);
+    if (m.nysc)         rows.push(['NYSC year', m.nysc]);
+    if (m.experience)   rows.push(['Experience', m.experience]);
+    if (m.rate_day)     rows.push(['Day rate', '₦' + Number(m.rate_day).toLocaleString()]);
+    if (m.rate_home)    rows.push(['Home visit rate', '₦' + Number(m.rate_home).toLocaleString()]);
+    if (m.insurer)      rows.push(['Insurer', m.insurer]);
+    if (m.ins_exp)      rows.push(['Insurance expiry', m.ins_exp]);
+    var prefs = [];
+    if (m.w_fulltime)  prefs.push('Full-time');
+    if (m.w_parttime)  prefs.push('Part-time');
+    if (m.w_sessional) prefs.push('Sessional');
+    if (m.w_gig)       prefs.push('Gig');
+    if (m.w_home)      prefs.push('Home visits');
+    if (prefs.length)  rows.push(['Open to', prefs.join(', ')]);
+    if (m.extra_quals) rows.push(['Additional qualifications', m.extra_quals]);
+  }
+
+  // Completeness check
+  var requiredClinc = ['clinic_name','location','phone','mdcn_no'];
+  var requiredPro   = ['full_name','regulator','reg_no','degree','uni'];
+  var missing = [];
+  if (role === 'clinic')       missing = requiredClinc.filter(function(f){ return !m[f]; });
+  if (role === 'professional') missing = requiredPro.filter(function(f){ return !m[f]; });
+
+  var avatarColor = role === 'patient' ? '#534AB7' : role === 'clinic' ? '#185FA5' : '#3B6D11';
+  var displayName = m.full_name || m.clinic_name || user.email;
+
+  content.innerHTML =
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">' +
+      '<div style="width:48px;height:48px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;flex-shrink:0;">' + initials(displayName) + '</div>' +
+      '<div><div style="font-size:17px;font-weight:600;color:#26215C;">' + displayName + '</div>' +
+      '<div style="font-size:12px;color:#888;">' + user.email + '</div></div>' +
+    '</div>' +
+    (missing.length ? '<div style="background:#FFF8E6;border:1px solid #F0D060;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#B8860B;">⚠ Incomplete profile — missing: ' + missing.map(function(f){ return f.replace(/_/g,' '); }).join(', ') + '</div>' : '<div style="background:#EAF3DE;border-radius:8px;padding:.5rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#3B6D11;">✓ Profile appears complete</div>') +
+    '<table style="width:100%;border-collapse:collapse;">' +
+    rows.map(function(r) {
+      return '<tr style="border-bottom:1px solid #f5f5f5;">' +
+        '<td style="font-size:12px;color:#888;padding:7px 0;width:45%;font-weight:500;">' + r[0] + '</td>' +
+        '<td style="font-size:13px;color:#26215C;padding:7px 0;">' + (r[1] || '—') + '</td>' +
+        '</tr>';
+    }).join('') +
+    '</table>' +
+    '<div style="display:flex;gap:8px;margin-top:1.5rem;">' +
+    (m.verified !== 'verified' ? '<button class="action-btn btn-verify" style="padding:8px 16px;font-size:13px;" onclick="setVerification('' + user.id + '','verified');closeProfileModal()">Verify</button>' : '<span style="font-size:12px;color:#3B6D11;padding:8px 0;">Already verified</span>') +
+    (m.verified !== 'rejected' ? ' <button class="action-btn btn-reject" style="padding:8px 16px;font-size:13px;" onclick="setVerification('' + user.id + '','rejected');closeProfileModal()">Reject</button>' : '') +
+    '</div>';
+
+  modal.style.display = 'flex';
+}
+
+function closeProfileModal() {
+  document.getElementById('profile-modal').style.display = 'none';
 }
 
 // ── TAB SWITCHING ─────────────────────────────────────────
@@ -855,5 +960,17 @@ function exportCSV(type) {
   URL.revokeObjectURL(url);
 }
 </script>
+
+<!-- Profile modal -->
+<div id="profile-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div style="font-size:15px;font-weight:600;color:#0D1B3E;">Profile details</div>
+      <button onclick="closeProfileModal()" style="background:none;border:none;font-size:20px;color:#888;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="profile-modal-content"></div>
+  </div>
+</div>
+
 </body>
 </html>

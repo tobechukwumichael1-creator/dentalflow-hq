@@ -768,13 +768,14 @@ function renderBookings() {
 
 // ── VERIFY / REJECT ───────────────────────────────────────
 function actionBtns(userId, currentStatus) {
-  var viewBtn = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" onclick="viewProfile('' + userId + '')">View profile</button> ';
+  var uid = userId;
+  var viewBtn = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" onclick="viewProfile(\'' + uid + '\')">View profile</button> ';
   if (currentStatus === 'verified') {
-    return viewBtn + '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" onclick="setVerification('' + userId + '','rejected')">Reject</button>';
+    return viewBtn + '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" onclick="setVerification(\'' + uid + '\',\'rejected\')">Reject</button>';
   }
   return viewBtn +
-         '<button class="action-btn btn-verify" onclick="setVerification('' + userId + '','verified')">Verify</button>' +
-         '<button class="action-btn btn-reject" onclick="setVerification('' + userId + '','rejected')">Reject</button>';
+         '<button class="action-btn btn-verify" onclick="setVerification(\'' + uid + '\',\'verified\')">Verify</button>' +
+         '<button class="action-btn btn-reject" onclick="setVerification(\'' + uid + '\',\'rejected\')">Reject</button>';
 }
 
 async function setVerification(userId, status) {

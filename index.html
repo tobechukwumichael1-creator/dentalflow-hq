@@ -1501,6 +1501,15 @@ tr:last-child td { border-bottom: none; }
           <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           My records
         </div>
+        <div class="sidebar-label">Rewards</div>
+        <div class="sidebar-item pu" data-title="Refer &amp; earn" onclick="setTab('pd-refer',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Refer &amp; earn
+        </div>
+        <div class="sidebar-item pu" data-title="My wallet" onclick="setTab('pd-wallet',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 8h12M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2"/></svg>
+          My wallet
+        </div>
         <div class="sidebar-label">Discover</div>
         <div class="sidebar-item pu" data-title="Find care" onclick="setTab('pd-clinics',this)">
           <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -1644,6 +1653,70 @@ tr:last-child td { border-bottom: none; }
       </div>
 
       <!-- Find a clinic / professional -->
+      <!-- Refer & Earn — Patient -->
+      <div id="pd-refer" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Refer &amp; earn</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Share DentalFlow with friends and family. Earn ₦500 for every person who signs up and completes their first appointment.</div>
+        <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">You earn per successful referral</div>
+          <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦500</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">Credited to your wallet when your referred friend books their first appointment</div>
+        </div>
+        <div class="stat-grid" style="margin-bottom:1.25rem;">
+          <div class="stat-card"><div class="stat-label">Total earned</div><div class="stat-value" style="color:#534AB7;">₦1,500</div><div class="stat-sub up">3 referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value">₦500</div><div class="stat-sub text-muted">awaiting booking</div></div>
+          <div class="stat-card"><div class="stat-label">Wallet balance</div><div class="stat-value" style="color:#3B6D11;">₦1,500</div><div class="stat-sub up">use at checkout</div></div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Your referral code</div></div>
+          <div style="padding:1rem 1.25rem;">
+            <div style="background:#EEEDFE;border:1.5px dashed #7F77DD;border-radius:10px;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+              <div><div style="font-size:11px;color:#7F77DD;margin-bottom:4px;">Share this link with anyone</div><div style="font-size:20px;font-weight:500;color:#534AB7;letter-spacing:2px;" id="pd-ref-code">JANE2026</div></div>
+              <button class="btn btn-purple btn-sm" onclick="document.getElementById('pd-copy-msg').style.display='inline';setTimeout(function(){document.getElementById('pd-copy-msg').style.display='none';},2000)">Copy link</button>
+            </div>
+            <span id="pd-copy-msg" style="display:none;font-size:12px;color:#3B6D11;">✓ Link copied to clipboard</span>
+            <div style="font-size:12px;color:#888780;line-height:1.6;">Send your link via WhatsApp, Instagram or SMS. When your friend signs up and completes their first appointment, ₦500 is automatically added to your wallet — no action needed from you.</div>
+          </div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">How it works</div></div>
+          <div class="card-row"><div style="width:24px;height:24px;border-radius:50%;background:#EEEDFE;color:#534AB7;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><div class="flex-1"><div class="font-medium">Share your link</div><div class="text-sm text-muted">Send it to friends and family via any channel</div></div></div>
+          <div class="card-row"><div style="width:24px;height:24px;border-radius:50%;background:#EEEDFE;color:#534AB7;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><div class="flex-1"><div class="font-medium">Friend signs up &amp; books</div><div class="text-sm text-muted">They create an account and complete their first appointment</div></div></div>
+          <div class="card-row"><div style="width:24px;height:24px;border-radius:50%;background:#EEEDFE;color:#534AB7;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><div class="flex-1"><div class="font-medium">₦500 credited to your wallet</div><div class="text-sm text-muted">Use it to pay for any treatment at any DentalFlow clinic</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Referral history</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">AO</div><div class="flex-1"><div class="font-medium">Adaeze Okafor</div><div class="text-sm text-muted">Signed up 14 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">KE</div><div class="flex-1"><div class="font-medium">Kemi Eze</div><div class="text-sm text-muted">Signed up 20 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">TN</div><div class="flex-1"><div class="font-medium">Tunde Nwosu</div><div class="text-sm text-muted">Signed up 1 Apr · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#D3D1C7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#5F5E5A;flex-shrink:0;">SB</div><div class="flex-1"><div class="font-medium">Sola Bello</div><div class="text-sm text-muted">Signed up 3 Apr · awaiting first booking</div></div><span class="tag tag-neu">Pending</span></div>
+        </div>
+      </div>
+
+      <!-- Wallet — Patient -->
+      <div id="pd-wallet" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">My wallet</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your referral earnings, ready to use at checkout when booking any appointment.</div>
+        <div style="background:#0D1B3E;border-radius:12px;padding:1.5rem 1.75rem;margin-bottom:1.25rem;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Available balance</div>
+          <div style="font-size:40px;font-weight:500;color:#fff;line-height:1;">₦1,500</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">from 3 referrals · apply at checkout to reduce your bill</div>
+          <div style="margin-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.35);margin-bottom:5px;"><span>Progress to ₦5,000</span><span>₦1,500 / ₦5,000</span></div><div style="height:5px;background:rgba(255,255,255,.12);border-radius:3px;"><div style="height:5px;width:30%;background:#5DCAA5;border-radius:3px;"></div></div></div>
+        </div>
+        <div class="stat-grid" style="margin-bottom:1.25rem;">
+          <div class="stat-card"><div class="stat-label">Total earned</div><div class="stat-value" style="color:#534AB7;">₦1,500</div><div class="stat-sub">all time</div></div>
+          <div class="stat-card"><div class="stat-label">Total spent</div><div class="stat-value">₦0</div><div class="stat-sub">on bookings</div></div>
+          <div class="stat-card"><div class="stat-label">Referrals</div><div class="stat-value">3</div><div class="stat-sub">successful</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Transaction history</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Tunde Nwosu</div><div class="text-sm text-muted">1 Apr 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Kemi Eze</div><div class="text-sm text-muted">20 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Adaeze Okafor</div><div class="text-sm text-muted">14 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+        </div>
+        <div style="background:#E6F1FB;border-radius:10px;padding:.875rem 1.25rem;font-size:13px;color:#185FA5;margin-top:.5rem;">Your wallet balance is applied at checkout — just slide the credit amount when confirming a booking.</div>
+      </div>
+
       <div id="pd-clinics" class="tab-panel">
         <!-- Search bar -->
         <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;">
@@ -1964,6 +2037,15 @@ tr:last-child td { border-bottom: none; }
           Booking requests
           <span class="sidebar-badge badge-bl">5</span>
         </div>
+        <div class="sidebar-label">Rewards</div>
+        <div class="sidebar-item bl" data-title="Refer &amp; earn" onclick="setTab('cd-refer',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Refer &amp; earn
+        </div>
+        <div class="sidebar-item bl" data-title="Referral wallet" onclick="setTab('cd-ref-wallet',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 8h12M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2"/></svg>
+          Referral wallet
+        </div>
         <div class="sidebar-label">Finance</div>
         <div class="sidebar-item bl" data-title="Analytics" onclick="setTab('cd-analytics',this)">
           <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2194,33 +2276,148 @@ tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
-      <!-- Analytics -->
-      <div id="cd-analytics" class="tab-panel">
-        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Analytics</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Track your clinic performance over time.</div>
-        <div class="stat-grid" style="margin-bottom:1.5rem;">
-          <div class="stat-card"><div class="stat-label">Total bookings</div><div class="stat-value" id="an-total">0</div><div class="stat-sub text-muted">All time</div></div>
-          <div class="stat-card"><div class="stat-label">This month</div><div class="stat-value" id="an-month">0</div><div class="stat-sub text-muted">Bookings</div></div>
-          <div class="stat-card"><div class="stat-label">Walk-ins logged</div><div class="stat-value" id="an-walkins">0</div><div class="stat-sub text-muted">All time</div></div>
-          <div class="stat-card"><div class="stat-label">Payments pending</div><div class="stat-value" id="an-pending">0</div><div class="stat-sub text-muted">Walk-ins</div></div>
+      <!-- Refer & Earn — Clinic -->
+      <div id="cd-refer" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Refer &amp; earn</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Refer clinics, professionals or patients to DentalFlow. Earn ₦500 per successful referral into your referral wallet.</div>
+        <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Earn per successful referral</div>
+          <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦500</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">Credited to your referral wallet · withdraw to general wallet once you reach ₦5,000</div>
+        </div>
+        <div class="stat-grid" style="margin-bottom:1.25rem;">
+          <div class="stat-card"><div class="stat-label">Referral wallet</div><div class="stat-value" style="color:#185FA5;">₦3,000</div><div class="stat-sub">6 referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Until withdrawal</div><div class="stat-value">₦2,000</div><div class="stat-sub text-muted">4 more referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Withdrawn</div><div class="stat-value">₦0</div><div class="stat-sub text-muted">to general wallet</div></div>
+        </div>
+        <div style="background:#E6F1FB;border-radius:10px;padding:.875rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="font-size:12px;font-weight:500;color:#185FA5;margin-bottom:4px;">Progress to withdrawal threshold</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#378ADD;margin-bottom:6px;"><span>₦3,000 earned</span><span>₦5,000 needed</span></div>
+          <div style="height:8px;background:#B5D4F4;border-radius:4px;"><div style="height:8px;width:60%;background:#185FA5;border-radius:4px;"></div></div>
+          <div style="font-size:11px;color:#378ADD;margin-top:5px;">4 more referrals to unlock withdrawal</div>
         </div>
         <div class="card mb2">
-          <div class="card-header"><div class="card-title">Bookings over time</div><span class="tag tag-bl">Last 6 months</span></div>
-          <div style="padding:1.25rem 1.25rem .5rem;">
-            <div id="cd-bar-chart" style="height:140px;display:flex;align-items:flex-end;gap:10px;padding:0 4px;"></div>
-            <div id="cd-bar-labels" style="display:flex;gap:10px;margin-top:6px;padding:0 4px;"></div>
+          <div class="card-header"><div class="card-title">Your clinic referral code</div></div>
+          <div style="padding:1rem 1.25rem;">
+            <div style="background:#E6F1FB;border:1.5px dashed #378ADD;border-radius:10px;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+              <div><div style="font-size:11px;color:#378ADD;margin-bottom:4px;">Share with other clinics, professionals &amp; patients</div><div style="font-size:20px;font-weight:500;color:#185FA5;letter-spacing:2px;">SMILE2026</div></div>
+              <button class="btn btn-blue btn-sm">Copy link</button>
+            </div>
           </div>
         </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Referral history</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#185FA5;flex-shrink:0;">BC</div><div class="flex-1"><div class="font-medium">BrightCare Dental (clinic)</div><div class="text-sm text-muted">Joined 10 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">AO</div><div class="flex-1"><div class="font-medium">Dr. Amara Osei (professional)</div><div class="text-sm text-muted">Joined 18 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">NE</div><div class="flex-1"><div class="font-medium">Ngozi Eze (patient)</div><div class="text-sm text-muted">Joined 22 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+        </div>
+      </div>
+
+      <!-- Referral Wallet — Clinic -->
+      <div id="cd-ref-wallet" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Referral wallet</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your referral earnings are held here separately from your general clinic wallet. Withdraw once you reach ₦5,000.</div>
+        <div class="two-col" style="margin-bottom:1.25rem;">
+          <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;">
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Referral wallet</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦3,000</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">6 referrals · ₦2,000 to go</div>
+          </div>
+          <div style="background:#185FA5;border-radius:12px;padding:1.25rem 1.5rem;">
+            <div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:4px;">General wallet</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">Funds withdrawn here</div>
+          </div>
+        </div>
+        <div style="background:#E6F1FB;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+            <div><div style="font-size:13px;font-weight:500;color:#185FA5;">Withdraw to general wallet</div><div style="font-size:12px;color:#378ADD;margin-top:2px;">Minimum ₦5,000 required · you have ₦3,000</div></div>
+            <button class="btn btn-sm" style="background:#B5D4F4;color:#0C447C;border:none;cursor:not-allowed;" disabled>Locked</button>
+          </div>
+          <div style="height:6px;background:#B5D4F4;border-radius:3px;"><div style="height:6px;width:60%;background:#185FA5;border-radius:3px;"></div></div>
+          <div style="font-size:11px;color:#378ADD;margin-top:5px;">4 more referrals to unlock · then withdraw any amount above ₦5,000</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Transaction history</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Ngozi Eze</div><div class="text-sm text-muted">22 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Dr. Amara Osei</div><div class="text-sm text-muted">18 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — BrightCare Dental</div><div class="text-sm text-muted">10 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+        </div>
+      </div>
+
+      <!-- Analytics — Full Metrics Dashboard -->
+      <div id="cd-analytics" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Clinic metrics</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">A full view of how your clinic is performing — bookings, revenue, patients, staff and trends.</div>
+
+        <!-- KPI row -->
+        <div class="stat-grid" style="margin-bottom:1.25rem;">
+          <div class="stat-card"><div class="stat-label">Bookings this month</div><div class="stat-value" id="an-total">24</div><div class="stat-sub up">↑ 4 vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:68%;background:#185FA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Walk-ins this month</div><div class="stat-value" id="an-walkins">9</div><div class="stat-sub up">↑ 2 vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:42%;background:#378ADD;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;" id="an-revenue">₦2.8M</div><div class="stat-sub up">↑ 12% vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:72%;background:#5DCAA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value" id="an-month">124</div><div class="stat-sub up">↑ 6 new this month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:55%;background:#534AB7;"></div></div></div>
+        </div>
+
+        <!-- Monthly trend chart -->
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Monthly bookings trend</div><span class="tag tag-bl">Last 6 months</span></div>
+          <div style="padding:1.25rem 1.25rem .75rem;">
+            <div id="cd-bar-chart" style="height:140px;display:flex;align-items:flex-end;gap:8px;padding:0 4px;"></div>
+            <div id="cd-bar-labels" style="display:flex;gap:8px;margin-top:6px;padding:0 4px;"></div>
+          </div>
+        </div>
+
+        <!-- Revenue + retention row -->
         <div class="two-col">
           <div class="card">
-            <div class="card-header"><div class="card-title">Top complaints</div></div>
-            <div id="an-complaints"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">Data appears as bookings come in.</div></div>
+            <div class="card-header"><div class="card-title">Revenue breakdown</div></div>
+            <div style="padding:1rem 1.25rem;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Online bookings</span><span style="font-weight:500;">₦2.1M</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:12px;"><div style="height:6px;width:75%;background:#185FA5;border-radius:3px;"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Walk-ins</span><span style="font-weight:500;">₦490,000</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:12px;"><div style="height:6px;width:18%;background:#378ADD;border-radius:3px;"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Outstanding</span><span style="font-weight:500;color:#A32D2D;">₦115,000</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;"><div style="height:6px;width:7%;background:#A32D2D;border-radius:3px;"></div></div>
+            </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Upcoming this week</div></div>
-            <div id="an-upcoming"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No upcoming bookings this week.</div></div>
+            <div class="card-header"><div class="card-title">Patient retention</div></div>
+            <div style="padding:1rem 1.25rem;">
+              <div style="text-align:center;margin-bottom:1rem;">
+                <div style="font-size:36px;font-weight:500;color:#185FA5;">68%</div>
+                <div style="font-size:12px;color:#888780;">return rate (last 6 months)</div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#888780;">New patients</span><span style="font-weight:500;color:#3B6D11;">36 this month</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#888780;">Returning patients</span><span style="font-weight:500;color:#185FA5;">88 this month</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#888780;">Avg visits / patient</span><span style="font-weight:500;">2.4 / year</span></div>
+            </div>
           </div>
         </div>
+
+        <!-- Staff utilisation + top treatments -->
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Staff utilisation</div></div>
+            <div style="padding:.5rem 0;">
+              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">Dr. Aisha Patel</span><span style="color:#3B6D11;">92%</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:92%;background:#3B6D11;border-radius:3px;"></div></div></div>
+              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">James Morgan</span><span style="color:#185FA5;">74%</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:74%;background:#185FA5;border-radius:3px;"></div></div></div>
+              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">Dr. Emeka Obi</span><span style="color:#534AB7;">58%</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:58%;background:#534AB7;border-radius:3px;"></div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Top treatments</div></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Check-up &amp; consultation</div></div><span class="tag tag-bl">38 visits</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Scaling &amp; polishing</div></div><span class="tag tag-bl">27 visits</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Composite filling</div></div><span class="tag tag-bl">19 visits</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Extraction</div></div><span class="tag tag-bl">14 visits</span></div>
+            <div class="card-row"><div class="flex-1"><div class="font-medium">Teeth whitening</div></div><span class="tag tag-bl">11 visits</span></div>
+          </div>
+        </div>
+
+        <div id="an-complaints" style="display:none;"></div>
+        <div id="an-upcoming" style="display:none;"></div>
+        <div id="an-pending" style="display:none;"></div>
+        <div id="an-month-hidden" style="display:none;"></div>
       </div>
 
       <!-- Walk-in logger -->
@@ -2711,6 +2908,15 @@ tr:last-child td { border-bottom: none; }
           Messages
           <span class="sidebar-badge badge-gr">2</span>
         </div>
+        <div class="sidebar-label">Rewards</div>
+        <div class="sidebar-item gr" data-title="Refer &amp; earn" onclick="setTab('pro-refer',this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Refer &amp; earn
+        </div>
+        <div class="sidebar-item gr" data-title="Referral wallet" onclick="setTab('pro-ref-wallet',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M2 8h12M6 4V3a1 1 0 011-1h2a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.2"/></svg>
+          Referral wallet
+        </div>
         <div class="sidebar-label">Finance</div>
         <div class="sidebar-item gr" data-title="Earnings" onclick="setTab('pro-earn',this)">
           <svg viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4 3 3L12 5M14 5h-2V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2801,6 +3007,77 @@ tr:last-child td { border-bottom: none; }
       </div>
 
       <!-- Earnings -->
+      <!-- Refer & Earn — Professional -->
+      <div id="pro-refer" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Refer &amp; earn</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Refer clinics, other professionals or patients to DentalFlow. Earn ₦500 per successful referral into your referral wallet.</div>
+        <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;">
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Earn per successful referral</div>
+          <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦500</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">Credited to your referral wallet · withdraw to earnings wallet once you reach ₦5,000</div>
+        </div>
+        <div class="stat-grid" style="margin-bottom:1.25rem;">
+          <div class="stat-card"><div class="stat-label">Referral wallet</div><div class="stat-value" style="color:#3B6D11;">₦2,000</div><div class="stat-sub">4 referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Until withdrawal</div><div class="stat-value">₦3,000</div><div class="stat-sub text-muted">6 more referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Withdrawn</div><div class="stat-value">₦0</div><div class="stat-sub text-muted">to earnings wallet</div></div>
+        </div>
+        <div style="background:#EAF3DE;border-radius:10px;padding:.875rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="font-size:12px;font-weight:500;color:#3B6D11;margin-bottom:4px;">Progress to withdrawal threshold</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#639922;margin-bottom:6px;"><span>₦2,000 earned</span><span>₦5,000 needed</span></div>
+          <div style="height:8px;background:#C0DD97;border-radius:4px;"><div style="height:8px;width:40%;background:#3B6D11;border-radius:4px;"></div></div>
+          <div style="font-size:11px;color:#639922;margin-top:5px;">6 more referrals to unlock withdrawal</div>
+        </div>
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Your referral code</div></div>
+          <div style="padding:1rem 1.25rem;">
+            <div style="background:#EAF3DE;border:1.5px dashed #639922;border-radius:10px;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+              <div><div style="font-size:11px;color:#639922;margin-bottom:4px;">Share with clinics, professionals &amp; patients</div><div style="font-size:20px;font-weight:500;color:#3B6D11;letter-spacing:2px;">KWAME2026</div></div>
+              <button class="btn btn-green btn-sm">Copy link</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Referral history</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">JA</div><div class="flex-1"><div class="font-medium">Dr. Juliet Adeola (professional)</div><div class="text-sm text-muted">Joined 5 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">TO</div><div class="flex-1"><div class="font-medium">Temi Okafor (patient)</div><div class="text-sm text-muted">Joined 12 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">RC</div><div class="flex-1"><div class="font-medium">RootCare Dental (clinic)</div><div class="text-sm text-muted">Joined 20 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">BM</div><div class="flex-1"><div class="font-medium">Bisi Martins (patient)</div><div class="text-sm text-muted">Joined 1 Apr · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+        </div>
+      </div>
+
+      <!-- Referral Wallet — Professional -->
+      <div id="pro-ref-wallet" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Referral wallet</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your referral earnings sit here separately from your clinical earnings. Withdraw to your earnings wallet once you hit ₦5,000.</div>
+        <div class="two-col" style="margin-bottom:1.25rem;">
+          <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;">
+            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Referral wallet</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦2,000</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">4 referrals · ₦3,000 to go</div>
+          </div>
+          <div style="background:#3B6D11;border-radius:12px;padding:1.25rem 1.5rem;">
+            <div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:4px;">Earnings wallet</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦485,000</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">Clinical income · Mar 2026</div>
+          </div>
+        </div>
+        <div style="background:#EAF3DE;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+            <div><div style="font-size:13px;font-weight:500;color:#3B6D11;">Withdraw to earnings wallet</div><div style="font-size:12px;color:#639922;margin-top:2px;">Minimum ₦5,000 required · you have ₦2,000</div></div>
+            <button class="btn btn-sm" style="background:#C0DD97;color:#27500A;border:none;cursor:not-allowed;" disabled>Locked</button>
+          </div>
+          <div style="height:6px;background:#C0DD97;border-radius:3px;"><div style="height:6px;width:40%;background:#3B6D11;border-radius:3px;"></div></div>
+          <div style="font-size:11px;color:#639922;margin-top:5px;">6 more referrals to unlock · then withdraw any amount above ₦5,000</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Transaction history</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Bisi Martins</div><div class="text-sm text-muted">1 Apr 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — RootCare Dental</div><div class="text-sm text-muted">20 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Temi Okafor</div><div class="text-sm text-muted">12 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Dr. Juliet Adeola</div><div class="text-sm text-muted">5 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+        </div>
+      </div>
+
       <div id="pro-earn" class="tab-panel">
         <div style="background:linear-gradient(120deg,#0f2a1a 0%,#26215C 100%);border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;">
           <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px;">Total earnings — this month</div>

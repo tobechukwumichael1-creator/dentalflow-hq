@@ -436,6 +436,10 @@ html, body {
   background: var(--white);
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
 }
 
 .sidebar-top {
@@ -456,6 +460,7 @@ html, body {
   flex-direction: column;
   gap: 2px;
   border-right: 0.5px solid var(--border);
+  overflow-y: visible;
 }
 
 .sidebar-label {
@@ -1492,6 +1497,10 @@ tr:last-child td { border-bottom: none; }
           <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           My profile
         </div>
+        <div class="sidebar-item pu" data-title="My records" onclick="setTab('pd-records',this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="1" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 5h6M5 8h6M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          My records
+        </div>
         <div class="sidebar-label">Discover</div>
         <div class="sidebar-item pu" data-title="Find care" onclick="setTab('pd-clinics',this)">
           <svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
@@ -1707,6 +1716,79 @@ tr:last-child td { border-bottom: none; }
 
         <!-- Guide grid -->
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;" id="guides-grid">
+        </div>
+      </div>
+      <!-- My records — read-only patient view -->
+      <div id="pd-records" class="tab-panel">
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">My dental records</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your clinical notes and examination records from each visit. Read-only — managed by your clinic.</div>
+        <div id="pd-records-list">
+          <!-- Sample record card -->
+          <div class="card mb2">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Visit — 17 Mar 2026</div>
+                <div style="font-size:12px;color:#888780;margin-top:2px;">SmileCare Clinic · Dr. Aisha Patel</div>
+              </div>
+              <span class="tag tag-gr">Completed</span>
+            </div>
+            <div style="padding:1.25rem;">
+              <!-- Complaints -->
+              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Presenting complaints</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Complaint</div><div style="font-size:13px;color:#26215C;">Sensitivity to cold, upper right</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Frequency</div><div style="font-size:13px;color:#26215C;">On stimulus only</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;grid-column:span 2;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">History of presenting complaint</div><div style="font-size:13px;color:#26215C;">Patient reports sensitivity to cold drinks in UR region for approximately 3 weeks. No spontaneous pain. No previous history of trauma to the area.</div></div>
+              </div>
+              <!-- General examination -->
+              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">General examination</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">EOE — Oral hygiene</div><div style="font-size:13px;color:#26215C;">Fair</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">IOE — Oral hygiene</div><div style="font-size:13px;color:#26215C;">Fair</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Calculus</div><div style="font-size:13px;color:#26215C;">Mild</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Sensitivity</div><div style="font-size:13px;color:#26215C;">Cold</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;grid-column:span 2;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Soft tissues</div><div style="font-size:13px;color:#26215C;">Mild erythema labial gingiva UR region. No ulceration.</div></div>
+              </div>
+              <!-- FDI chart — read-only -->
+              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Tooth chart findings</div>
+              <div style="background:#f7f8fc;border-radius:10px;padding:1rem;margin-bottom:1.25rem;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <div>
+                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">UR — Quadrant 1</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                      <span style="background:#E6F1FB;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:6px;">14</span>
+                      <span style="background:#FCEBEB;color:#A32D2D;font-size:11px;padding:3px 8px;border-radius:6px;">15 — sensitive</span>
+                      <span style="background:#FCEBEB;color:#A32D2D;font-size:11px;padding:3px 8px;border-radius:6px;">16 — carious</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">UL — Quadrant 2</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                      <span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 8px;border-radius:6px;">21 — filled</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">LL — Quadrant 3</div>
+                    <div style="font-size:12px;color:#888780;">No findings</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">LR — Quadrant 4</div>
+                    <div style="font-size:12px;color:#888780;">No findings</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Diagnoses -->
+              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Diagnoses &amp; treatment</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Diagnosis 1</div><div style="font-size:13px;color:#26215C;">Dentine hypersensitivity UR15</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Diagnosis 2</div><div style="font-size:13px;color:#26215C;">Occlusal caries UR16</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Treatment plan</div><div style="font-size:13px;color:#26215C;">Composite filling UR16. Desensitising agent UR15. OH instruction.</div></div>
+                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Treatment done today</div><div style="font-size:13px;color:#26215C;">Composite restoration UR16 completed. Sensodyne prescribed.</div></div>
+              </div>
+              <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Additional clinical notes</div><div style="font-size:13px;color:#26215C;">Patient advised to use sensitivity toothpaste twice daily. Review in 6 weeks. Next appointment booked for scaling and polishing.</div></div>
+            </div>
+          </div>
+          <div style="text-align:center;padding:1.5rem;font-size:13px;color:#888780;">Your records are added by your clinic after each visit. If you have a question about your notes, contact your clinic directly.</div>
         </div>
       </div>
     </div>
@@ -2144,8 +2226,10 @@ tr:last-child td { border-bottom: none; }
       <!-- Walk-in logger -->
       <div id="cd-walkin" class="tab-panel">
         <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Log a walk-in patient</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Record patients who walk in without a prior booking.</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Complete the full clinical record for this patient visit.</div>
         <div id="cd-walkin-saved" class="save-banner save-banner-bl" style="display:none;">Walk-in patient logged successfully</div>
+
+        <!-- SECTION A: Patient details -->
         <div class="card mb2">
           <div class="card-header"><div class="card-title">Patient details</div></div>
           <div class="form-grid" style="padding:1.25rem;">
@@ -2155,26 +2239,168 @@ tr:last-child td { border-bottom: none; }
             <div class="form-field"><label class="f-label" style="color:#185FA5;">Gender</label>
               <select id="wi-gender" class="f-input f-input-blue"><option value="">Select</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
             </div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Visit date</label><input id="wi-date" class="f-input f-input-blue" type="date"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Attending clinician</label><input id="wi-dentist" class="f-input f-input-blue" type="text" placeholder="e.g. Dr. Aisha Patel"/></div>
           </div>
         </div>
+
+        <!-- SECTION B: Dental Clinic Investigation -->
         <div class="card mb2">
-          <div class="card-header"><div class="card-title">Visit details</div></div>
-          <div style="padding:1.25rem;">
-            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Chief complaint</label><textarea id="wi-complaint" class="f-input f-input-blue" rows="2" placeholder="e.g. Toothache lower left, sensitivity to cold..." style="resize:vertical;"></textarea></div>
-            <div class="form-grid">
-              <div class="form-field"><label class="f-label" style="color:#185FA5;">Treatment given</label><input id="wi-treatment" class="f-input f-input-blue" type="text" placeholder="e.g. Extraction, filling, scaling"/></div>
-              <div class="form-field"><label class="f-label" style="color:#185FA5;">Attending dentist</label><input id="wi-dentist" class="f-input f-input-blue" type="text" placeholder="e.g. Dr. Aisha Patel"/></div>
-              <div class="form-field"><label class="f-label" style="color:#185FA5;">Visit date</label><input id="wi-date" class="f-input f-input-blue" type="date"/></div>
-              <div class="form-field"><label class="f-label" style="color:#185FA5;">Next appointment</label><input id="wi-next" class="f-input f-input-blue" type="date"/></div>
+          <div class="card-header" style="cursor:pointer;" onclick="toggleSection('wi-sec-investigation')">
+            <div class="card-title">Dental clinic investigation</div>
+            <span style="font-size:12px;color:#888780;">tap to expand ▾</span>
+          </div>
+          <div id="wi-sec-investigation" style="padding:1.25rem;">
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Chief complaint</label><textarea id="wi-chief" class="f-input f-input-blue" rows="2" placeholder="What is the patient's main complaint?" style="resize:vertical;"></textarea></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">History of illness</label><textarea id="wi-hoi" class="f-input f-input-blue" rows="3" placeholder="Onset, duration, character, relieving/aggravating factors..." style="resize:vertical;"></textarea></div>
+            <div style="font-size:12px;font-weight:500;color:#185FA5;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.4px;">Medical history</div>
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Current medications</label><input id="wi-meds" class="f-input f-input-blue" type="text" placeholder="List medications or None"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Allergies</label><input id="wi-allergies" class="f-input f-input-blue" type="text" placeholder="e.g. Penicillin, latex — or None"/></div>
             </div>
-            <div class="form-field mt1"><label class="f-label" style="color:#185FA5;">Medical flags / allergies</label><input id="wi-flags" class="f-input f-input-blue" type="text" placeholder="e.g. Penicillin allergy, diabetic - or None"/></div>
-            <div class="form-field mt1"><label class="f-label" style="color:#185FA5;">Clinical notes</label><textarea id="wi-notes" class="f-input f-input-blue" rows="2" placeholder="Additional observations..." style="resize:vertical;"></textarea></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Social history</label><textarea id="wi-social" class="f-input f-input-blue" rows="2" placeholder="Smoking, alcohol, occupation, relevant lifestyle factors..." style="resize:vertical;"></textarea></div>
           </div>
         </div>
+
+        <!-- SECTION C: Clinical History -->
         <div class="card mb2">
-          <div class="card-header"><div class="card-title">Payment</div></div>
+          <div class="card-header" style="cursor:pointer;" onclick="toggleSection('wi-sec-clinical')">
+            <div class="card-title">Clinical history</div>
+            <span style="font-size:12px;color:#888780;">tap to expand ▾</span>
+          </div>
+          <div id="wi-sec-clinical" style="padding:1.25rem;">
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Extraoral examination <span style="font-weight:400;color:#888780;">(asymmetry, swelling, pain, paraesthesia, TMJ)</span></label><textarea id="wi-extraoral" class="f-input f-input-blue" rows="2" placeholder="e.g. No facial asymmetry. No palpable lymph nodes. TMJ — no clicking or crepitus." style="resize:vertical;"></textarea></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Intraoral examination <span style="font-weight:400;color:#888780;">(swelling, exudate, erythema, paraesthesia, TMJ)</span></label><textarea id="wi-intraoral" class="f-input f-input-blue" rows="2" placeholder="e.g. Moderate plaque. Erythematous gingiva LL region. No swelling or exudate." style="resize:vertical;"></textarea></div>
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Radiology</label>
+                <select id="wi-radiology" class="f-input f-input-blue">
+                  <option value="">Select if applicable</option>
+                  <option>Periapical (PA)</option>
+                  <option>Panoramic (OPG/Pano)</option>
+                  <option>CT scan</option>
+                  <option>PA + Pano</option>
+                  <option>Not taken</option>
+                </select>
+              </div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Radiology findings</label><input id="wi-radio-findings" class="f-input f-input-blue" type="text" placeholder="e.g. Periapical radiolucency LL6"/></div>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Assessment</label><textarea id="wi-assessment" class="f-input f-input-blue" rows="2" placeholder="Clinical assessment summary..." style="resize:vertical;"></textarea></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Plan</label><textarea id="wi-plan" class="f-input f-input-blue" rows="2" placeholder="Proposed treatment plan..." style="resize:vertical;"></textarea></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Additional notes</label><textarea id="wi-clinical-notes" class="f-input f-input-blue" rows="2" placeholder="Any other clinical notes..." style="resize:vertical;"></textarea></div>
+          </div>
+        </div>
+
+        <!-- SECTION D: Dental Examination Note -->
+        <div class="card mb2">
+          <div class="card-header" style="cursor:pointer;" onclick="toggleSection('wi-sec-exam')">
+            <div class="card-title">Dental examination note</div>
+            <span style="font-size:12px;color:#888780;">tap to expand ▾</span>
+          </div>
+          <div id="wi-sec-exam" style="padding:1.25rem;">
+
+            <!-- Complaints -->
+            <div style="font-size:12px;font-weight:500;color:#185FA5;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Presenting complaints</div>
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Complaints</label><textarea id="wi-complaints" class="f-input f-input-blue" rows="2" placeholder="Describe the patient's complaints..." style="resize:vertical;"></textarea></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Frequency of complaints</label>
+                <select id="wi-freq" class="f-input f-input-blue">
+                  <option value="">Select</option>
+                  <option>Constant</option>
+                  <option>Intermittent</option>
+                  <option>Occasional</option>
+                  <option>On stimulus only</option>
+                  <option>Nocturnal</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">History of presenting complaint (HPC)</label><textarea id="wi-hpc" class="f-input f-input-blue" rows="3" placeholder="Detailed HPC — onset, duration, severity, associated symptoms..." style="resize:vertical;"></textarea></div>
+
+            <!-- General examination -->
+            <div style="font-size:12px;font-weight:500;color:#185FA5;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">General examination</div>
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">EOE — Oral hygiene</label>
+                <select id="wi-eoe" class="f-input f-input-blue">
+                  <option value="">Select</option><option>Good</option><option>Fair</option><option>Poor</option>
+                </select>
+              </div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">IOE — Oral hygiene</label>
+                <select id="wi-ioe" class="f-input f-input-blue">
+                  <option value="">Select</option><option>Good</option><option>Fair</option><option>Poor</option>
+                </select>
+              </div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Calculus</label>
+                <select id="wi-calculus" class="f-input f-input-blue">
+                  <option value="">Select</option><option>None</option><option>Mild</option><option>Moderate</option><option>Severe</option>
+                </select>
+              </div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Sensitivity</label>
+                <select id="wi-sensitivity" class="f-input f-input-blue">
+                  <option value="">Select</option><option>None</option><option>Cold</option><option>Hot</option><option>Cold &amp; hot</option><option>Sweet</option><option>Pressure</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Soft tissues</label><input id="wi-soft" class="f-input f-input-blue" type="text" placeholder="e.g. Healthy / Erythematous gingiva / Ulceration present"/></div>
+
+            <!-- FDI Tooth Chart -->
+            <div style="font-size:12px;font-weight:500;color:#185FA5;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">FDI tooth chart — select teeth to tag findings</div>
+            <div style="background:#f7f8fc;border-radius:12px;padding:1.25rem;margin-bottom:1rem;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                <!-- UR Quadrant 1 -->
+                <div>
+                  <div style="font-size:11px;color:#185FA5;font-weight:500;margin-bottom:6px;">UR — Quadrant 1 (11–18)</div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;" id="q1-teeth"></div>
+                </div>
+                <!-- UL Quadrant 2 -->
+                <div>
+                  <div style="font-size:11px;color:#185FA5;font-weight:500;margin-bottom:6px;">UL — Quadrant 2 (21–28)</div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;" id="q2-teeth"></div>
+                </div>
+                <!-- LL Quadrant 3 -->
+                <div>
+                  <div style="font-size:11px;color:#185FA5;font-weight:500;margin-bottom:6px;">LL — Quadrant 3 (31–38)</div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;" id="q3-teeth"></div>
+                </div>
+                <!-- LR Quadrant 4 -->
+                <div>
+                  <div style="font-size:11px;color:#185FA5;font-weight:500;margin-bottom:6px;">LR — Quadrant 4 (41–48)</div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap;" id="q4-teeth"></div>
+                </div>
+              </div>
+              <div id="tooth-tag-panel" style="display:none;background:#fff;border:0.5px solid #d0e4f0;border-radius:10px;padding:1rem;margin-top:.5rem;">
+                <div style="font-size:12px;font-weight:500;color:#26215C;margin-bottom:.5rem;">Tag tooth <span id="tag-tooth-label" style="color:#185FA5;"></span>:</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;" id="tag-options"></div>
+                <button class="btn btn-sm" style="background:#fafafa;color:#888780;border:0.5px solid #e0e0e0;margin-top:.75rem;" onclick="closeTagPanel()">Done</button>
+              </div>
+              <div id="tooth-findings-summary" style="margin-top:.75rem;font-size:12px;color:#888780;">Click any tooth to tag a finding.</div>
+            </div>
+
+            <!-- Remaining exam fields -->
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Standing teeth</label><input id="wi-standing" class="f-input f-input-blue" type="text" placeholder="e.g. 28 standing teeth"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Missing teeth</label><input id="wi-missing-text" class="f-input f-input-blue" type="text" placeholder="e.g. 36, 46 missing (or use chart above)"/></div>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Findings</label><textarea id="wi-findings" class="f-input f-input-blue" rows="2" placeholder="Summary of clinical findings..." style="resize:vertical;"></textarea></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Investigations</label><textarea id="wi-investigations" class="f-input f-input-blue" rows="2" placeholder="e.g. Vitality test, periapical radiograph, IOPA..." style="resize:vertical;"></textarea></div>
+
+            <!-- Diagnoses -->
+            <div style="font-size:12px;font-weight:500;color:#185FA5;text-transform:uppercase;letter-spacing:.4px;margin:.75rem 0 .5rem;">Diagnoses</div>
+            <div class="form-grid mb2">
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Diagnosis 1</label><input id="wi-dx1" class="f-input f-input-blue" type="text" placeholder="e.g. Irreversible pulpitis LL6"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Diagnosis 2</label><input id="wi-dx2" class="f-input f-input-blue" type="text" placeholder="e.g. Chronic periodontitis"/></div>
+              <div class="form-field"><label class="f-label" style="color:#185FA5;">Diagnosis 3</label><input id="wi-dx3" class="f-input f-input-blue" type="text" placeholder="Optional third diagnosis"/></div>
+            </div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Diagnoses comment</label><textarea id="wi-dx-comment" class="f-input f-input-blue" rows="2" placeholder="Any additional diagnostic comment..." style="resize:vertical;"></textarea></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Treatment plan</label><textarea id="wi-tx-plan" class="f-input f-input-blue" rows="3" placeholder="Proposed treatment in sequence..." style="resize:vertical;"></textarea></div>
+            <div class="form-field mb2"><label class="f-label" style="color:#185FA5;">Treatment done today</label><textarea id="wi-tx-done" class="f-input f-input-blue" rows="2" placeholder="What was carried out at this visit..." style="resize:vertical;"></textarea></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Additional clinical notes</label><textarea id="wi-extra-notes" class="f-input f-input-blue" rows="2" placeholder="Any other observations or notes..." style="resize:vertical;"></textarea></div>
+          </div>
+        </div>
+
+        <!-- SECTION E: Payment & follow-up -->
+        <div class="card mb2">
+          <div class="card-header"><div class="card-title">Payment &amp; follow-up</div></div>
           <div class="form-grid" style="padding:1.25rem;">
-            <div class="form-field"><label class="f-label" style="color:#185FA5;">Amount charged (N)</label><input id="wi-amount" class="f-input f-input-blue" type="number" placeholder="e.g. 15000"/></div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Amount charged (₦)</label><input id="wi-amount" class="f-input f-input-blue" type="number" placeholder="e.g. 15000"/></div>
             <div class="form-field"><label class="f-label" style="color:#185FA5;">Payment status</label>
               <select id="wi-payment" class="f-input f-input-blue">
                 <option value="pending">Pending</option>
@@ -2183,10 +2409,12 @@ tr:last-child td { border-bottom: none; }
                 <option value="waived">Waived</option>
               </select>
             </div>
+            <div class="form-field"><label class="f-label" style="color:#185FA5;">Next appointment</label><input id="wi-next" class="f-input f-input-blue" type="date"/></div>
           </div>
         </div>
+
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">
-          <button class="btn btn-blue" onclick="logWalkin()">Log walk-in patient</button>
+          <button class="btn btn-blue" onclick="logWalkin()">Save clinical record</button>
           <span id="wi-error" style="font-size:12px;color:#A32D2D;display:none;"></span>
         </div>
         <div class="card">
@@ -2848,6 +3076,33 @@ tr:last-child td { border-bottom: none; }
       <button class="mob-nav-item active-gr" onclick="toggleMoreMenu('pro')">
         <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="3" r="1.2" fill="currentColor"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/><circle cx="8" cy="13" r="1.2" fill="currentColor"/></svg> More
       </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN — SET NEW PASSWORD (password reset flow)
+══════════════════════════════════════════════════════════ -->
+<div id="s-set-password" class="screen">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0D1B3E 0%,#1a1f4e 100%);">
+    <div style="background:#fff;border-radius:16px;padding:2.5rem;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.5rem;">
+        <svg width="36" height="36" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0D1B3E"/><rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/><rect x="42" y="42" width="16" height="50" rx="8" fill="#639922"/><rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/><rect x="42" y="42" width="50" height="16" rx="8" fill="#1a5c2a"/><circle cx="50" cy="50" r="15" fill="#6B5CE7"/><text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text></svg>
+        <div style="font-size:15px;font-weight:700;color:#0D1B3E;">DENTAL FLOW HQ</div>
+      </div>
+      <div style="font-size:20px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Set a new password</div>
+      <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Choose a strong password you'll remember.</div>
+      <div style="text-align:left;">
+        <label class="f-label" style="color:#534AB7;">New password</label>
+        <div class="pw-wrap"><input id="new-password" class="f-input f-input-purple" type="password" placeholder="Min. 6 characters" oninput="checkNewMatch()" /><button type="button" class="pw-toggle" onclick="togglePw('new-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+        <label class="f-label" style="color:#534AB7;">Confirm new password</label>
+        <div class="pw-wrap"><input id="new-password2" class="f-input f-input-purple" type="password" placeholder="Repeat password" oninput="checkNewMatch()" /><button type="button" class="pw-toggle" onclick="togglePw('new-password2',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+        <div id="new-match" class="pw-match" style="margin-bottom:.75rem;"></div>
+        <div id="new-pw-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="new-pw-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Password updated! You can now sign in.</div>
+        <button class="f-btn" style="background:#534AB7;" onclick="confirmNewPassword()">Update password</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3631,44 +3886,96 @@ async function logWalkin() {
   var errEl = document.getElementById('wi-error');
   errEl.style.display = 'none';
   var name = document.getElementById('wi-name').value.trim();
-  var complaint = document.getElementById('wi-complaint').value.trim();
+  var chief = document.getElementById('wi-chief') ? document.getElementById('wi-chief').value.trim() : '';
   if (!name) { errEl.textContent = 'Patient name is required.'; errEl.style.display = 'block'; return; }
-  if (!complaint) { errEl.textContent = 'Chief complaint is required.'; errEl.style.display = 'block'; return; }
+  if (!chief) { errEl.textContent = 'Chief complaint is required.'; errEl.style.display = 'block'; return; }
   var sb2 = getSb();
   if (!sb2 || !currentUser) { errEl.textContent = 'Please sign in first.'; errEl.style.display = 'block'; return; }
-  var record = {
-    patient_id: currentUser.id,
-    patient_name: name,
-    patient_email: document.getElementById('wi-phone').value.trim(),
-    provider_id: currentUser.id,
-    provider_name: (currentUser.user_metadata||{}).clinic_name || 'Clinic',
-    provider_type: 'walkin',
-    preferred_date: document.getElementById('wi-date').value || new Date().toISOString().split('T')[0],
-    preferred_time: '00:00',
-    complaint: complaint,
-    service_requested: document.getElementById('wi-treatment').value.trim(),
-    status: document.getElementById('wi-payment').value || 'pending',
-    notes: [
-      document.getElementById('wi-age').value ? 'Age: ' + document.getElementById('wi-age').value : '',
-      document.getElementById('wi-gender').value ? 'Gender: ' + document.getElementById('wi-gender').value : '',
-      document.getElementById('wi-dentist').value ? 'Dentist: ' + document.getElementById('wi-dentist').value : '',
-      document.getElementById('wi-flags').value ? 'Flags: ' + document.getElementById('wi-flags').value : '',
-      document.getElementById('wi-next').value ? 'Next appt: ' + document.getElementById('wi-next').value : '',
-      document.getElementById('wi-amount').value ? 'Amount: N' + document.getElementById('wi-amount').value : '',
-      document.getElementById('wi-notes').value ? document.getElementById('wi-notes').value : ''
-    ].filter(Boolean).join(' | ')
+
+  function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
+
+  var clinicalRecord = {
+    // Section B
+    chief_complaint:    chief,
+    history_of_illness: val('wi-hoi'),
+    medications:        val('wi-meds'),
+    allergies:          val('wi-allergies'),
+    social_history:     val('wi-social'),
+    // Section C
+    extraoral:          val('wi-extraoral'),
+    intraoral:          val('wi-intraoral'),
+    radiology:          val('wi-radiology'),
+    radio_findings:     val('wi-radio-findings'),
+    assessment:         val('wi-assessment'),
+    plan:               val('wi-plan'),
+    clinical_notes:     val('wi-clinical-notes'),
+    // Section D
+    complaints:         val('wi-complaints'),
+    freq:               val('wi-freq'),
+    hpc:                val('wi-hpc'),
+    eoe_oh:             val('wi-eoe'),
+    ioe_oh:             val('wi-ioe'),
+    calculus:           val('wi-calculus'),
+    sensitivity:        val('wi-sensitivity'),
+    soft_tissues:       val('wi-soft'),
+    tooth_findings:     JSON.stringify(toothFindings),
+    standing_teeth:     val('wi-standing'),
+    missing_text:       val('wi-missing-text'),
+    findings:           val('wi-findings'),
+    investigations:     val('wi-investigations'),
+    diagnosis_1:        val('wi-dx1'),
+    diagnosis_2:        val('wi-dx2'),
+    diagnosis_3:        val('wi-dx3'),
+    dx_comment:         val('wi-dx-comment'),
+    treatment_plan:     val('wi-tx-plan'),
+    treatment_done:     val('wi-tx-done'),
+    extra_notes:        val('wi-extra-notes')
   };
+
+  var record = {
+    patient_id:       currentUser.id,
+    patient_name:     name,
+    patient_email:    val('wi-phone'),
+    provider_id:      currentUser.id,
+    provider_name:    (currentUser.user_metadata||{}).clinic_name || 'Clinic',
+    provider_type:    'walkin',
+    preferred_date:   val('wi-date') || new Date().toISOString().split('T')[0],
+    preferred_time:   '00:00',
+    complaint:        chief,
+    service_requested: val('wi-tx-done'),
+    status:           val('wi-payment') || 'pending',
+    notes: JSON.stringify(Object.assign({
+      age:     val('wi-age'),
+      gender:  val('wi-gender'),
+      dentist: val('wi-dentist'),
+      amount:  val('wi-amount'),
+      next:    val('wi-next')
+    }, clinicalRecord))
+  };
+
   var res = await sb2.from('bookings').insert([record]);
   if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
   flashSaved('cd-walkin-saved');
-  // Clear form
-  ['wi-name','wi-phone','wi-age','wi-complaint','wi-treatment','wi-dentist','wi-flags','wi-notes','wi-amount'].forEach(function(id){
+
+  // Reset all fields
+  ['wi-name','wi-phone','wi-age','wi-dentist','wi-amount',
+   'wi-chief','wi-hoi','wi-meds','wi-allergies','wi-social',
+   'wi-extraoral','wi-intraoral','wi-radio-findings','wi-assessment','wi-plan','wi-clinical-notes',
+   'wi-complaints','wi-hpc','wi-soft','wi-standing','wi-missing-text',
+   'wi-findings','wi-investigations','wi-dx1','wi-dx2','wi-dx3','wi-dx-comment',
+   'wi-tx-plan','wi-tx-done','wi-extra-notes'
+  ].forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+  ['wi-gender','wi-radiology','wi-freq','wi-eoe','wi-ioe','wi-calculus','wi-sensitivity'].forEach(function(id){
     var el = document.getElementById(id); if(el) el.value = '';
   });
-  document.getElementById('wi-gender').value = '';
   document.getElementById('wi-payment').value = 'pending';
   document.getElementById('wi-date').value = '';
   document.getElementById('wi-next').value = '';
+  // Reset tooth chart
+  toothFindings = {};
+  buildToothChart();
+  updateFindingsSummary();
+  document.getElementById('tooth-tag-panel').style.display = 'none';
   loadWalkins();
 }
 
@@ -4404,6 +4711,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function initApp() {
   try {
+    // ── Handle Supabase password recovery link ──────────────
+    var hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      go('s-set-password');
+      return;
+    }
+    // Also handle via onAuthStateChange for recovery event
+    getSb().auth.onAuthStateChange(function(event, session) {
+      if (event === 'PASSWORD_RECOVERY') {
+        go('s-set-password');
+      }
+    });
     var res = await getSb().auth.getSession();
     var session = res.data && res.data.session;
     if (!session) return; // stay on landing
@@ -4430,6 +4749,169 @@ async function initApp() {
   } catch(err) {
     console.warn('Session check failed:', err);
     // landing already visible, nothing to do
+  }
+}
+// ── FDI Tooth Chart ────────────────────────────────────────
+var toothFindings = {}; // { '16': ['carious','sensitive'], '21': ['filled'] }
+var activeToothEl = null;
+
+var TOOTH_TAGS = ['TTP','Mobile','Missing','Filled','Carious','Fractured','Sensitive','Hypoplastic','Standing'];
+var TAG_COLORS = {
+  'TTP':         {bg:'#FCEBEB',color:'#A32D2D'},
+  'Mobile':      {bg:'#FFF3CD',color:'#856404'},
+  'Missing':     {bg:'#f5f5f5',color:'#888780'},
+  'Filled':      {bg:'#EAF3DE',color:'#3B6D11'},
+  'Carious':     {bg:'#FCEBEB',color:'#A32D2D'},
+  'Fractured':   {bg:'#FFF3CD',color:'#856404'},
+  'Sensitive':   {bg:'#E6F1FB',color:'#185FA5'},
+  'Hypoplastic': {bg:'#EEEDFE',color:'#534AB7'},
+  'Standing':    {bg:'#EAF3DE',color:'#3B6D11'}
+};
+
+function buildToothChart() {
+  var quads = [
+    {id:'q1-teeth', teeth:[11,12,13,14,15,16,17,18]},
+    {id:'q2-teeth', teeth:[21,22,23,24,25,26,27,28]},
+    {id:'q3-teeth', teeth:[31,32,33,34,35,36,37,38]},
+    {id:'q4-teeth', teeth:[41,42,43,44,45,46,47,48]}
+  ];
+  quads.forEach(function(q) {
+    var el = document.getElementById(q.id);
+    if (!el) return;
+    el.innerHTML = q.teeth.map(function(t) {
+      return '<button type="button" id="tooth-btn-' + t + '" onclick="selectTooth(' + t + ',this)" style="width:32px;height:32px;border-radius:6px;border:1.5px solid #d0e4f0;background:#fff;font-size:11px;font-weight:500;color:#185FA5;cursor:pointer;transition:all .12s;">' + t + '</button>';
+    }).join('');
+  });
+}
+
+function selectTooth(num, el) {
+  // Deselect previous
+  if (activeToothEl && activeToothEl !== el) {
+    activeToothEl.style.borderColor = '#d0e4f0';
+    activeToothEl.style.background = toothFindings[activeToothEl.dataset.tooth] ? '#E6F1FB' : '#fff';
+  }
+  el.dataset.tooth = num;
+  el.style.borderColor = '#185FA5';
+  el.style.background = '#E6F1FB';
+  activeToothEl = el;
+
+  var panel = document.getElementById('tooth-tag-panel');
+  var label = document.getElementById('tag-tooth-label');
+  var opts  = document.getElementById('tag-options');
+  label.textContent = 'Tooth ' + num;
+  panel.style.display = 'block';
+
+  var current = toothFindings[num] || [];
+  opts.innerHTML = TOOTH_TAGS.map(function(tag) {
+    var active = current.includes(tag);
+    var c = TAG_COLORS[tag] || {bg:'#f5f5f5',color:'#555'};
+    return '<button type="button" onclick="toggleTag(' + num + ',\'' + tag + '\',this)" style="padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1.5px solid ' + (active ? c.color : '#ddd') + ';background:' + (active ? c.bg : '#fff') + ';color:' + (active ? c.color : '#888') + ';">' + tag + '</button>';
+  }).join('');
+
+  updateFindingsSummary();
+}
+
+function toggleTag(tooth, tag, btn) {
+  if (!toothFindings[tooth]) toothFindings[tooth] = [];
+  var arr = toothFindings[tooth];
+  var idx = arr.indexOf(tag);
+  var c = TAG_COLORS[tag] || {bg:'#f5f5f5',color:'#555'};
+  if (idx === -1) {
+    arr.push(tag);
+    btn.style.borderColor = c.color;
+    btn.style.background  = c.bg;
+    btn.style.color       = c.color;
+  } else {
+    arr.splice(idx, 1);
+    btn.style.borderColor = '#ddd';
+    btn.style.background  = '#fff';
+    btn.style.color       = '#888';
+  }
+  // Update tooth button color
+  var toothBtn = document.getElementById('tooth-btn-' + tooth);
+  if (toothBtn) {
+    if (arr.length) {
+      var firstTag = arr[0];
+      var fc = TAG_COLORS[firstTag] || {bg:'#E6F1FB',color:'#185FA5'};
+      toothBtn.style.background   = fc.bg;
+      toothBtn.style.borderColor  = fc.color;
+      toothBtn.style.color        = fc.color;
+    } else {
+      toothBtn.style.background   = '#fff';
+      toothBtn.style.borderColor  = '#185FA5';
+      toothBtn.style.color        = '#185FA5';
+    }
+  }
+  updateFindingsSummary();
+}
+
+function closeTagPanel() {
+  document.getElementById('tooth-tag-panel').style.display = 'none';
+  if (activeToothEl) {
+    activeToothEl.style.borderColor = toothFindings[activeToothEl.dataset.tooth] && toothFindings[activeToothEl.dataset.tooth].length ? TAG_COLORS[toothFindings[activeToothEl.dataset.tooth][0]].color : '#d0e4f0';
+    activeToothEl = null;
+  }
+}
+
+function updateFindingsSummary() {
+  var el = document.getElementById('tooth-findings-summary');
+  if (!el) return;
+  var keys = Object.keys(toothFindings).filter(function(k){ return toothFindings[k].length; });
+  if (!keys.length) { el.textContent = 'Click any tooth to tag a finding.'; el.style.color='#888780'; return; }
+  el.style.color = '#26215C';
+  el.innerHTML = keys.sort(function(a,b){return a-b;}).map(function(k){
+    return '<strong>' + k + '</strong>: ' + toothFindings[k].join(', ');
+  }).join(' &nbsp;|&nbsp; ');
+}
+
+// ── Section toggle (collapse/expand) ──────────────────────
+function toggleSection(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// Init tooth chart when clinic dash loads
+document.addEventListener('DOMContentLoaded', function() {
+  buildToothChart();
+});
+
+</script>
+function checkNewMatch() {
+  var p1 = document.getElementById('new-password');
+  var p2 = document.getElementById('new-password2');
+  var el = document.getElementById('new-match');
+  if (!p1 || !p2 || !el) return;
+  if (!p2.value) { el.textContent = ''; el.className = 'pw-match'; return; }
+  if (p1.value === p2.value) {
+    el.textContent = '✓ Passwords match';
+    el.className = 'pw-match pw-match-ok';
+  } else {
+    el.textContent = '✗ Passwords do not match';
+    el.className = 'pw-match pw-match-err';
+  }
+}
+
+async function confirmNewPassword() {
+  var pw  = document.getElementById('new-password').value;
+  var pw2 = document.getElementById('new-password2').value;
+  var errEl = document.getElementById('new-pw-error');
+  var okEl  = document.getElementById('new-pw-success');
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+  if (!pw || pw.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+  if (pw !== pw2) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  if (!getSb()) { errEl.textContent = 'Still connecting — please try again.'; errEl.style.display = 'block'; return; }
+  var res = await getSb().auth.updateUser({ password: pw });
+  if (res.error) {
+    errEl.textContent = res.error.message;
+    errEl.style.display = 'block';
+  } else {
+    okEl.style.display = 'block';
+    document.getElementById('new-password').value = '';
+    document.getElementById('new-password2').value = '';
+    // Redirect to landing after 2 seconds
+    setTimeout(function() { go('s-landing'); }, 2000);
   }
 }
 

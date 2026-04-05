@@ -1256,8 +1256,8 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="lp-float-card lp-fc2">
           <div class="lp-fc-label">MDCN Verified</div>
-          <div class="lp-fc-val">Dr. Kwame Osei</div>
-          <div class="lp-fc-sub">Dental Surgeon</div>
+          <div class="lp-fc-val">Dental Surgeon</div>
+          <div class="lp-fc-sub">Victoria Island, Lagos</div>
         </div>
         <div class="lp-float-card lp-fc3" style="animation-delay:.75s;">
           <div class="lp-fc-label">Today at clinic</div>
@@ -1663,16 +1663,16 @@ tr:last-child td { border-bottom: none; }
           <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">Credited to your wallet when your referred friend books their first appointment</div>
         </div>
         <div class="stat-grid" style="margin-bottom:1.25rem;">
-          <div class="stat-card"><div class="stat-label">Total earned</div><div class="stat-value" style="color:#534AB7;">₦1,500</div><div class="stat-sub up">3 referrals</div></div>
-          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value">₦500</div><div class="stat-sub text-muted">awaiting booking</div></div>
-          <div class="stat-card"><div class="stat-label">Wallet balance</div><div class="stat-value" style="color:#3B6D11;">₦1,500</div><div class="stat-sub up">use at checkout</div></div>
+          <div class="stat-card"><div class="stat-label">Total earned</div><div class="stat-value" style="color:#534AB7;" id="pd-ref-earned">₦0</div><div class="stat-sub" id="pd-ref-count">0 referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" id="pd-ref-pending">₦0</div><div class="stat-sub text-muted">awaiting booking</div></div>
+          <div class="stat-card"><div class="stat-label">Wallet balance</div><div class="stat-value" style="color:#3B6D11;" id="pd-wallet-bal">₦0</div><div class="stat-sub up">use at checkout</div></div>
         </div>
         <div class="card mb2">
           <div class="card-header"><div class="card-title">Your referral code</div></div>
           <div style="padding:1rem 1.25rem;">
             <div style="background:#EEEDFE;border:1.5px dashed #7F77DD;border-radius:10px;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-              <div><div style="font-size:11px;color:#7F77DD;margin-bottom:4px;">Share this link with anyone</div><div style="font-size:20px;font-weight:500;color:#534AB7;letter-spacing:2px;" id="pd-ref-code">JANE2026</div></div>
-              <button class="btn btn-purple btn-sm" onclick="document.getElementById('pd-copy-msg').style.display='inline';setTimeout(function(){document.getElementById('pd-copy-msg').style.display='none';},2000)">Copy link</button>
+              <div><div style="font-size:11px;color:#7F77DD;margin-bottom:4px;">Share this link with anyone</div><div style="font-size:20px;font-weight:500;color:#534AB7;letter-spacing:2px;" id="pd-ref-code">—</div></div>
+              <button class="btn btn-purple btn-sm" onclick="copyRefCode('pd-ref-code','pd-copy-msg')">Copy link</button>
             </div>
             <span id="pd-copy-msg" style="display:none;font-size:12px;color:#3B6D11;">✓ Link copied to clipboard</span>
             <div style="font-size:12px;color:#888780;line-height:1.6;">Send your link via WhatsApp, Instagram or SMS. When your friend signs up and completes their first appointment, ₦500 is automatically added to your wallet — no action needed from you.</div>
@@ -1686,10 +1686,7 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Referral history</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">AO</div><div class="flex-1"><div class="font-medium">Adaeze Okafor</div><div class="text-sm text-muted">Signed up 14 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">KE</div><div class="flex-1"><div class="font-medium">Kemi Eze</div><div class="text-sm text-muted">Signed up 20 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">TN</div><div class="flex-1"><div class="font-medium">Tunde Nwosu</div><div class="text-sm text-muted">Signed up 1 Apr · booked</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#D3D1C7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#5F5E5A;flex-shrink:0;">SB</div><div class="flex-1"><div class="font-medium">Sola Bello</div><div class="text-sm text-muted">Signed up 3 Apr · awaiting first booking</div></div><span class="tag tag-neu">Pending</span></div>
+          <div id="pd-ref-history"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No referrals yet. Share your link to get started.</div></div>
         </div>
       </div>
 
@@ -1699,20 +1696,18 @@ tr:last-child td { border-bottom: none; }
         <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your referral earnings, ready to use at checkout when booking any appointment.</div>
         <div style="background:#0D1B3E;border-radius:12px;padding:1.5rem 1.75rem;margin-bottom:1.25rem;">
           <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Available balance</div>
-          <div style="font-size:40px;font-weight:500;color:#fff;line-height:1;">₦1,500</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">from 3 referrals · apply at checkout to reduce your bill</div>
-          <div style="margin-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.35);margin-bottom:5px;"><span>Progress to ₦5,000</span><span>₦1,500 / ₦5,000</span></div><div style="height:5px;background:rgba(255,255,255,.12);border-radius:3px;"><div style="height:5px;width:30%;background:#5DCAA5;border-radius:3px;"></div></div></div>
+          <div style="font-size:40px;font-weight:500;color:#fff;line-height:1;" id="pd-wallet-hero">₦0</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;" id="pd-wallet-sub">No referrals yet · share your link to start earning</div>
+          <div style="margin-top:1rem;"><div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.35);margin-bottom:5px;"><span>Progress to ₦5,000</span><span id="pd-wallet-prog-label">₦0 / ₦5,000</span></div><div style="height:5px;background:rgba(255,255,255,.12);border-radius:3px;"><div style="height:5px;width:0%;background:#5DCAA5;border-radius:3px;" id="pd-wallet-bar"></div></div></div>
         </div>
         <div class="stat-grid" style="margin-bottom:1.25rem;">
-          <div class="stat-card"><div class="stat-label">Total earned</div><div class="stat-value" style="color:#534AB7;">₦1,500</div><div class="stat-sub">all time</div></div>
-          <div class="stat-card"><div class="stat-label">Total spent</div><div class="stat-value">₦0</div><div class="stat-sub">on bookings</div></div>
-          <div class="stat-card"><div class="stat-label">Referrals</div><div class="stat-value">3</div><div class="stat-sub">successful</div></div>
+          <div class="stat-card"><div class="stat-label">Total earned</div><div class="stat-value" style="color:#534AB7;" id="pd-wallet-earned">₦0</div><div class="stat-sub">all time</div></div>
+          <div class="stat-card"><div class="stat-label">Total spent</div><div class="stat-value" id="pd-wallet-spent">₦0</div><div class="stat-sub">on bookings</div></div>
+          <div class="stat-card"><div class="stat-label">Referrals</div><div class="stat-value" id="pd-wallet-refs">0</div><div class="stat-sub">successful</div></div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Transaction history</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Tunde Nwosu</div><div class="text-sm text-muted">1 Apr 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Kemi Eze</div><div class="text-sm text-muted">20 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Adaeze Okafor</div><div class="text-sm text-muted">14 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div id="pd-wallet-history"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No transactions yet.</div></div>
         </div>
         <div style="background:#E6F1FB;border-radius:10px;padding:.875rem 1.25rem;font-size:13px;color:#185FA5;margin-top:.5rem;">Your wallet balance is applied at checkout — just slide the credit amount when confirming a booking.</div>
       </div>
@@ -1796,72 +1791,10 @@ tr:last-child td { border-bottom: none; }
         <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">My dental records</div>
         <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your clinical notes and examination records from each visit. Read-only — managed by your clinic.</div>
         <div id="pd-records-list">
-          <!-- Sample record card -->
-          <div class="card mb2">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Visit — 17 Mar 2026</div>
-                <div style="font-size:12px;color:#888780;margin-top:2px;">SmileCare Clinic · Dr. Aisha Patel</div>
-              </div>
-              <span class="tag tag-gr">Completed</span>
-            </div>
-            <div style="padding:1.25rem;">
-              <!-- Complaints -->
-              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Presenting complaints</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Complaint</div><div style="font-size:13px;color:#26215C;">Sensitivity to cold, upper right</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Frequency</div><div style="font-size:13px;color:#26215C;">On stimulus only</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;grid-column:span 2;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">History of presenting complaint</div><div style="font-size:13px;color:#26215C;">Patient reports sensitivity to cold drinks in UR region for approximately 3 weeks. No spontaneous pain. No previous history of trauma to the area.</div></div>
-              </div>
-              <!-- General examination -->
-              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">General examination</div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem;">
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">EOE — Oral hygiene</div><div style="font-size:13px;color:#26215C;">Fair</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">IOE — Oral hygiene</div><div style="font-size:13px;color:#26215C;">Fair</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Calculus</div><div style="font-size:13px;color:#26215C;">Mild</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Sensitivity</div><div style="font-size:13px;color:#26215C;">Cold</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;grid-column:span 2;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Soft tissues</div><div style="font-size:13px;color:#26215C;">Mild erythema labial gingiva UR region. No ulceration.</div></div>
-              </div>
-              <!-- FDI chart — read-only -->
-              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Tooth chart findings</div>
-              <div style="background:#f7f8fc;border-radius:10px;padding:1rem;margin-bottom:1.25rem;">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                  <div>
-                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">UR — Quadrant 1</div>
-                    <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                      <span style="background:#E6F1FB;color:#185FA5;font-size:11px;padding:3px 8px;border-radius:6px;">14</span>
-                      <span style="background:#FCEBEB;color:#A32D2D;font-size:11px;padding:3px 8px;border-radius:6px;">15 — sensitive</span>
-                      <span style="background:#FCEBEB;color:#A32D2D;font-size:11px;padding:3px 8px;border-radius:6px;">16 — carious</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">UL — Quadrant 2</div>
-                    <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                      <span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:3px 8px;border-radius:6px;">21 — filled</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">LL — Quadrant 3</div>
-                    <div style="font-size:12px;color:#888780;">No findings</div>
-                  </div>
-                  <div>
-                    <div style="font-size:10px;color:#185FA5;font-weight:500;margin-bottom:6px;">LR — Quadrant 4</div>
-                    <div style="font-size:12px;color:#888780;">No findings</div>
-                  </div>
-                </div>
-              </div>
-              <!-- Diagnoses -->
-              <div style="font-size:11px;font-weight:500;color:#534AB7;text-transform:uppercase;letter-spacing:.4px;margin-bottom:.75rem;">Diagnoses &amp; treatment</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Diagnosis 1</div><div style="font-size:13px;color:#26215C;">Dentine hypersensitivity UR15</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Diagnosis 2</div><div style="font-size:13px;color:#26215C;">Occlusal caries UR16</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Treatment plan</div><div style="font-size:13px;color:#26215C;">Composite filling UR16. Desensitising agent UR15. OH instruction.</div></div>
-                <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Treatment done today</div><div style="font-size:13px;color:#26215C;">Composite restoration UR16 completed. Sensodyne prescribed.</div></div>
-              </div>
-              <div style="background:#fafafa;border-radius:8px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Additional clinical notes</div><div style="font-size:13px;color:#26215C;">Patient advised to use sensitivity toothpaste twice daily. Review in 6 weeks. Next appointment booked for scaling and polishing.</div></div>
-            </div>
+          <div style="padding:2.5rem 1.25rem;text-align:center;">
+            <div style="font-size:13px;color:#888780;margin-bottom:.5rem;">No records yet.</div>
+            <div style="font-size:12px;color:#B4B2A9;">Your dental records will appear here after each clinic visit. Your clinician enters the details — you can always see exactly what was noted.</div>
           </div>
-          <div style="text-align:center;padding:1.5rem;font-size:13px;color:#888780;">Your records are added by your clinic after each visit. If you have a question about your notes, contact your clinic directly.</div>
         </div>
       </div>
     </div>
@@ -2286,30 +2219,28 @@ tr:last-child td { border-bottom: none; }
           <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">Credited to your referral wallet · withdraw to general wallet once you reach ₦5,000</div>
         </div>
         <div class="stat-grid" style="margin-bottom:1.25rem;">
-          <div class="stat-card"><div class="stat-label">Referral wallet</div><div class="stat-value" style="color:#185FA5;">₦3,000</div><div class="stat-sub">6 referrals</div></div>
-          <div class="stat-card"><div class="stat-label">Until withdrawal</div><div class="stat-value">₦2,000</div><div class="stat-sub text-muted">4 more referrals</div></div>
-          <div class="stat-card"><div class="stat-label">Withdrawn</div><div class="stat-value">₦0</div><div class="stat-sub text-muted">to general wallet</div></div>
+          <div class="stat-card"><div class="stat-label">Referral wallet</div><div class="stat-value" style="color:#185FA5;" id="cd-ref-bal">₦0</div><div class="stat-sub" id="cd-ref-count">0 referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Until withdrawal</div><div class="stat-value" id="cd-ref-remaining">₦5,000</div><div class="stat-sub text-muted" id="cd-ref-needed">10 more referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Withdrawn</div><div class="stat-value" id="cd-ref-withdrawn">₦0</div><div class="stat-sub text-muted">to general wallet</div></div>
         </div>
         <div style="background:#E6F1FB;border-radius:10px;padding:.875rem 1.25rem;margin-bottom:1.25rem;">
           <div style="font-size:12px;font-weight:500;color:#185FA5;margin-bottom:4px;">Progress to withdrawal threshold</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:#378ADD;margin-bottom:6px;"><span>₦3,000 earned</span><span>₦5,000 needed</span></div>
-          <div style="height:8px;background:#B5D4F4;border-radius:4px;"><div style="height:8px;width:60%;background:#185FA5;border-radius:4px;"></div></div>
-          <div style="font-size:11px;color:#378ADD;margin-top:5px;">4 more referrals to unlock withdrawal</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#378ADD;margin-bottom:6px;"><span id="cd-prog-earned">₦0 earned</span><span>₦5,000 needed</span></div>
+          <div style="height:8px;background:#B5D4F4;border-radius:4px;"><div style="height:8px;width:0%;background:#185FA5;border-radius:4px;" id="cd-prog-bar"></div></div>
+          <div style="font-size:11px;color:#378ADD;margin-top:5px;" id="cd-prog-msg">10 more referrals to unlock withdrawal</div>
         </div>
         <div class="card mb2">
           <div class="card-header"><div class="card-title">Your clinic referral code</div></div>
           <div style="padding:1rem 1.25rem;">
             <div style="background:#E6F1FB;border:1.5px dashed #378ADD;border-radius:10px;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-              <div><div style="font-size:11px;color:#378ADD;margin-bottom:4px;">Share with other clinics, professionals &amp; patients</div><div style="font-size:20px;font-weight:500;color:#185FA5;letter-spacing:2px;">SMILE2026</div></div>
+              <div><div style="font-size:11px;color:#378ADD;margin-bottom:4px;">Share with other clinics, professionals &amp; patients</div><div style="font-size:20px;font-weight:500;color:#185FA5;letter-spacing:2px;" id="cd-ref-code">—</div></div>
               <button class="btn btn-blue btn-sm">Copy link</button>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Referral history</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#185FA5;flex-shrink:0;">BC</div><div class="flex-1"><div class="font-medium">BrightCare Dental (clinic)</div><div class="text-sm text-muted">Joined 10 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">AO</div><div class="flex-1"><div class="font-medium">Dr. Amara Osei (professional)</div><div class="text-sm text-muted">Joined 18 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#534AB7;flex-shrink:0;">NE</div><div class="flex-1"><div class="font-medium">Ngozi Eze (patient)</div><div class="text-sm text-muted">Joined 22 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div id="cd-ref-history"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No referrals yet. Share your clinic code to get started.</div></div>
         </div>
       </div>
 
@@ -2320,8 +2251,8 @@ tr:last-child td { border-bottom: none; }
         <div class="two-col" style="margin-bottom:1.25rem;">
           <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;">
             <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Referral wallet</div>
-            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦3,000</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">6 referrals · ₦2,000 to go</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;" id="cd-rw-ref">₦0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;" id="cd-rw-ref-sub">0 referrals · ₦5,000 to go</div>
           </div>
           <div style="background:#185FA5;border-radius:12px;padding:1.25rem 1.5rem;">
             <div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:4px;">General wallet</div>
@@ -2331,7 +2262,7 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div style="background:#E6F1FB;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-            <div><div style="font-size:13px;font-weight:500;color:#185FA5;">Withdraw to general wallet</div><div style="font-size:12px;color:#378ADD;margin-top:2px;">Minimum ₦5,000 required · you have ₦3,000</div></div>
+            <div><div style="font-size:13px;font-weight:500;color:#185FA5;">Withdraw to general wallet</div><div style="font-size:12px;color:#378ADD;margin-top:2px;" id="cd-rw-withdraw-msg">Minimum ₦5,000 required · you have ₦0</div></div>
             <button class="btn btn-sm" style="background:#B5D4F4;color:#0C447C;border:none;cursor:not-allowed;" disabled>Locked</button>
           </div>
           <div style="height:6px;background:#B5D4F4;border-radius:3px;"><div style="height:6px;width:60%;background:#185FA5;border-radius:3px;"></div></div>
@@ -2339,9 +2270,7 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Transaction history</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Ngozi Eze</div><div class="text-sm text-muted">22 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Dr. Amara Osei</div><div class="text-sm text-muted">18 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — BrightCare Dental</div><div class="text-sm text-muted">10 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div id="cd-rw-history"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No transactions yet.</div></div>
         </div>
       </div>
 
@@ -2352,10 +2281,10 @@ tr:last-child td { border-bottom: none; }
 
         <!-- KPI row -->
         <div class="stat-grid" style="margin-bottom:1.25rem;">
-          <div class="stat-card"><div class="stat-label">Bookings this month</div><div class="stat-value" id="an-total">24</div><div class="stat-sub up">↑ 4 vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:68%;background:#185FA5;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Walk-ins this month</div><div class="stat-value" id="an-walkins">9</div><div class="stat-sub up">↑ 2 vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:42%;background:#378ADD;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;" id="an-revenue">₦2.8M</div><div class="stat-sub up">↑ 12% vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:72%;background:#5DCAA5;"></div></div></div>
-          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value" id="an-month">124</div><div class="stat-sub up">↑ 6 new this month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:55%;background:#534AB7;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Bookings this month</div><div class="stat-value" id="an-total">0</div><div class="stat-sub text-muted">↑ 4 vs last month</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:68%;background:#185FA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Walk-ins this month</div><div class="stat-value" id="an-walkins">0</div><div class="stat-sub text-muted">No walk-ins yet</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:42%;background:#378ADD;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Revenue this month</div><div class="stat-value" style="font-size:17px;" id="an-revenue">₦0</div><div class="stat-sub text-muted">Revenue will appear here</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:72%;background:#5DCAA5;"></div></div></div>
+          <div class="stat-card"><div class="stat-label">Active patients</div><div class="stat-value" id="an-month">0</div><div class="stat-sub text-muted">Patients will appear as they book</div><div class="stat-bar" style="margin-top:8px;"><div class="stat-bar-fill" style="width:55%;background:#534AB7;"></div></div></div>
         </div>
 
         <!-- Monthly trend chart -->
@@ -2372,24 +2301,24 @@ tr:last-child td { border-bottom: none; }
           <div class="card">
             <div class="card-header"><div class="card-title">Revenue breakdown</div></div>
             <div style="padding:1rem 1.25rem;">
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Online bookings</span><span style="font-weight:500;">₦2.1M</span></div>
-              <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:12px;"><div style="height:6px;width:75%;background:#185FA5;border-radius:3px;"></div></div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Walk-ins</span><span style="font-weight:500;">₦490,000</span></div>
-              <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:12px;"><div style="height:6px;width:18%;background:#378ADD;border-radius:3px;"></div></div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Outstanding</span><span style="font-weight:500;color:#A32D2D;">₦115,000</span></div>
-              <div style="height:6px;background:#f0f0f0;border-radius:3px;"><div style="height:6px;width:7%;background:#A32D2D;border-radius:3px;"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Online bookings</span><span style="font-weight:500;">₦0</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:12px;"><div style="height:6px;width:0%;background:#185FA5;border-radius:3px;"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Walk-ins</span><span style="font-weight:500;">₦0</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:12px;"><div style="height:6px;width:0%;background:#378ADD;border-radius:3px;"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#888780;">Outstanding</span><span style="font-weight:500;color:#A32D2D;">₦0</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px;"><div style="height:6px;width:0%;background:#A32D2D;border-radius:3px;"></div></div>
             </div>
           </div>
           <div class="card">
             <div class="card-header"><div class="card-title">Patient retention</div></div>
             <div style="padding:1rem 1.25rem;">
               <div style="text-align:center;margin-bottom:1rem;">
-                <div style="font-size:36px;font-weight:500;color:#185FA5;">68%</div>
-                <div style="font-size:12px;color:#888780;">return rate (last 6 months)</div>
+                <div style="font-size:36px;font-weight:500;color:#185FA5;">—</div>
+                <div style="font-size:12px;color:#888780;">return rate (data builds over time)</div>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#888780;">New patients</span><span style="font-weight:500;color:#3B6D11;">36 this month</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#888780;">Returning patients</span><span style="font-weight:500;color:#185FA5;">88 this month</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#888780;">Avg visits / patient</span><span style="font-weight:500;">2.4 / year</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#888780;">New patients</span><span style="font-weight:500;color:#3B6D11;">0 this month</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#888780;">Returning patients</span><span style="font-weight:500;color:#185FA5;">0 this month</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#888780;">Avg visits / patient</span><span style="font-weight:500;">— / year</span></div>
             </div>
           </div>
         </div>
@@ -2399,18 +2328,14 @@ tr:last-child td { border-bottom: none; }
           <div class="card">
             <div class="card-header"><div class="card-title">Staff utilisation</div></div>
             <div style="padding:.5rem 0;">
-              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">Dr. Aisha Patel</span><span style="color:#3B6D11;">92%</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:92%;background:#3B6D11;border-radius:3px;"></div></div></div>
-              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">James Morgan</span><span style="color:#185FA5;">74%</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:74%;background:#185FA5;border-radius:3px;"></div></div></div>
-              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">Dr. Emeka Obi</span><span style="color:#534AB7;">58%</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:58%;background:#534AB7;border-radius:3px;"></div></div></div>
+              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">Dr. Aisha Patel</span><span style="color:#3B6D11;">—</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:0%;background:#3B6D11;border-radius:3px;"></div></div></div>
+              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">James Morgan</span><span style="color:#185FA5;">—</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:0%;background:#185FA5;border-radius:3px;"></div></div></div>
+              <div style="padding:.5rem 1.25rem;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">Dr. Emeka Obi</span><span style="color:#534AB7;">—</span></div><div style="height:5px;background:#f0f0f0;border-radius:3px;"><div style="height:5px;width:0%;background:#534AB7;border-radius:3px;"></div></div></div>
             </div>
           </div>
           <div class="card">
             <div class="card-header"><div class="card-title">Top treatments</div></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Check-up &amp; consultation</div></div><span class="tag tag-bl">38 visits</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Scaling &amp; polishing</div></div><span class="tag tag-bl">27 visits</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Composite filling</div></div><span class="tag tag-bl">19 visits</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Extraction</div></div><span class="tag tag-bl">14 visits</span></div>
-            <div class="card-row"><div class="flex-1"><div class="font-medium">Teeth whitening</div></div><span class="tag tag-bl">11 visits</span></div>
+            <div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">Top treatments will appear as walk-ins and bookings are recorded.</div>
           </div>
         </div>
 
@@ -2653,36 +2578,11 @@ tr:last-child td { border-bottom: none; }
         <div class="card">
           <div class="card-header">
             <div class="card-title">Pending requests</div>
-            <span style="font-size:12px;color:#888780;">5 awaiting response</span>
+            <span style="font-size:12px;color:#888780;" id="cd-requests-count">0 awaiting response</span>
           </div>
-          <table>
-            <tr><th>Patient</th><th>Treatment</th><th>Requested date</th><th>Note</th><th>Action</th></tr>
-            <tr>
-              <td><strong>Chidi Okafor</strong></td><td>Root canal consult</td><td>Mon 7 Apr · 10am</td>
-              <td style="font-size:12px;color:#888780;max-width:160px;">Severe pain lower right for 3 days</td>
-              <td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;margin-right:4px;">Approve</button><button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;">Decline</button></td>
-            </tr>
-            <tr>
-              <td><strong>Amara Bello</strong></td><td>Teeth whitening</td><td>Tue 8 Apr · 2pm</td>
-              <td style="font-size:12px;color:#888780;max-width:160px;">Returning patient — prev. whitening 2023</td>
-              <td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;margin-right:4px;">Approve</button><button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;">Decline</button></td>
-            </tr>
-            <tr>
-              <td><strong>Ngozi Eze</strong></td><td>Routine check-up</td><td>Wed 9 Apr · 9am</td>
-              <td style="font-size:12px;color:#888780;max-width:160px;">New patient — referred by BrightSmile</td>
-              <td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;margin-right:4px;">Approve</button><button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;">Decline</button></td>
-            </tr>
-            <tr>
-              <td><strong>Emeka Nwosu</strong></td><td>Implant consultation</td><td>Thu 10 Apr · 11am</td>
-              <td style="font-size:12px;color:#888780;max-width:160px;">Requesting principal dentist specifically</td>
-              <td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;margin-right:4px;">Approve</button><button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;">Decline</button></td>
-            </tr>
-            <tr>
-              <td><strong>Fatima Sule</strong></td><td>Child check-up (age 8)</td><td>Fri 11 Apr · 3pm</td>
-              <td style="font-size:12px;color:#888780;max-width:160px;">First visit — child anxious, parent notes</td>
-              <td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;margin-right:4px;">Approve</button><button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;">Decline</button></td>
-            </tr>
-          </table>
+          <div id="cd-requests-list">
+            <div style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No booking requests yet. Patients will appear here when they request an appointment with your clinic.</div>
+          </div>
         </div>
         <!-- Patient dental history modal -->
         <div id="modal-dental-history" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.5);z-index:300;align-items:center;justify-content:center;">
@@ -2695,24 +2595,12 @@ tr:last-child td { border-bottom: none; }
               <button onclick="document.getElementById('modal-dental-history').style.display='none'" style="background:none;border:none;font-size:20px;color:#888780;cursor:pointer;line-height:1;">✕</button>
             </div>
             <div style="font-size:11px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">Dental history intake</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Last dental visit</div><div style="font-size:13px;font-weight:500;">Oct 2024 — hygiene clean</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Reason for visit today</div><div style="font-size:13px;font-weight:500;">Routine check-up</div></div>
-              <div style="background:var(--red-lt);border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:var(--red);margin-bottom:3px;">Dental anxiety</div><div style="font-size:13px;font-weight:500;color:var(--red);">High — dental phobia</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Previous extractions</div><div style="font-size:13px;font-weight:500;">Yes — lower left wisdom (2019)</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Orthodontic history</div><div style="font-size:13px;font-weight:500;">Braces 2010–2012</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Gum disease history</div><div style="font-size:13px;font-weight:500;">None reported</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Known allergies</div><div style="font-size:13px;font-weight:500;">None known</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Current medications</div><div style="font-size:13px;font-weight:500;">None</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Systemic conditions</div><div style="font-size:13px;font-weight:500;">None disclosed</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Smoker / tobacco use</div><div style="font-size:13px;font-weight:500;">No</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Pregnancy / nursing</div><div style="font-size:13px;font-weight:500;">Not applicable</div></div>
-              <div style="background:#fafafa;border-radius:10px;padding:.75rem;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Chief complaint</div><div style="font-size:13px;font-weight:500;">Sensitivity upper right</div></div>
+            <div id="modal-history-fields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">
+              <div style="padding:2rem;text-align:center;grid-column:span 2;font-size:13px;color:#888780;">No dental history recorded yet for this patient.</div>
             </div>
             <div style="font-size:11px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">Treatment notes</div>
-            <div style="border-left:3px solid var(--blue-lt);padding-left:1rem;margin-bottom:.75rem;">
-              <div style="font-size:11px;color:#888780;">Oct 2024 — Dr. Aisha Patel</div>
-              <div style="font-size:13px;color:#26215C;margin-top:3px;line-height:1.5;">Full hygiene clean. Mild calculus lower anteriors. Patient anxious — nitrous used. Advised on sensitivity toothpaste for UR4/5. Review in 6 months.</div>
+            <div id="modal-treatment-notes">
+              <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">No treatment notes yet.</div>
             </div>
             <textarea placeholder="Add new note..." style="width:100%;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:13px;resize:vertical;min-height:80px;outline:none;font-family:inherit;margin-bottom:10px;"></textarea>
             <div style="display:flex;gap:8px;">
@@ -2728,24 +2616,19 @@ tr:last-child td { border-bottom: none; }
         <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Invoices &amp; billing</div>
         <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Track payments, send reminders and manage outstanding balances.</div>
         <div class="stat-grid" style="margin-bottom:1.5rem;">
-          <div class="stat-card"><div class="stat-label">Invoiced (Apr)</div><div class="stat-value" style="font-size:17px;">₦2.8M</div><div class="stat-sub up">↑ 12% vs Mar</div></div>
-          <div class="stat-card"><div class="stat-label">Paid</div><div class="stat-value" style="font-size:17px;color:var(--green);">₦2.685M</div><div class="stat-sub up">21 invoices</div></div>
-          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:17px;color:#B8860B;">₦115,000</div><div class="stat-sub dn">3 unpaid</div></div>
-          <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value" style="font-size:17px;color:var(--red);">₦40,000</div><div class="stat-sub dn">1 invoice</div></div>
+          <div class="stat-card"><div class="stat-label">Invoiced this month</div><div class="stat-value" style="font-size:17px;" id="inv-total">₦0</div><div class="stat-sub text-muted">All walk-ins &amp; bookings</div></div>
+          <div class="stat-card"><div class="stat-label">Paid</div><div class="stat-value" style="font-size:17px;color:var(--green);" id="inv-paid">₦0</div><div class="stat-sub text-muted" id="inv-paid-count">0 invoices</div></div>
+          <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:17px;color:#B8860B;" id="inv-outstanding">₦0</div><div class="stat-sub text-muted" id="inv-out-count">0 unpaid</div></div>
+          <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-value" style="font-size:17px;color:var(--red);" id="inv-overdue">₦0</div><div class="stat-sub text-muted">flagged invoices</div></div>
         </div>
         <div class="card">
           <div class="card-header">
             <div class="card-title">All invoices</div>
             <button class="btn btn-blue btn-sm">+ New invoice</button>
           </div>
-          <table>
-            <tr><th>Invoice #</th><th>Patient</th><th>Treatment</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr>
-            <tr><td style="color:#888780;font-size:12px;">INV-0024</td><td>Chidi Okafor</td><td>Filling × 2</td><td style="font-weight:500;">₦45,000</td><td style="color:#888780;font-size:12px;">2 Apr</td><td><span class="tag tag-gr">Paid</span></td><td><button class="btn btn-sm" style="background:#fafafa;color:#888780;border:0.5px solid #e0e0e0;">PDF</button></td></tr>
-            <tr><td style="color:#888780;font-size:12px;">INV-0023</td><td>Jane Smith</td><td>Hygiene clean</td><td style="font-weight:500;">₦28,000</td><td style="color:#888780;font-size:12px;">1 Apr</td><td><span class="tag tag-gr">Paid</span></td><td><button class="btn btn-sm" style="background:#fafafa;color:#888780;border:0.5px solid #e0e0e0;">PDF</button></td></tr>
-            <tr><td style="color:#888780;font-size:12px;">INV-0022</td><td>Tom Barnes</td><td>Extraction + X-ray</td><td style="font-weight:500;">₦75,000</td><td style="color:#888780;font-size:12px;">29 Mar</td><td><span class="tag tag-neu">Pending</span></td><td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;">Send reminder</button></td></tr>
-            <tr><td style="color:#888780;font-size:12px;">INV-0021</td><td>Amara Bello</td><td>Whitening</td><td style="font-weight:500;">₦40,000</td><td style="color:#888780;font-size:12px;">18 Mar</td><td><span class="tag tag-red">Overdue</span></td><td><button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;">Send reminder</button></td></tr>
-            <tr><td style="color:#888780;font-size:12px;">INV-0020</td><td>Ngozi Eze</td><td>Implant consult</td><td style="font-weight:500;">₦15,000</td><td style="color:#888780;font-size:12px;">20 Mar</td><td><span class="tag tag-neu">Pending</span></td><td><button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;">Send reminder</button></td></tr>
-          </table>
+          <div id="cd-invoices-list">
+            <div style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No invoices yet. They will appear here once patients are charged for walk-ins or bookings.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -3017,31 +2900,28 @@ tr:last-child td { border-bottom: none; }
           <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:5px;">Credited to your referral wallet · withdraw to earnings wallet once you reach ₦5,000</div>
         </div>
         <div class="stat-grid" style="margin-bottom:1.25rem;">
-          <div class="stat-card"><div class="stat-label">Referral wallet</div><div class="stat-value" style="color:#3B6D11;">₦2,000</div><div class="stat-sub">4 referrals</div></div>
-          <div class="stat-card"><div class="stat-label">Until withdrawal</div><div class="stat-value">₦3,000</div><div class="stat-sub text-muted">6 more referrals</div></div>
-          <div class="stat-card"><div class="stat-label">Withdrawn</div><div class="stat-value">₦0</div><div class="stat-sub text-muted">to earnings wallet</div></div>
+          <div class="stat-card"><div class="stat-label">Referral wallet</div><div class="stat-value" style="color:#3B6D11;" id="pro-ref-bal">₦0</div><div class="stat-sub" id="pro-ref-count">0 referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Until withdrawal</div><div class="stat-value" id="pro-ref-remaining">₦5,000</div><div class="stat-sub text-muted" id="pro-ref-needed">10 more referrals</div></div>
+          <div class="stat-card"><div class="stat-label">Withdrawn</div><div class="stat-value" id="pro-ref-withdrawn">₦0</div><div class="stat-sub text-muted">to earnings wallet</div></div>
         </div>
         <div style="background:#EAF3DE;border-radius:10px;padding:.875rem 1.25rem;margin-bottom:1.25rem;">
           <div style="font-size:12px;font-weight:500;color:#3B6D11;margin-bottom:4px;">Progress to withdrawal threshold</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;color:#639922;margin-bottom:6px;"><span>₦2,000 earned</span><span>₦5,000 needed</span></div>
-          <div style="height:8px;background:#C0DD97;border-radius:4px;"><div style="height:8px;width:40%;background:#3B6D11;border-radius:4px;"></div></div>
-          <div style="font-size:11px;color:#639922;margin-top:5px;">6 more referrals to unlock withdrawal</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#639922;margin-bottom:6px;"><span id="pro-prog-earned">₦0 earned</span><span>₦5,000 needed</span></div>
+          <div style="height:8px;background:#C0DD97;border-radius:4px;"><div style="height:8px;width:0%;background:#3B6D11;border-radius:4px;" id="pro-prog-bar"></div></div>
+          <div style="font-size:11px;color:#639922;margin-top:5px;" id="pro-prog-msg">10 more referrals to unlock withdrawal</div>
         </div>
         <div class="card mb2">
           <div class="card-header"><div class="card-title">Your referral code</div></div>
           <div style="padding:1rem 1.25rem;">
             <div style="background:#EAF3DE;border:1.5px dashed #639922;border-radius:10px;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-              <div><div style="font-size:11px;color:#639922;margin-bottom:4px;">Share with clinics, professionals &amp; patients</div><div style="font-size:20px;font-weight:500;color:#3B6D11;letter-spacing:2px;">KWAME2026</div></div>
+              <div><div style="font-size:11px;color:#639922;margin-bottom:4px;">Share with clinics, professionals &amp; patients</div><div style="font-size:20px;font-weight:500;color:#3B6D11;letter-spacing:2px;" id="pro-ref-code">—</div></div>
               <button class="btn btn-green btn-sm">Copy link</button>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Referral history</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">JA</div><div class="flex-1"><div class="font-medium">Dr. Juliet Adeola (professional)</div><div class="text-sm text-muted">Joined 5 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">TO</div><div class="flex-1"><div class="font-medium">Temi Okafor (patient)</div><div class="text-sm text-muted">Joined 12 Mar · booked</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">RC</div><div class="flex-1"><div class="font-medium">RootCare Dental (clinic)</div><div class="text-sm text-muted">Joined 20 Mar · verified</div></div><span class="tag tag-gr">+₦500</span></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3B6D11;flex-shrink:0;">BM</div><div class="flex-1"><div class="font-medium">Bisi Martins (patient)</div><div class="text-sm text-muted">Joined 1 Apr · booked</div></div><span class="tag tag-gr">+₦500</span></div>
+          <div id="pro-ref-history"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No referrals yet. Share your code to get started.</div></div>
         </div>
       </div>
 
@@ -3052,29 +2932,26 @@ tr:last-child td { border-bottom: none; }
         <div class="two-col" style="margin-bottom:1.25rem;">
           <div style="background:#0D1B3E;border-radius:12px;padding:1.25rem 1.5rem;">
             <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;">Referral wallet</div>
-            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦2,000</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;">4 referrals · ₦3,000 to go</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;" id="pro-rw-ref">₦0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;" id="pro-rw-ref-sub">0 referrals · ₦5,000 to go</div>
           </div>
           <div style="background:#3B6D11;border-radius:12px;padding:1.25rem 1.5rem;">
             <div style="font-size:11px;color:rgba(255,255,255,.55);margin-bottom:4px;">Earnings wallet</div>
-            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;">₦485,000</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">Clinical income · Mar 2026</div>
+            <div style="font-size:32px;font-weight:500;color:#fff;line-height:1;" id="pro-earn-wallet">₦0</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">Clinical income this month</div>
           </div>
         </div>
         <div style="background:#EAF3DE;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
-            <div><div style="font-size:13px;font-weight:500;color:#3B6D11;">Withdraw to earnings wallet</div><div style="font-size:12px;color:#639922;margin-top:2px;">Minimum ₦5,000 required · you have ₦2,000</div></div>
+            <div><div style="font-size:13px;font-weight:500;color:#3B6D11;">Withdraw to earnings wallet</div><div style="font-size:12px;color:#639922;margin-top:2px;" id="pro-rw-withdraw-msg">Minimum ₦5,000 required · you have ₦0</div></div>
             <button class="btn btn-sm" style="background:#C0DD97;color:#27500A;border:none;cursor:not-allowed;" disabled>Locked</button>
           </div>
-          <div style="height:6px;background:#C0DD97;border-radius:3px;"><div style="height:6px;width:40%;background:#3B6D11;border-radius:3px;"></div></div>
-          <div style="font-size:11px;color:#639922;margin-top:5px;">6 more referrals to unlock · then withdraw any amount above ₦5,000</div>
+          <div style="height:6px;background:#C0DD97;border-radius:3px;"><div style="height:6px;width:0%;background:#3B6D11;border-radius:3px;" id="pro-rw-prog-bar"></div></div>
+          <div style="font-size:11px;color:#639922;margin-top:5px;" id="pro-rw-prog-msg">10 more referrals to unlock · then withdraw any amount above ₦5,000</div>
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Transaction history</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Bisi Martins</div><div class="text-sm text-muted">1 Apr 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — RootCare Dental</div><div class="text-sm text-muted">20 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Temi Okafor</div><div class="text-sm text-muted">12 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
-          <div class="card-row"><div style="width:32px;height:32px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3.5 1.5.5-3.5L2.5 5.5 6 5z" stroke="#3B6D11" stroke-width="1.2" stroke-linejoin="round"/></svg></div><div class="flex-1"><div class="font-medium">Referral — Dr. Juliet Adeola</div><div class="text-sm text-muted">5 Mar 2026</div></div><div style="font-size:13px;font-weight:500;color:#3B6D11;">+₦500</div></div>
+          <div id="pro-rw-history"><div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No transactions yet.</div></div>
         </div>
       </div>
 
@@ -3266,54 +3143,12 @@ tr:last-child td { border-bottom: none; }
         <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Communicate directly with clinics about offers, gigs and applications.</div>
         <div style="background:#fff;border:0.5px solid var(--border-g);border-radius:12px;overflow:hidden;min-height:500px;display:grid;grid-template-columns:260px 1fr;">
           <div style="border-right:0.5px solid var(--border-g);">
-            <div style="padding:.75rem 1rem;border-bottom:0.5px solid var(--border-g);font-size:13px;font-weight:500;color:#26215C;">Inbox <span style="background:var(--green-lt);color:var(--green);font-size:10px;padding:2px 7px;border-radius:20px;margin-left:4px;">2 new</span></div>
-            <div style="padding:.75rem 1rem;border-bottom:0.5px solid #f5f5f5;cursor:pointer;background:var(--green-lt);">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-                <div style="width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0;">BS</div>
-                <div style="font-size:13px;font-weight:500;color:#26215C;">BrightSmile Dental</div>
-              </div>
-              <div style="font-size:12px;color:var(--green);font-weight:500;padding-left:36px;">Offer — Associate Dentist</div>
-              <div style="font-size:11px;color:#888780;padding-left:36px;">Today, 9:14am</div>
-            </div>
-            <div style="padding:.75rem 1rem;border-bottom:0.5px solid #f5f5f5;cursor:pointer;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-                <div style="width:28px;height:28px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0;">SC</div>
-                <div style="font-size:13px;font-weight:500;color:#26215C;">SmileCare Abuja</div>
-              </div>
-              <div style="font-size:12px;color:var(--green);font-weight:500;padding-left:36px;">Sessional shift confirmed</div>
-              <div style="font-size:11px;color:#888780;padding-left:36px;">Yesterday, 4:30pm</div>
-            </div>
-            <div style="padding:.75rem 1rem;cursor:pointer;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-                <div style="width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0;">RH</div>
-                <div style="font-size:13px;color:#26215C;">Reddington Hospital</div>
-              </div>
-              <div style="font-size:12px;color:#888780;padding-left:36px;">Application under review...</div>
-              <div style="font-size:11px;color:#aaa;padding-left:36px;">4 Apr</div>
-            </div>
+            <div style="padding:.75rem 1rem;border-bottom:0.5px solid var(--border-g);font-size:13px;font-weight:500;color:#26215C;">Inbox</div>
+            <div id="pro-messages-list" style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No messages yet. Messages from clinics will appear here.</div>
           </div>
-          <div style="display:flex;flex-direction:column;">
-            <div style="padding:.75rem 1.25rem;border-bottom:0.5px solid var(--border-g);display:flex;align-items:center;gap:10px;">
-              <div style="width:32px;height:32px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;">BS</div>
-              <div>
-                <div style="font-size:13px;font-weight:500;color:#26215C;">BrightSmile Dental</div>
-                <div style="font-size:11px;color:var(--green);">Offer — Associate Dentist, Victoria Island</div>
-              </div>
-            </div>
-            <div style="flex:1;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.75rem;min-height:300px;">
-              <div style="background:#f5f5f5;border-radius:10px 10px 10px 2px;padding:.75rem;max-width:80%;font-size:13px;color:#26215C;line-height:1.5;">
-                Dear Dr. Osei, we are pleased to extend a formal offer for the Associate Dentist position at our Victoria Island branch. Package: ₦750,000/month + performance bonus. Please confirm by Friday.
-                <div style="font-size:11px;color:#aaa;margin-top:4px;">BrightSmile HR · Today, 9:14am</div>
-              </div>
-              <div style="background:var(--green-lt);border-radius:10px 10px 2px 10px;padding:.75rem;max-width:80%;font-size:13px;color:#26215C;line-height:1.5;align-self:flex-end;">
-                Thank you for the offer. I will review and respond by Thursday. Could you confirm if there's flexibility on the start date?
-                <div style="font-size:11px;color:var(--green-mid);margin-top:4px;">You · Today, 10:02am</div>
-              </div>
-              <div style="background:#f5f5f5;border-radius:10px 10px 10px 2px;padding:.75rem;max-width:80%;font-size:13px;color:#26215C;line-height:1.5;">
-                Absolutely — start date is flexible between 1st and 15th May. Looking forward to hearing from you.
-                <div style="font-size:11px;color:#aaa;margin-top:4px;">BrightSmile HR · Today, 10:45am</div>
-              </div>
-            </div>
+          <div style="display:flex;flex-direction:column;flex:1;">
+            <div id="pro-thread-header" style="padding:.75rem 1.25rem;border-bottom:0.5px solid var(--border-g);font-size:13px;color:#888780;">Select a message to read</div>
+            <div id="pro-thread-body" style="flex:1;padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;min-height:300px;">No conversation selected.</div>
             <div style="padding:.75rem 1.25rem;border-top:0.5px solid var(--border-g);display:flex;gap:8px;">
               <input type="text" placeholder="Type a message..." style="flex:1;padding:9px 12px;border:0.5px solid var(--border-g);border-radius:8px;font-size:13px;outline:none;font-family:inherit;"/>
               <button class="btn btn-green btn-sm">Send</button>
@@ -5010,25 +4845,148 @@ async function initApp() {
     if (role === 'patient') {
       updateDashName('s-patient-dash', name);
       go('s-patient-dash');
-      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); } catch(e) { console.warn('patient init', e); }
+      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); renderReferralData(currentUser); } catch(e) { console.warn('patient init', e); }
     } else if (role === 'clinic') {
       var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
       var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
       go('s-clinic-dash');
-      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); } catch(e) { console.warn('clinic init', e); }
+      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); } catch(e) { console.warn('clinic init', e); }
     } else if (role === 'professional') {
       updateDashName('s-pro-dash', name);
       var sub = document.getElementById('pro-hero-sub');
       if (sub && meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
       go('s-pro-dash');
-      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); } catch(e) { console.warn('pro init', e); }
+      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); } catch(e) { console.warn('pro init', e); }
     }
   } catch(err) {
     console.warn('Session check failed:', err);
     // landing already visible, nothing to do
   }
 }
-// ── FDI Tooth Chart ────────────────────────────────────────
+// ── REFERRAL & WALLET SYSTEM ──────────────────────────────
+function makeRefCode(user) {
+  var meta = user.user_metadata || {};
+  var name = (meta.full_name || meta.clinic_name || user.email || '').toUpperCase();
+  var base = name.replace(/[^A-Z]/g, '').slice(0, 5);
+  var year = new Date().getFullYear();
+  return base + year;
+}
+
+function fmtNaira(n) {
+  return '₦' + Number(n || 0).toLocaleString();
+}
+
+function renderReferralData(user) {
+  if (!user) return;
+  var meta = user.user_metadata || {};
+  var role = meta.role || 'patient';
+  var code = makeRefCode(user);
+  var refData = meta.referral_data || {};
+  var earned   = refData.earned   || 0;
+  var pending  = refData.pending  || 0;
+  var spent    = refData.spent    || 0;
+  var withdrawn = refData.withdrawn || 0;
+  var history  = refData.history  || [];
+  var balance  = earned - spent;
+  var successful = history.filter(function(r){ return r.status === 'credited'; }).length;
+  var threshold = 5000;
+  var pct = Math.min(Math.round(earned / threshold * 100), 100);
+  var remaining = Math.max(threshold - earned, 0);
+  var moreNeeded = Math.ceil(remaining / 500);
+
+  function setEl(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
+  function setW(id, pctVal) { var el = document.getElementById(id); if (el) el.style.width = pctVal + '%'; }
+
+  if (role === 'patient') {
+    setEl('pd-ref-code', code);
+    setEl('pd-ref-earned', fmtNaira(earned));
+    setEl('pd-ref-count', successful + ' referral' + (successful !== 1 ? 's' : ''));
+    setEl('pd-ref-pending', fmtNaira(pending));
+    setEl('pd-wallet-bal', fmtNaira(balance));
+    setEl('pd-wallet-hero', fmtNaira(balance));
+    setEl('pd-wallet-sub', successful + ' referral' + (successful !== 1 ? 's' : '') + ' · apply at checkout to reduce your bill');
+    setEl('pd-wallet-prog-label', fmtNaira(earned) + ' / ' + fmtNaira(threshold));
+    setEl('pd-wallet-earned', fmtNaira(earned));
+    setEl('pd-wallet-spent', fmtNaira(spent));
+    setEl('pd-wallet-refs', successful);
+    setW('pd-wallet-bar', pct);
+    renderRefHistory('pd-ref-history', history, 'pu');
+    renderRefHistory('pd-wallet-history', history.filter(function(r){ return r.status === 'credited'; }), 'pu');
+
+  } else if (role === 'clinic') {
+    setEl('cd-ref-code', code);
+    setEl('cd-ref-bal', fmtNaira(earned));
+    setEl('cd-ref-count', successful + ' referral' + (successful !== 1 ? 's' : ''));
+    setEl('cd-ref-remaining', fmtNaira(remaining));
+    setEl('cd-ref-needed', moreNeeded + ' more referral' + (moreNeeded !== 1 ? 's' : ''));
+    setEl('cd-ref-withdrawn', fmtNaira(withdrawn));
+    setEl('cd-prog-earned', fmtNaira(earned) + ' earned');
+    setEl('cd-prog-msg', earned >= threshold ? 'Withdrawal unlocked!' : moreNeeded + ' more referrals to unlock withdrawal');
+    setW('cd-prog-bar', pct);
+    setEl('cd-rw-ref', fmtNaira(earned));
+    setEl('cd-rw-ref-sub', successful + ' referrals · ' + fmtNaira(remaining) + ' to go');
+    setEl('cd-rw-withdraw-msg', 'Minimum ' + fmtNaira(threshold) + ' required · you have ' + fmtNaira(earned));
+    var wBtn = document.querySelector('#cd-ref-wallet .btn[disabled]');
+    if (wBtn && earned >= threshold) { wBtn.disabled = false; wBtn.textContent = 'Withdraw'; wBtn.style.background = '#185FA5'; wBtn.style.color = '#fff'; wBtn.style.cursor = 'pointer'; }
+    renderRefHistory('cd-ref-history', history, 'bl');
+    renderRefHistory('cd-rw-history', history.filter(function(r){ return r.status === 'credited'; }), 'bl');
+
+  } else if (role === 'professional') {
+    setEl('pro-ref-code', code);
+    setEl('pro-ref-bal', fmtNaira(earned));
+    setEl('pro-ref-count', successful + ' referral' + (successful !== 1 ? 's' : ''));
+    setEl('pro-ref-remaining', fmtNaira(remaining));
+    setEl('pro-ref-needed', moreNeeded + ' more referral' + (moreNeeded !== 1 ? 's' : ''));
+    setEl('pro-ref-withdrawn', fmtNaira(withdrawn));
+    setEl('pro-prog-earned', fmtNaira(earned) + ' earned');
+    setEl('pro-prog-msg', earned >= threshold ? 'Withdrawal unlocked!' : moreNeeded + ' more referrals to unlock withdrawal');
+    setW('pro-prog-bar', pct);
+    setEl('pro-rw-ref', fmtNaira(earned));
+    setEl('pro-rw-ref-sub', successful + ' referrals · ' + fmtNaira(remaining) + ' to go');
+    setEl('pro-rw-withdraw-msg', 'Minimum ' + fmtNaira(threshold) + ' required · you have ' + fmtNaira(earned));
+    var proWBtn = document.querySelector('#pro-ref-wallet .btn[disabled]');
+    if (proWBtn && earned >= threshold) { proWBtn.disabled = false; proWBtn.textContent = 'Withdraw'; proWBtn.style.background = '#3B6D11'; proWBtn.style.color = '#fff'; proWBtn.style.cursor = 'pointer'; }
+    renderRefHistory('pro-ref-history', history, 'gr');
+    renderRefHistory('pro-rw-history', history.filter(function(r){ return r.status === 'credited'; }), 'gr');
+  }
+}
+
+function renderRefHistory(elId, history, accent) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (!history || !history.length) {
+    el.innerHTML = '<div style="padding:2rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No referrals yet. Share your link to get started.</div>';
+    return;
+  }
+  var colors = { pu: { bg:'#EEEDFE', color:'#534AB7' }, bl: { bg:'#E6F1FB', color:'#185FA5' }, gr: { bg:'#EAF3DE', color:'#3B6D11' } };
+  var c = colors[accent] || colors.pu;
+  el.innerHTML = history.map(function(r) {
+    var ini = (r.name || '?').split(' ').map(function(p){ return p[0]; }).join('').toUpperCase().slice(0,2);
+    var tag = r.status === 'credited'
+      ? '<span class="tag tag-gr">+₦500</span>'
+      : '<span class="tag tag-neu">Pending</span>';
+    var date = r.date ? new Date(r.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+    return '<div class="card-row">' +
+      '<div style="width:32px;height:32px;border-radius:50%;background:' + c.bg + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:' + c.color + ';flex-shrink:0;">' + ini + '</div>' +
+      '<div class="flex-1"><div class="font-medium">' + (r.name || 'Unknown') + (r.type ? ' (' + r.type + ')' : '') + '</div><div class="text-sm text-muted">' + date + (r.status === 'credited' ? ' · booked' : ' · awaiting booking') + '</div></div>' +
+      tag + '</div>';
+  }).join('');
+}
+
+function copyRefCode(codeId, msgId) {
+  var codeEl = document.getElementById(codeId);
+  var msgEl  = document.getElementById(msgId);
+  if (!codeEl || !msgEl) return;
+  var code = codeEl.textContent;
+  var link = window.location.origin + window.location.pathname + '?ref=' + code;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).then(function(){ msgEl.style.display = 'inline'; setTimeout(function(){ msgEl.style.display = 'none'; }, 2000); });
+  } else {
+    msgEl.style.display = 'inline';
+    setTimeout(function(){ msgEl.style.display = 'none'; }, 2000);
+  }
+}
+
 var toothFindings = {}; // { '16': ['carious','sensitive'], '21': ['filled'] }
 var activeToothEl = null;
 

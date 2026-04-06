@@ -1997,7 +1997,7 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
 
-    <div class="dash-main dash-main-bl">
+    <div class="dash-main dash-main-bl" style="position:relative;">
       <div class="topbar">
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-right">
@@ -2820,7 +2820,7 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
 
-    <div class="dash-main dash-main-gr">
+    <div class="dash-main dash-main-gr" style="position:relative;">
       <div class="topbar">
         <div class="topbar-title">Dashboard</div>
         <div class="topbar-right">
@@ -4850,13 +4850,13 @@ async function initApp() {
       var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
       var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
       go('s-clinic-dash');
-      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); } catch(e) { console.warn('clinic init', e); }
+      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); } catch(e) { console.warn('clinic init', e); }
     } else if (role === 'professional') {
       updateDashName('s-pro-dash', name);
       var sub = document.getElementById('pro-hero-sub');
       if (sub && meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
       go('s-pro-dash');
-      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); } catch(e) { console.warn('pro init', e); }
+      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); checkSubscription(currentUser); } catch(e) { console.warn('pro init', e); }
     }
   } catch(err) {
     console.warn('Session check failed:', err);
@@ -5149,6 +5149,340 @@ async function confirmNewPassword() {
   }
 }
 
+// ── PRICING UI ─────────────────────────────────────────────
+var billingAnnual = false;
+var pricingTab = 'clinic';
+
+function showPricingTab(tab) {
+  pricingTab = tab;
+  document.getElementById('pricing-clinic').style.display = tab === 'clinic' ? 'block' : 'none';
+  document.getElementById('pricing-pro').style.display    = tab === 'pro'    ? 'block' : 'none';
+  document.getElementById('toggle-clinic').style.background = tab === 'clinic' ? '#0D1B3E' : 'none';
+  document.getElementById('toggle-clinic').style.color    = tab === 'clinic' ? '#fff' : '#888780';
+  document.getElementById('toggle-pro').style.background  = tab === 'pro'    ? '#0D1B3E' : 'none';
+  document.getElementById('toggle-pro').style.color       = tab === 'pro'    ? '#fff' : '#888780';
+  document.getElementById('pricing-title').textContent    = tab === 'clinic' ? 'Clinic partnership plans' : 'Professional subscription plans';
+}
+
+function toggleBilling() {
+  billingAnnual = !billingAnnual;
+  var thumb = document.getElementById('billing-thumb');
+  if (thumb) thumb.style.left = billingAnnual ? '20px' : '2px';
+  document.querySelectorAll('.pricing-monthly').forEach(function(el){ el.style.display = billingAnnual ? 'none' : 'block'; });
+  document.querySelectorAll('.pricing-annual').forEach(function(el){ el.style.display = billingAnnual ? 'block' : 'none'; });
+}
+
+function selectPlan(portalType, tier) {
+  if (!currentUser) { go(portalType === 'clinic' ? 's-clinic-login' : 's-pro-login'); return; }
+  var billing = billingAnnual ? 'annual' : 'monthly';
+  getSb().auth.updateUser({ data: { subscription_plan: tier, subscription_billing: billing, subscription_selected: new Date().toISOString() } });
+  alert('Plan selected: ' + tier + ' (' + billing + '). Payment will be enabled once Flutterwave is connected. Your 30-day trial continues.');
+  go(portalType === 'clinic' ? 's-clinic-dash' : 's-pro-dash');
+}
+
+// ── TRIAL & SUBSCRIPTION MANAGEMENT ───────────────────────
+function checkSubscription(user) {
+  if (!user) return;
+  var meta = user.user_metadata || {};
+  var role = meta.role;
+  if (role !== 'clinic' && role !== 'professional') return;
+  var createdAt  = new Date(user.created_at);
+  var now        = new Date();
+  var daysSince  = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
+  var daysLeft   = 30 - daysSince;
+  var hasPlan    = meta.subscription_plan && meta.subscription_status === 'active';
+  var trialActive = daysSince < 30;
+  var prefix     = role === 'clinic' ? 'cd' : 'pro';
+  var banner     = document.getElementById(prefix + '-trial-banner');
+  var msg        = document.getElementById(prefix + '-trial-msg');
+  var paywall    = document.getElementById(prefix + '-paywall');
+  if (hasPlan) { if (banner) banner.style.display = 'none'; if (paywall) paywall.style.display = 'none'; return; }
+  if (trialActive) {
+    if (banner) banner.style.display = 'flex';
+    if (msg) {
+      if (daysLeft > 7) {
+        msg.textContent = '🎉 Free trial active — ' + daysLeft + ' days remaining.';
+      } else {
+        msg.textContent = '⚠ Trial ends in ' + daysLeft + ' day' + (daysLeft !== 1 ? 's' : '') + '. Choose a plan to keep full access.';
+        if (banner) { banner.style.background = '#FFF8E6'; banner.style.borderColor = '#F0D060'; }
+        if (msg) msg.style.color = '#B8860B';
+      }
+    }
+    if (paywall) paywall.style.display = 'none';
+  } else {
+    if (banner) banner.style.display = 'none';
+    if (paywall) paywall.style.display = 'flex';
+  }
+}
+
+// ── PATIENT BOOKING — SEARCH PROVIDERS ────────────────────
+var selectedProvider = null;
+
+async function searchProviders() {
+  var location  = document.getElementById('search-location').value;
+  var type      = document.getElementById('search-type').value;
+  var resultsEl = document.getElementById('search-results');
+  if (!resultsEl) return;
+  resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">Searching...</div>';
+  try {
+    var res = await getSb().rpc('get_providers');
+    var providers = (res.data || []).filter(function(p) {
+      var m = p.user_metadata || {};
+      if (type === 'clinic' && m.role !== 'clinic') return false;
+      if (type === 'professional' && m.role !== 'professional') return false;
+      if (location && m.location && m.location !== location) return false;
+      return m.verified === 'verified';
+    });
+    renderProviders(providers, type);
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">Could not load providers. Please try again.</div>';
+  }
+}
+
+async function browseAll() {
+  var type      = document.getElementById('search-type').value;
+  var resultsEl = document.getElementById('search-results');
+  if (!resultsEl) return;
+  resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">Loading...</div>';
+  try {
+    var res = await getSb().rpc('get_providers');
+    var providers = (res.data || []).filter(function(p) {
+      var m = p.user_metadata || {};
+      var roleMatch = type === 'clinic' ? m.role === 'clinic' : m.role === 'professional';
+      return roleMatch && m.verified === 'verified';
+    });
+    renderProviders(providers, type);
+  } catch(e) {
+    resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;">Could not load providers. Please try again.</div>';
+  }
+}
+
+function renderProviders(providers, type) {
+  var el = document.getElementById('search-results');
+  if (!providers.length) {
+    el.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">No verified ' + (type === 'clinic' ? 'clinics' : 'professionals') + ' found in this area yet. Check back soon as more join the platform.</div>';
+    return;
+  }
+  var bg  = type === 'clinic' ? '#E6F1FB' : '#EAF3DE';
+  var col = type === 'clinic' ? '#185FA5' : '#3B6D11';
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">' +
+    providers.map(function(p) {
+      var m = p.user_metadata || {};
+      var name = m.clinic_name || m.full_name || 'Unknown';
+      var sub  = type === 'clinic'
+        ? [m.location, m.address].filter(Boolean).join(' · ')
+        : [m.regulator, m.location, m.experience].filter(Boolean).join(' · ');
+      var svcs = m.services && m.services.length ? m.services.slice(0,3).join(', ') : '';
+      var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+      var safeId   = p.id.replace(/'/g, '');
+      var safeName = name.replace(/'/g, '').replace(/"/g, '');
+      var safeSub  = sub.replace(/'/g, '').replace(/"/g, '');
+      return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:12px;padding:1.25rem;cursor:pointer;" onclick="openBookingModal(\'' + safeId + '\',\'' + safeName + '\',\'' + safeSub + '\')">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;">' +
+        '<div style="width:40px;height:40px;border-radius:10px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:' + col + ';flex-shrink:0;">' + ini + '</div>' +
+        '<div><div style="font-size:14px;font-weight:500;color:#26215C;">' + name + '</div>' +
+        '<div style="font-size:12px;color:#888780;">' + (sub || 'Nigeria') + '</div></div></div>' +
+        (svcs ? '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + svcs + '</div>' : '') +
+        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:20px;">Verified</span>' +
+        '<span style="font-size:12px;color:#534AB7;font-weight:500;">Book →</span></div></div>';
+    }).join('') + '</div>';
+}
+
+function openBookingModal(providerId, providerName, providerSub) {
+  if (!currentUser) { alert('Please sign in to book an appointment.'); return; }
+  selectedProvider = { id: providerId, name: providerName, sub: providerSub };
+  var nameEl = document.getElementById('modal-provider-name');
+  var subEl  = document.getElementById('modal-provider-sub');
+  if (nameEl) nameEl.textContent = providerName;
+  if (subEl)  subEl.textContent  = providerSub;
+  ['book-date','book-time','book-complaint','book-service'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  ['book-error','book-success'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+  var modal = document.getElementById('booking-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeBookingModal() {
+  var modal = document.getElementById('booking-modal');
+  if (modal) modal.style.display = 'none';
+  selectedProvider = null;
+}
+
 </script>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN — PRICING
+══════════════════════════════════════════════════════════ -->
+<div id="s-pricing" class="screen">
+  <div style="background:#0D1B3E;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="go('s-landing')">
+      <svg width="28" height="28" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0D1B3E"/><rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/><rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/><rect x="42" y="42" width="16" height="16" fill="#1a5c2a"/><circle cx="50" cy="50" r="15" fill="#6B5CE7"/><text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text></svg>
+      <div style="font-size:13px;font-weight:700;color:#fff;">DENTAL FLOW HQ</div>
+    </div>
+    <button onclick="go('s-landing')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;">← Back</button>
+  </div>
+
+  <div style="max-width:960px;margin:0 auto;padding:3rem 1.5rem;">
+
+    <!-- Toggle -->
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <div style="font-size:28px;font-weight:500;color:#0D1B3E;margin-bottom:.5rem;" id="pricing-title">Clinic partnership plans</div>
+      <div style="font-size:14px;color:#888780;margin-bottom:1.5rem;">All plans include a 30-day free trial. No card required to start.</div>
+      <div style="display:inline-flex;background:#f0f0f0;border-radius:10px;padding:4px;gap:4px;">
+        <button id="toggle-clinic" onclick="showPricingTab('clinic')" style="padding:8px 20px;border-radius:7px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#0D1B3E;color:#fff;">Clinics</button>
+        <button id="toggle-pro" onclick="showPricingTab('pro')" style="padding:8px 20px;border-radius:7px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;">Professionals</button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:1rem;">
+        <span style="font-size:13px;color:#888780;">Monthly</span>
+        <div id="billing-toggle" onclick="toggleBilling()" style="width:40px;height:22px;border-radius:11px;background:#185FA5;cursor:pointer;position:relative;transition:background .2s;">
+          <div id="billing-thumb" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;"></div>
+        </div>
+        <span style="font-size:13px;color:#185FA5;font-weight:500;">Annual <span style="background:#EAF3DE;color:#3B6D11;font-size:11px;padding:2px 7px;border-radius:20px;">Save 20%</span></span>
+      </div>
+    </div>
+
+    <!-- Clinic plans -->
+    <div id="pricing-clinic">
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+        <!-- Foundation -->
+        <div style="background:#fff;border:0.5px solid #e0e0e0;border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;">
+          <div style="font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Foundation</div>
+          <div style="font-size:12px;color:#888780;margin-bottom:1rem;line-height:1.5;">Quality clinics establishing consistent patient flow</div>
+          <div style="margin-bottom:1.25rem;">
+            <div class="pricing-monthly"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦150,000</span><span style="font-size:13px;color:#888780;">/mo</span></div>
+            <div class="pricing-annual" style="display:none;"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦120,000</span><span style="font-size:13px;color:#888780;">/mo</span><div style="font-size:12px;color:#3B6D11;">₦1,440,000 billed annually</div></div>
+          </div>
+          <div style="font-size:11px;color:#888780;margin-bottom:.5rem;">8% success fee per completed case</div>
+          <div style="height:0.5px;background:#f0f0f0;margin:.75rem 0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;">
+            <div style="font-size:13px;color:#26215C;">✓ Standard clinic visibility</div>
+            <div style="font-size:13px;color:#26215C;">✓ Steady patient flow</div>
+            <div style="font-size:13px;color:#26215C;">✓ Essential analytics</div>
+            <div style="font-size:13px;color:#26215C;">✓ Standard partner support</div>
+            <div style="font-size:13px;color:#26215C;">✓ Early feature access</div>
+            <div style="font-size:13px;color:#B4B2A9;">— Geographic protection</div>
+            <div style="font-size:13px;color:#B4B2A9;">— Dedicated manager</div>
+          </div>
+          <button onclick="selectPlan('clinic','foundation')" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #185FA5;background:#fff;color:#185FA5;font-size:13px;font-weight:500;cursor:pointer;">Start free trial</button>
+        </div>
+        <!-- Principal -->
+        <div style="background:#fff;border:2px solid #185FA5;border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;position:relative;">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#185FA5;color:#fff;font-size:11px;padding:3px 14px;border-radius:20px;white-space:nowrap;">Most popular</div>
+          <div style="font-size:11px;font-weight:500;color:#185FA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Principal</div>
+          <div style="font-size:12px;color:#888780;margin-bottom:1rem;line-height:1.5;">Established clinics ready to expand capacity</div>
+          <div style="margin-bottom:1.25rem;">
+            <div class="pricing-monthly"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦275,000</span><span style="font-size:13px;color:#888780;">/mo</span></div>
+            <div class="pricing-annual" style="display:none;"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦220,000</span><span style="font-size:13px;color:#888780;">/mo</span><div style="font-size:12px;color:#3B6D11;">₦2,640,000 billed annually</div></div>
+          </div>
+          <div style="font-size:11px;color:#888780;margin-bottom:.5rem;">6% success fee per completed case</div>
+          <div style="height:0.5px;background:#f0f0f0;margin:.75rem 0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;">
+            <div style="font-size:13px;color:#26215C;">✓ Featured clinic visibility</div>
+            <div style="font-size:13px;color:#26215C;">✓ Priority patient matching</div>
+            <div style="font-size:13px;color:#26215C;">✓ Advanced analytics &amp; reports</div>
+            <div style="font-size:13px;color:#26215C;">✓ Dedicated account manager</div>
+            <div style="font-size:13px;color:#26215C;">✓ Protected radius</div>
+            <div style="font-size:13px;color:#26215C;">✓ Early feature access</div>
+            <div style="font-size:13px;color:#B4B2A9;">— Exclusive territory</div>
+          </div>
+          <button onclick="selectPlan('clinic','principal')" style="width:100%;padding:11px;border-radius:10px;border:none;background:#185FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Start free trial</button>
+        </div>
+        <!-- Enterprise -->
+        <div style="background:#0D1B3E;border:0.5px solid #0D1B3E;border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;">
+          <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Enterprise</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:1rem;line-height:1.5;">Leading clinics seeking category leadership</div>
+          <div style="margin-bottom:1.25rem;">
+            <div class="pricing-monthly"><span style="font-size:28px;font-weight:500;color:#fff;">₦425,000</span><span style="font-size:13px;color:rgba(255,255,255,.5);">/mo</span></div>
+            <div class="pricing-annual" style="display:none;"><span style="font-size:28px;font-weight:500;color:#fff;">₦340,000</span><span style="font-size:13px;color:rgba(255,255,255,.5);">/mo</span><div style="font-size:12px;color:#5DCAA5;">₦4,080,000 billed annually</div></div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:.5rem;">5% success fee per completed case</div>
+          <div style="height:0.5px;background:rgba(255,255,255,.1);margin:.75rem 0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;">
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Top placement visibility</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ First access to patients</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Strategic insights dashboard</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Priority + dedicated support</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Exclusive territory</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Priority early feature access</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Limited availability</div>
+          </div>
+          <button onclick="selectPlan('clinic','enterprise')" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Start free trial</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Professional plans -->
+    <div id="pricing-pro" style="display:none;">
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+        <!-- Foundation -->
+        <div style="background:#fff;border:0.5px solid #e0e0e0;border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;">
+          <div style="font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Foundation</div>
+          <div style="font-size:12px;color:#888780;margin-bottom:1rem;line-height:1.5;">Verified visibility and entry access to the network</div>
+          <div style="margin-bottom:1.25rem;">
+            <div class="pricing-monthly"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦20,000</span><span style="font-size:13px;color:#888780;">/mo</span></div>
+            <div class="pricing-annual" style="display:none;"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦16,000</span><span style="font-size:13px;color:#888780;">/mo</span><div style="font-size:12px;color:#3B6D11;">₦192,000 billed annually</div></div>
+          </div>
+          <div style="font-size:11px;color:#888780;margin-bottom:.5rem;">10% success fee per completed case</div>
+          <div style="height:0.5px;background:#f0f0f0;margin:.75rem 0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;">
+            <div style="font-size:13px;color:#26215C;">✓ Credential verification badge</div>
+            <div style="font-size:13px;color:#26215C;">✓ Standard search visibility</div>
+            <div style="font-size:13px;color:#26215C;">✓ Basic analytics</div>
+            <div style="font-size:13px;color:#26215C;">✓ Standard support</div>
+            <div style="font-size:13px;color:#B4B2A9;">— Campaign eligibility</div>
+            <div style="font-size:13px;color:#B4B2A9;">— AI matching</div>
+          </div>
+          <button onclick="selectPlan('pro','foundation')" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid #3B6D11;background:#fff;color:#3B6D11;font-size:13px;font-weight:500;cursor:pointer;">Start free trial</button>
+        </div>
+        <!-- Principal -->
+        <div style="background:#fff;border:2px solid #3B6D11;border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;position:relative;">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#3B6D11;color:#fff;font-size:11px;padding:3px 14px;border-radius:20px;white-space:nowrap;">Most popular</div>
+          <div style="font-size:11px;font-weight:500;color:#3B6D11;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Principal</div>
+          <div style="font-size:12px;color:#888780;margin-bottom:1rem;line-height:1.5;">Higher visibility and stronger match priority</div>
+          <div style="margin-bottom:1.25rem;">
+            <div class="pricing-monthly"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦30,000</span><span style="font-size:13px;color:#888780;">/mo</span></div>
+            <div class="pricing-annual" style="display:none;"><span style="font-size:28px;font-weight:500;color:#0D1B3E;">₦24,000</span><span style="font-size:13px;color:#888780;">/mo</span><div style="font-size:12px;color:#3B6D11;">₦288,000 billed annually</div></div>
+          </div>
+          <div style="font-size:11px;color:#888780;margin-bottom:.5rem;">8% success fee per completed case</div>
+          <div style="height:0.5px;background:#f0f0f0;margin:.75rem 0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;">
+            <div style="font-size:13px;color:#26215C;">✓ Enhanced credential badge</div>
+            <div style="font-size:13px;color:#26215C;">✓ Featured visibility (region)</div>
+            <div style="font-size:13px;color:#26215C;">✓ Priority geographic matching</div>
+            <div style="font-size:13px;color:#26215C;">✓ Enhanced analytics</div>
+            <div style="font-size:13px;color:#26215C;">✓ Campaign eligibility</div>
+            <div style="font-size:13px;color:#26215C;">✓ Limited AI matching</div>
+            <div style="font-size:13px;color:#26215C;">✓ Priority support</div>
+          </div>
+          <button onclick="selectPlan('pro','principal')" style="width:100%;padding:11px;border-radius:10px;border:none;background:#3B6D11;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Start free trial</button>
+        </div>
+        <!-- Enterprise -->
+        <div style="background:#0D1B3E;border:0.5px solid #0D1B3E;border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;">
+          <div style="font-size:11px;font-weight:500;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Enterprise</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:1rem;line-height:1.5;">Premium positioning and advanced insights</div>
+          <div style="margin-bottom:1.25rem;">
+            <div class="pricing-monthly"><span style="font-size:28px;font-weight:500;color:#fff;">₦45,000</span><span style="font-size:13px;color:rgba(255,255,255,.5);">/mo</span></div>
+            <div class="pricing-annual" style="display:none;"><span style="font-size:28px;font-weight:500;color:#fff;">₦36,000</span><span style="font-size:13px;color:rgba(255,255,255,.5);">/mo</span><div style="font-size:12px;color:#5DCAA5;">₦432,000 billed annually</div></div>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:.5rem;">5% success fee per completed case</div>
+          <div style="height:0.5px;background:rgba(255,255,255,.1);margin:.75rem 0;"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;">
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Premium credential badge</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Top placement (region)</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Highest priority matching</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Advanced analytics</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Full AI matching access</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Priority + dedicated support</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.85);">✓ Full campaign eligibility</div>
+          </div>
+          <button onclick="selectPlan('pro','enterprise')" style="width:100%;padding:11px;border-radius:10px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Start free trial</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem;font-size:12px;color:#888780;">All plans include a 30-day free trial. Payment integration coming soon — your plan will be confirmed via email.</div>
+  </div>
+</div>
+
 </body>
 </html>

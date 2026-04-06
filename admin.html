@@ -1,189 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DentalFlow HQ — Admin</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; }
-
-    /* LOGIN */
-    #login-screen {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, #0D1B3E 0%, #26215C 100%);
-    }
-    .login-box {
-      background: #fff; border-radius: 16px; padding: 2.5rem;
-      width: 100%; max-width: 380px; text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    }
-    .login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 1.5rem; }
-    .login-logo-text { font-size: 16px; font-weight: 700; color: #0D1B3E; }
-    .login-title { font-size: 20px; font-weight: 600; color: #26215C; margin-bottom: .4rem; }
-    .login-sub   { font-size: 13px; color: #888; margin-bottom: 1.75rem; }
-    .login-input {
-      width: 100%; padding: 11px 14px; border: 1.5px solid #e0daf5;
-      border-radius: 10px; font-size: 14px; color: #26215C; background: #fafafa;
-      outline: none; margin-bottom: 1rem; transition: border-color .15s;
-    }
-    .login-input:focus { border-color: #534AB7; }
-    .login-btn {
-      width: 100%; padding: 12px; border-radius: 10px; border: none;
-      background: #534AB7; color: #fff; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: background .15s;
-    }
-    .login-btn:hover { background: #3d3491; }
-    .login-error { font-size: 12px; color: #A32D2D; margin-top: .75rem; display: none; }
-
-    /* ADMIN SHELL */
-    #admin-screen { display: none; }
-    .admin-nav {
-      background: #0D1B3E; padding: 0 2rem; height: 58px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .admin-nav-logo { display: flex; align-items: center; gap: 10px; }
-    .admin-nav-title { font-size: 14px; font-weight: 600; color: #fff; }
-    .admin-nav-badge { font-size: 10px; background: #534AB7; color: #fff; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
-    .admin-nav-right { display: flex; align-items: center; gap: 12px; }
-    .admin-nav-time { font-size: 12px; color: rgba(255,255,255,.4); }
-    .admin-logout { font-size: 12px; color: rgba(255,255,255,.5); cursor: pointer; border: none; background: none; padding: 4px 10px; }
-    .admin-logout:hover { color: #fff; }
-
-    .admin-body { padding: 2rem; max-width: 1400px; margin: 0 auto; }
-
-    /* STAT CARDS */
-    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 2rem; }
-    .stat-card {
-      background: #fff; border-radius: 14px; padding: 1.25rem 1.5rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.04);
-    }
-    .stat-label { font-size: 11px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-    .stat-value { font-size: 2rem; font-weight: 700; color: #0D1B3E; line-height: 1; }
-    .stat-sub   { font-size: 12px; color: #888; margin-top: 6px; }
-    .stat-bar   { height: 4px; border-radius: 2px; background: #f0f0f0; margin-top: 10px; }
-    .stat-bar-fill { height: 4px; border-radius: 2px; }
-
-    /* TABS */
-    .admin-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: #fff; padding: .4rem; border-radius: 12px; width: fit-content; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-    .admin-tab {
-      padding: 7px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
-      cursor: pointer; border: none; background: none; color: #888; transition: all .15s;
-    }
-    .admin-tab.active { background: #534AB7; color: #fff; }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    /* TABLE */
-    .admin-table-wrap {
-      background: #fff; border-radius: 14px; overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 1.5rem;
-    }
-    .admin-table-header {
-      padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0f0f0;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-    }
-    .admin-table-title { font-size: 15px; font-weight: 600; color: #0D1B3E; }
-    .admin-search {
-      padding: 7px 12px; border: 1px solid #e0e0e0; border-radius: 8px;
-      font-size: 13px; outline: none; width: 220px;
-    }
-    .admin-search:focus { border-color: #534AB7; }
-    table { width: 100%; border-collapse: collapse; }
-    th {
-      font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase;
-      letter-spacing: .5px; padding: 10px 1.25rem; text-align: left;
-      background: #fafafa; border-bottom: 1px solid #f0f0f0;
-    }
-    td { font-size: 13px; color: #26215C; padding: 11px 1.25rem; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafbff; }
-
-    /* BADGES */
-    .badge {
-      display: inline-block; font-size: 10px; font-weight: 600;
-      padding: 3px 10px; border-radius: 20px; white-space: nowrap;
-    }
-    .badge-patient  { background: #EEEDFE; color: #534AB7; }
-    .badge-clinic   { background: #E6F1FB; color: #185FA5; }
-    .badge-pro      { background: #EAF3DE; color: #3B6D11; }
-    .badge-pending  { background: #FFF8E6; color: #B8860B; }
-    .badge-verified { background: #EAF3DE; color: #3B6D11; }
-    .badge-rejected { background: #FCEBEB; color: #A32D2D; }
-
-    /* ACTIONS */
-    .action-btn {
-      padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
-      cursor: pointer; border: none; transition: all .15s; margin-right: 4px;
-    }
-    .btn-verify  { background: #EAF3DE; color: #3B6D11; }
-    .btn-verify:hover  { background: #3B6D11; color: #fff; }
-    .btn-reject  { background: #FCEBEB; color: #A32D2D; }
-    .btn-reject:hover  { background: #A32D2D; color: #fff; }
-    .btn-export  { background: #534AB7; color: #fff; padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; }
-    .btn-export:hover { background: #3d3491; }
-    .btn-refresh { background: #f0f0f0; color: #555; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; border: none; }
-    .btn-refresh:hover { background: #e0e0e0; }
-
-    /* AVATAR */
-    .admin-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
-    }
-
-    /* CHART */
-    .chart-wrap { background: #fff; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 1.5rem; }
-    .chart-title { font-size: 14px; font-weight: 600; color: #0D1B3E; margin-bottom: 1.25rem; }
-    .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding: 0 4px; }
-    .chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    .chart-bar-val { font-size: 10px; color: #888; }
-    .chart-bar-fill { width: 100%; border-radius: 6px 6px 0 0; min-height: 4px; transition: height .3s; }
-    .chart-bar-label { font-size: 10px; color: #888; margin-top: 4px; }
-
-    /* LOADING */
-    .loading { padding: 3rem; text-align: center; color: #888; font-size: 13px; }
-    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #e0e0e0; border-top-color: #534AB7; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 8px; vertical-align: middle; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ALERT */
-    .admin-alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 1rem; display: none; }
-    .admin-alert.ok  { background: #EAF3DE; color: #3B6D11; }
-    .admin-alert.err { background: #FCEBEB; color: #A32D2D; }
-
-    /* TWO COL */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
-
-    @media(max-width: 900px) {
-      .stat-row { grid-template-columns: 1fr 1fr; }
-      .two-col  { grid-template-columns: 1fr; }
-      .admin-body { padding: 1rem; }
-    }
-    @media(max-width: 600px) {
-      .stat-row { grid-template-columns: 1fr; }
-      .admin-search { width: 150px; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DentalFlow HQ — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f4f6f9;color:#1a1a2e;min-height:100vh;}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D1B3E 0%,#26215C 100%);}
+.login-box{background:#fff;border-radius:16px;padding:2.5rem;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.5rem;}
+.login-logo-text{font-size:16px;font-weight:700;color:#0D1B3E;}
+.login-title{font-size:20px;font-weight:600;color:#26215C;margin-bottom:.4rem;}
+.login-sub{font-size:13px;color:#888;margin-bottom:1.75rem;}
+.login-input{width:100%;padding:11px 14px;border:1.5px solid #e0daf5;border-radius:10px;font-size:14px;color:#26215C;background:#fafafa;outline:none;margin-bottom:1rem;transition:border-color .15s;}
+.login-input:focus{border-color:#534AB7;}
+.login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#534AB7;color:#fff;font-size:14px;font-weight:600;cursor:pointer;}
+.login-btn:hover{background:#3d3491;}
+.login-error{font-size:12px;color:#A32D2D;margin-top:.75rem;display:none;}
+#admin-screen{display:none;}
+.admin-nav{background:#0D1B3E;padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.admin-nav-title{font-size:14px;font-weight:600;color:#fff;}
+.admin-nav-badge{font-size:10px;background:#534AB7;color:#fff;padding:2px 8px;border-radius:20px;margin-left:6px;}
+.admin-nav-time{font-size:12px;color:rgba(255,255,255,.4);}
+.admin-logout{font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;border:none;background:none;padding:4px 10px;}
+.admin-logout:hover{color:#fff;}
+.admin-body{padding:2rem;max-width:1400px;margin:0 auto;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:1.5rem;}
+.stat-card{background:#fff;border-radius:14px;padding:1.25rem 1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.04);}
+.stat-label{font-size:11px;color:#888;font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.stat-value{font-size:2rem;font-weight:700;color:#0D1B3E;line-height:1;}
+.stat-sub{font-size:12px;color:#888;margin-top:6px;}
+.stat-bar{height:4px;border-radius:2px;background:#f0f0f0;margin-top:10px;}
+.stat-bar-fill{height:4px;border-radius:2px;}
+.admin-tabs{display:flex;gap:4px;margin-bottom:1.5rem;background:#fff;padding:.4rem;border-radius:12px;width:fit-content;box-shadow:0 2px 8px rgba(0,0,0,.06);flex-wrap:wrap;}
+.admin-tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:#888;transition:all .15s;white-space:nowrap;}
+.admin-tab.active{background:#534AB7;color:#fff;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.admin-table-wrap{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:1.5rem;}
+.admin-table-header{padding:1.25rem 1.5rem;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.admin-table-title{font-size:15px;font-weight:600;color:#0D1B3E;}
+.admin-search{padding:7px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;outline:none;width:200px;}
+.admin-search:focus{border-color:#534AB7;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;padding:10px 1.25rem;text-align:left;background:#fafafa;border-bottom:1px solid #f0f0f0;}
+td{font-size:13px;color:#26215C;padding:11px 1.25rem;border-bottom:1px solid #f8f8f8;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafbff;}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.badge-patient{background:#EEEDFE;color:#534AB7;}
+.badge-clinic{background:#E6F1FB;color:#185FA5;}
+.badge-professional{background:#EAF3DE;color:#3B6D11;}
+.badge-pending{background:#FFF8E6;color:#B8860B;}
+.badge-verified{background:#EAF3DE;color:#3B6D11;}
+.badge-rejected{background:#FCEBEB;color:#A32D2D;}
+.badge-foundation{background:#f0f0f0;color:#555;}
+.badge-principal{background:#E6F1FB;color:#185FA5;}
+.badge-enterprise{background:#0D1B3E;color:#fff;}
+.badge-trial{background:#FFF8E6;color:#B8860B;}
+.badge-active{background:#EAF3DE;color:#3B6D11;}
+.badge-open{background:#FFF8E6;color:#B8860B;}
+.badge-resolved{background:#EAF3DE;color:#3B6D11;}
+.badge-escalated{background:#FCEBEB;color:#A32D2D;}
+.action-btn{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .15s;margin-right:4px;}
+.btn-verify{background:#EAF3DE;color:#3B6D11;}
+.btn-verify:hover{background:#3B6D11;color:#fff;}
+.btn-reject{background:#FCEBEB;color:#A32D2D;}
+.btn-reject:hover{background:#A32D2D;color:#fff;}
+.btn-export{background:#534AB7;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;}
+.btn-export:hover{background:#3d3491;}
+.btn-refresh{background:#f0f0f0;color:#555;padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;border:none;}
+.btn-refresh:hover{background:#e0e0e0;}
+.admin-avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.chart-wrap{background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:1.5rem;}
+.chart-title{font-size:14px;font-weight:600;color:#0D1B3E;margin-bottom:1.25rem;}
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding:0 4px;}
+.chart-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.chart-bar-val{font-size:10px;color:#888;}
+.chart-bar-fill{width:100%;border-radius:6px 6px 0 0;min-height:4px;transition:height .3s;}
+.chart-bar-label{font-size:10px;color:#888;margin-top:4px;}
+.loading{padding:3rem;text-align:center;color:#888;font-size:13px;}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid #e0e0e0;border-top-color:#534AB7;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.admin-alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:none;}
+.admin-alert.ok{background:#EAF3DE;color:#3B6D11;}
+.admin-alert.err{background:#FCEBEB;color:#A32D2D;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;}
+.ticket-row{padding:1rem 1.5rem;border-bottom:1px solid #f5f5f5;display:flex;flex-direction:column;gap:6px;}
+.ticket-row:last-child{border-bottom:none;}
+.ticket-row:hover{background:#fafbff;}
+@media(max-width:900px){.stat-row{grid-template-columns:1fr 1fr;}.two-col{grid-template-columns:1fr;}.admin-body{padding:1rem;}}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr;}.admin-search{width:140px;}}
+</style>
 </head>
 <body>
 
-<!-- ── LOGIN SCREEN ── -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <svg width="36" height="36" viewBox="0 0 100 100">
-        <rect width="100" height="100" rx="18" fill="#0D1B3E"/>
-        <rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/>
-        <rect x="42" y="42" width="16" height="50" rx="8" fill="#639922"/>
-        <rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/>
-        <rect x="42" y="42" width="50" height="16" rx="8" fill="#1a5c2a"/>
-        <rect x="42" y="42" width="16" height="16" fill="#1a5c2a"/>
-        <circle cx="50" cy="50" r="15" fill="#6B5CE7"/>
-        <text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text>
-      </svg>
+      <svg width="36" height="36" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0D1B3E"/><rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/><rect x="42" y="42" width="16" height="50" rx="8" fill="#639922"/><rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/><rect x="42" y="42" width="50" height="16" rx="8" fill="#1a5c2a"/><rect x="42" y="42" width="16" height="16" fill="#1a5c2a"/><circle cx="50" cy="50" r="15" fill="#6B5CE7"/><text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text></svg>
       <div class="login-logo-text">DENTAL FLOW HQ</div>
     </div>
     <div class="login-title">Admin dashboard</div>
@@ -194,97 +112,52 @@
   </div>
 </div>
 
-<!-- ── ADMIN DASHBOARD ── -->
+<!-- ADMIN DASHBOARD -->
 <div id="admin-screen">
-
   <nav class="admin-nav">
-    <div class="admin-nav-logo">
-      <svg width="28" height="28" viewBox="0 0 100 100">
-        <rect width="100" height="100" rx="18" fill="#1a2a5e"/>
-        <rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/>
-        <rect x="42" y="42" width="16" height="50" rx="8" fill="#639922"/>
-        <rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/>
-        <rect x="42" y="42" width="50" height="16" rx="8" fill="#1a5c2a"/>
-        <circle cx="50" cy="50" r="15" fill="#6B5CE7"/>
-        <text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text>
-      </svg>
-      <div>
-        <div class="admin-nav-title">DentalFlow HQ <span class="admin-nav-badge">ADMIN</span></div>
-      </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <svg width="28" height="28" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#1a2a5e"/><rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/><rect x="42" y="42" width="16" height="50" rx="8" fill="#639922"/><rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/><rect x="42" y="42" width="50" height="16" rx="8" fill="#1a5c2a"/><circle cx="50" cy="50" r="15" fill="#6B5CE7"/><text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text></svg>
+      <div class="admin-nav-title">DentalFlow HQ <span class="admin-nav-badge">ADMIN</span></div>
     </div>
-    <div class="admin-nav-right">
+    <div style="display:flex;align-items:center;gap:12px;">
       <div class="admin-nav-time" id="admin-time"></div>
       <button class="admin-logout" onclick="adminLogout()">Sign out</button>
     </div>
   </nav>
 
   <div class="admin-body">
-
     <div id="admin-alert" class="admin-alert"></div>
 
-    <!-- STAT CARDS -->
+    <!-- STAT CARDS ROW 1 -->
     <div class="stat-row">
-      <div class="stat-card">
-        <div class="stat-label">Total users</div>
-        <div class="stat-value" id="stat-total">-</div>
-        <div class="stat-sub" id="stat-total-sub">Loading...</div>
-        <div class="stat-bar"><div class="stat-bar-fill" id="bar-total" style="background:#534AB7;width:0%"></div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Patients</div>
-        <div class="stat-value" style="color:#534AB7;" id="stat-patients">-</div>
-        <div class="stat-sub" id="stat-patients-sub">Loading...</div>
-        <div class="stat-bar"><div class="stat-bar-fill" id="bar-patients" style="background:#534AB7;width:0%"></div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Clinics</div>
-        <div class="stat-value" style="color:#185FA5;" id="stat-clinics">-</div>
-        <div class="stat-sub" id="stat-clinics-sub">Loading...</div>
-        <div class="stat-bar"><div class="stat-bar-fill" id="bar-clinics" style="background:#185FA5;width:0%"></div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Professionals</div>
-        <div class="stat-value" style="color:#3B6D11;" id="stat-pros">-</div>
-        <div class="stat-sub" id="stat-pros-sub">Loading...</div>
-        <div class="stat-bar"><div class="stat-bar-fill" id="bar-pros" style="background:#3B6D11;width:0%"></div></div>
-      </div>
+      <div class="stat-card"><div class="stat-label">Total users</div><div class="stat-value" id="stat-total">-</div><div class="stat-sub" id="stat-total-sub">Loading...</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-total" style="background:#534AB7;width:0%"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Patients</div><div class="stat-value" style="color:#534AB7;" id="stat-patients">-</div><div class="stat-sub" id="stat-patients-sub">Loading...</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-patients" style="background:#534AB7;width:0%"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Clinics</div><div class="stat-value" style="color:#185FA5;" id="stat-clinics">-</div><div class="stat-sub" id="stat-clinics-sub">Loading...</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-clinics" style="background:#185FA5;width:0%"></div></div></div>
+      <div class="stat-card"><div class="stat-label">Professionals</div><div class="stat-value" style="color:#3B6D11;" id="stat-pros">-</div><div class="stat-sub" id="stat-pros-sub">Loading...</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-pros" style="background:#3B6D11;width:0%"></div></div></div>
     </div>
 
-    <!-- SECOND ROW STATS -->
-    <div class="stat-row" style="margin-bottom:1.5rem;">
-      <div class="stat-card">
-        <div class="stat-label">Total bookings</div>
-        <div class="stat-value" id="stat-bookings">-</div>
-        <div class="stat-sub">Across all clinics</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Pending verification</div>
-        <div class="stat-value" style="color:#B8860B;" id="stat-pending">-</div>
-        <div class="stat-sub">Clinics &amp; professionals</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Verified</div>
-        <div class="stat-value" style="color:#3B6D11;" id="stat-verified">-</div>
-        <div class="stat-sub">Approved providers</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Signups this week</div>
-        <div class="stat-value" id="stat-week">-</div>
-        <div class="stat-sub">Last 7 days</div>
-      </div>
+    <!-- STAT CARDS ROW 2 -->
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">Total bookings</div><div class="stat-value" id="stat-bookings">-</div><div class="stat-sub">Across all clinics</div></div>
+      <div class="stat-card"><div class="stat-label">Pending verification</div><div class="stat-value" style="color:#B8860B;" id="stat-pending">-</div><div class="stat-sub">Clinics &amp; professionals</div></div>
+      <div class="stat-card"><div class="stat-label">Paid subscribers</div><div class="stat-value" style="color:#3B6D11;" id="stat-paid">-</div><div class="stat-sub" id="stat-paid-sub">Active plans</div></div>
+      <div class="stat-card"><div class="stat-label">Open support tickets</div><div class="stat-value" style="color:#A32D2D;" id="stat-tickets">-</div><div class="stat-sub">Awaiting response</div></div>
     </div>
 
-    <!-- CHARTS ROW -->
+    <!-- STAT CARDS ROW 3 — subscription tier breakdown -->
+    <div class="stat-row" style="grid-template-columns:repeat(6,1fr);">
+      <div class="stat-card" style="padding:1rem;"><div class="stat-label">On trial</div><div class="stat-value" style="font-size:1.5rem;" id="stat-trial">-</div></div>
+      <div class="stat-card" style="padding:1rem;"><div class="stat-label" style="color:#555;">Foundation</div><div class="stat-value" style="font-size:1.5rem;" id="stat-foundation">-</div></div>
+      <div class="stat-card" style="padding:1rem;"><div class="stat-label" style="color:#185FA5;">Principal</div><div class="stat-value" style="font-size:1.5rem;color:#185FA5;" id="stat-principal">-</div></div>
+      <div class="stat-card" style="padding:1rem;"><div class="stat-label" style="color:#0D1B3E;">Enterprise</div><div class="stat-value" style="font-size:1.5rem;color:#0D1B3E;" id="stat-enterprise">-</div></div>
+      <div class="stat-card" style="padding:1rem;"><div class="stat-label">Trial expired</div><div class="stat-value" style="font-size:1.5rem;color:#A32D2D;" id="stat-expired">-</div></div>
+      <div class="stat-card" style="padding:1rem;"><div class="stat-label">Signups this week</div><div class="stat-value" style="font-size:1.5rem;" id="stat-week">-</div></div>
+    </div>
+
+    <!-- CHARTS -->
     <div class="two-col">
-      <div class="chart-wrap">
-        <div class="chart-title">Signups over time (last 8 weeks)</div>
-        <div class="chart-bars" id="signup-chart"></div>
-        <div style="display:flex;gap:8px;margin-top:6px;" id="signup-labels"></div>
-      </div>
-      <div class="chart-wrap">
-        <div class="chart-title">Portal breakdown</div>
-        <div id="portal-breakdown" style="margin-top:.5rem;"></div>
-      </div>
+      <div class="chart-wrap"><div class="chart-title">Signups over time (last 8 weeks)</div><div class="chart-bars" id="signup-chart"></div><div style="display:flex;gap:8px;margin-top:6px;" id="signup-labels"></div></div>
+      <div class="chart-wrap"><div class="chart-title">Portal breakdown</div><div id="portal-breakdown" style="margin-top:.5rem;"></div></div>
     </div>
 
     <!-- TABS -->
@@ -294,24 +167,24 @@
       <button class="admin-tab" onclick="showTab('clinic',this)">Clinics</button>
       <button class="admin-tab" onclick="showTab('professional',this)">Professionals</button>
       <button class="admin-tab" onclick="showTab('pending',this)">Pending verification</button>
+      <button class="admin-tab" onclick="showTab('subscriptions',this)">Subscriptions</button>
       <button class="admin-tab" onclick="showTab('bookings',this)">Bookings</button>
+      <button class="admin-tab" onclick="showTab('support',this)" id="tab-btn-support">Support <span id="support-badge" style="display:none;background:#A32D2D;color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;"></span></button>
     </div>
 
     <!-- ALL USERS -->
     <div id="tab-all" class="tab-content active">
       <div class="admin-table-wrap">
         <div class="admin-table-header">
-          <div class="admin-table-title">All registered users</div>
+          <div class="admin-table-title">All users</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <input class="admin-search" placeholder="Search name or email..." oninput="filterTable('all-tbody',this.value)"/>
-            <button class="btn-refresh" onclick="loadData()">Refresh</button>
+            <input class="admin-search" placeholder="Search name, email, location..." oninput="filterTable('all-tbody',this.value)"/>
             <button class="btn-export" onclick="exportCSV('all')">Export CSV</button>
+            <button class="btn-refresh" onclick="loadData()">↻ Refresh</button>
           </div>
         </div>
-        <table>
-          <thead><tr><th>#</th><th>User</th><th>Email</th><th>Role</th><th>Location</th><th>Signed up</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="all-tbody"><tr><td colspan="8" class="loading"><span class="spinner"></span>Loading users...</td></tr></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Location</th><th>Signed up</th><th>Plan / Status</th><th>Verified</th><th>Actions</th></tr></thead>
+        <tbody id="all-tbody"><tr><td colspan="9" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody></table>
       </div>
     </div>
 
@@ -319,16 +192,11 @@
     <div id="tab-patients" class="tab-content">
       <div class="admin-table-wrap">
         <div class="admin-table-header">
-          <div class="admin-table-title">Patient accounts</div>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-search" placeholder="Search..." oninput="filterTable('patients-tbody',this.value)"/>
-            <button class="btn-export" onclick="exportCSV('patients')">Export CSV</button>
-          </div>
+          <div class="admin-table-title">Patients</div>
+          <div style="display:flex;gap:8px;"><input class="admin-search" placeholder="Search..." oninput="filterTable('patients-tbody',this.value)"/><button class="btn-export" onclick="exportCSV('patients')">Export CSV</button></div>
         </div>
-        <table>
-          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Location</th><th>Last visit</th><th>Profile</th><th>Signed up</th></tr></thead>
-          <tbody id="patients-tbody"><tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Location</th><th>Last visit</th><th>Profile</th><th>Signed up</th></tr></thead>
+        <tbody id="patients-tbody"><tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody></table>
       </div>
     </div>
 
@@ -336,16 +204,11 @@
     <div id="tab-clinic" class="tab-content">
       <div class="admin-table-wrap">
         <div class="admin-table-header">
-          <div class="admin-table-title">Clinic accounts</div>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-search" placeholder="Search..." oninput="filterTable('clinics-tbody',this.value)"/>
-            <button class="btn-export" onclick="exportCSV('clinics')">Export CSV</button>
-          </div>
+          <div class="admin-table-title">Clinics</div>
+          <div style="display:flex;gap:8px;"><input class="admin-search" placeholder="Search..." oninput="filterTable('clinics-tbody',this.value)"/><button class="btn-export" onclick="exportCSV('clinics')">Export CSV</button></div>
         </div>
-        <table>
-          <thead><tr><th>#</th><th>Clinic name</th><th>Email</th><th>Location</th><th>MDCN no.</th><th>Bookings</th><th>Verification</th><th>Actions</th></tr></thead>
-          <tbody id="clinics-tbody"><tr><td colspan="8" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Clinic</th><th>Email</th><th>Location</th><th>MDCN no.</th><th>Plan</th><th>Trial days left</th><th>Bookings</th><th>Verified</th><th>Actions</th></tr></thead>
+        <tbody id="clinics-tbody"><tr><td colspan="10" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody></table>
       </div>
     </div>
 
@@ -353,30 +216,39 @@
     <div id="tab-professional" class="tab-content">
       <div class="admin-table-wrap">
         <div class="admin-table-header">
-          <div class="admin-table-title">Professional accounts</div>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-search" placeholder="Search..." oninput="filterTable('pros-tbody',this.value)"/>
-            <button class="btn-export" onclick="exportCSV('pros')">Export CSV</button>
-          </div>
+          <div class="admin-table-title">Professionals</div>
+          <div style="display:flex;gap:8px;"><input class="admin-search" placeholder="Search..." oninput="filterTable('pros-tbody',this.value)"/><button class="btn-export" onclick="exportCSV('pros')">Export CSV</button></div>
         </div>
-        <table>
-          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Regulator</th><th>Reg. no.</th><th>Location</th><th>Verification</th><th>Actions</th></tr></thead>
-          <tbody id="pros-tbody"><tr><td colspan="8" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Regulator</th><th>Reg. no.</th><th>Location</th><th>Plan</th><th>Trial days left</th><th>Verified</th><th>Actions</th></tr></thead>
+        <tbody id="pros-tbody"><tr><td colspan="10" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody></table>
       </div>
     </div>
 
-    <!-- PENDING -->
+    <!-- PENDING VERIFICATION -->
     <div id="tab-pending" class="tab-content">
       <div class="admin-table-wrap">
         <div class="admin-table-header">
           <div class="admin-table-title">Pending verification</div>
-          <div style="font-size:13px;color:#B8860B;">Review and approve clinics and professionals before they go live.</div>
+          <div style="display:flex;gap:8px;"><input class="admin-search" placeholder="Search..." oninput="filterTable('pending-tbody',this.value)"/></div>
         </div>
-        <table>
-          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Details</th><th>Signed up</th><th>Actions</th></tr></thead>
-          <tbody id="pending-tbody"><tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Details</th><th>Signed up</th><th>Actions</th></tr></thead>
+        <tbody id="pending-tbody"><tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTIONS -->
+    <div id="tab-subscriptions" class="tab-content">
+      <div class="two-col">
+        <div class="admin-table-wrap" style="margin-bottom:0;">
+          <div class="admin-table-header"><div class="admin-table-title">Clinic subscriptions</div><button class="btn-export" onclick="exportCSV('subs-clinic')">Export CSV</button></div>
+          <table><thead><tr><th>Clinic</th><th>Plan</th><th>Billing</th><th>Trial ends</th><th>Status</th><th>Success fee</th></tr></thead>
+          <tbody id="subs-clinic-tbody"><tr><td colspan="6" class="loading"><span class="spinner"></span></td></tr></tbody></table>
+        </div>
+        <div class="admin-table-wrap" style="margin-bottom:0;">
+          <div class="admin-table-header"><div class="admin-table-title">Professional subscriptions</div><button class="btn-export" onclick="exportCSV('subs-pro')">Export CSV</button></div>
+          <table><thead><tr><th>Professional</th><th>Plan</th><th>Billing</th><th>Trial ends</th><th>Status</th><th>Success fee</th></tr></thead>
+          <tbody id="subs-pro-tbody"><tr><td colspan="6" class="loading"><span class="spinner"></span></td></tr></tbody></table>
+        </div>
       </div>
     </div>
 
@@ -385,116 +257,115 @@
       <div class="admin-table-wrap">
         <div class="admin-table-header">
           <div class="admin-table-title">All bookings</div>
-          <div style="display:flex;gap:8px;">
-            <input class="admin-search" placeholder="Search..." oninput="filterTable('bookings-tbody',this.value)"/>
-            <button class="btn-export" onclick="exportCSV('bookings')">Export CSV</button>
-          </div>
+          <div style="display:flex;gap:8px;"><input class="admin-search" placeholder="Search..." oninput="filterTable('bookings-tbody',this.value)"/><button class="btn-export" onclick="exportCSV('bookings')">Export CSV</button></div>
         </div>
-        <table>
-          <thead><tr><th>#</th><th>Patient</th><th>Provider</th><th>Type</th><th>Date</th><th>Complaint</th><th>Status</th></tr></thead>
-          <tbody id="bookings-tbody"><tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
-        </table>
+        <table><thead><tr><th>#</th><th>Patient</th><th>Provider</th><th>Type</th><th>Date</th><th>Complaint / Role applied for</th><th>Status</th></tr></thead>
+        <tbody id="bookings-tbody"><tr><td colspan="7" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody></table>
       </div>
     </div>
 
+    <!-- SUPPORT TICKETS -->
+    <div id="tab-support" class="tab-content">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-title">Support tickets</div>
+          <div style="display:flex;gap:8px;">
+            <select id="ticket-filter" onchange="renderTickets()" style="padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;outline:none;">
+              <option value="all">All tickets</option>
+              <option value="open">Open</option>
+              <option value="resolved">Resolved</option>
+            </select>
+            <button class="btn-refresh" onclick="loadTickets()">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="tickets-list"><div class="loading"><span class="spinner"></span>Loading...</div></div>
+      </div>
+    </div>
+
+  </div><!-- /admin-body -->
+</div><!-- /admin-screen -->
+
+<!-- Profile modal -->
+<div id="profile-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div style="font-size:15px;font-weight:600;color:#0D1B3E;">Profile details</div>
+      <button onclick="closeProfileModal()" style="background:none;border:none;font-size:20px;color:#888;cursor:pointer;line-height:1;">✕</button>
+    </div>
+    <div id="profile-modal-content"></div>
+  </div>
+</div>
+
+<!-- Ticket reply modal -->
+<div id="ticket-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <div style="font-size:15px;font-weight:600;color:#0D1B3E;">Support ticket</div>
+      <button onclick="closeTicketModal()" style="background:none;border:none;font-size:20px;color:#888;cursor:pointer;">✕</button>
+    </div>
+    <div id="ticket-modal-content"></div>
+    <div style="margin-top:1.25rem;">
+      <div style="font-size:12px;font-weight:500;color:#555;margin-bottom:6px;">Reply to user</div>
+      <textarea id="ticket-reply-text" rows="4" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;outline:none;font-family:inherit;resize:vertical;"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="sendTicketReply()" style="background:#534AB7;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;">Send reply &amp; resolve</button>
+        <button onclick="closeTicketModal()" style="background:#f0f0f0;color:#555;border:none;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer;">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────
-var SUPABASE_URL      = 'https://dqbdwsidubucpeimowwz.supabase.co';
-var SERVICE_ROLE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmR3c2lkdWJ1Y3BlaW1vd3d6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzQyNTcwNSwiZXhwIjoyMDg5MDAxNzA1fQ.CMFFHxMuIVPtGoFt41keD0Ap-MrWdIhsk5_5DVTVNvo';
-var ANON_KEY          = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmR3c2lkdWJ1Y3BlaW1vd3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjU3MDUsImV4cCI6MjA4OTAwMTcwNX0.tK1VuFxpqB-0Wj6Jb0UuURCylikAKJMfPEWJGAzat4M';
+var SUPABASE_URL     = 'https://dqbdwsidubucpeimowwz.supabase.co';
+var SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmR3c2lkdWJ1Y3BlaW1vd3d6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzQyNTcwNSwiZXhwIjoyMDg5MDAxNzA1fQ.CMFFHxMuIVPtGoFt41keD0Ap-MrWdIhsk5_5DVTVNvo';
+var ANON_KEY         = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxYmR3c2lkdWJ1Y3BlaW1vd3d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjU3MDUsImV4cCI6MjA4OTAwMTcwNX0.tK1VuFxpqB-0Wj6Jb0UuURCylikAKJMfPEWJGAzat4M';
+var ADMIN_PASSWORD   = 'DentalFlow@Admin2026';
 
-// CHANGE THIS to your own secret admin password
-var ADMIN_PASSWORD = 'DentalFlow@Admin2026';
+var adminSb      = null;
+var allUsers     = [];
+var allBookings  = [];
+var allTickets   = [];
+var activeTicketId = null;
 
-var adminSb = null;
-var allUsers = [];
-var allBookings = [];
-
-// ── CLOCK ─────────────────────────────────────────────────
 function updateClock() {
   var el = document.getElementById('admin-time');
-  if (el) el.textContent = new Date().toLocaleString('en-GB', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  if (el) el.textContent = new Date().toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// ── LOGIN ─────────────────────────────────────────────────
 function adminLogin() {
-  var pass = document.getElementById('admin-pass').value;
+  var pass  = document.getElementById('admin-pass').value;
   var errEl = document.getElementById('login-error');
-  if (pass !== ADMIN_PASSWORD) {
-    errEl.style.display = 'block';
-    return;
-  }
+  if (pass !== ADMIN_PASSWORD) { errEl.style.display = 'block'; return; }
   errEl.style.display = 'none';
+  if (window.supabase) adminSb = window.supabase.createClient(SUPABASE_URL, ANON_KEY);
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('admin-screen').style.display = 'block';
-  sessionStorage.setItem('dfhq_admin', '1');
-  waitForAdminSb(30);
+  loadData();
 }
 
 function adminLogout() {
-  sessionStorage.removeItem('dfhq_admin');
-  document.getElementById('admin-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-screen').style.display = 'none';
   document.getElementById('admin-pass').value = '';
 }
 
-// Auto-restore session
-document.addEventListener('DOMContentLoaded', function() {
-  if (sessionStorage.getItem('dfhq_admin') === '1') {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-screen').style.display = 'block';
-    waitForAdminSb(30);
-  }
-  document.getElementById('admin-pass').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') adminLogin();
-  });
-});
-
-// ── SUPABASE INIT ─────────────────────────────────────────
-function waitForAdminSb(tries) {
-  if (window.supabase) {
-    adminSb = window.supabase.createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
-    loadData();
-  } else if (tries > 0) {
-    setTimeout(function() { waitForAdminSb(tries - 1); }, 200);
-  } else {
-    showAlert('Could not connect to Supabase. Refresh the page.', 'err');
-  }
-}
-
-// ── ALERT ─────────────────────────────────────────────────
 function showAlert(msg, type) {
   var el = document.getElementById('admin-alert');
-  el.textContent = msg;
-  el.className = 'admin-alert ' + type;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 4000);
+  el.textContent = msg; el.className = 'admin-alert ' + type; el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 4000);
 }
 
-// ── LOAD ALL DATA ─────────────────────────────────────────
 async function loadData() {
   try {
-    // Fetch all users via admin API
     var res = await fetch(SUPABASE_URL + '/auth/v1/admin/users?per_page=1000', {
-      headers: {
-        'Authorization': 'Bearer ' + SERVICE_ROLE_KEY,
-        'apikey': SERVICE_ROLE_KEY
-      }
+      headers: { 'Authorization': 'Bearer ' + SERVICE_ROLE_KEY, 'apikey': SERVICE_ROLE_KEY }
     });
     var data = await res.json();
     allUsers = data.users || [];
-
-    // Fetch bookings
-    var bRes = await adminSb.from('bookings').select('*').order('created_at', { ascending: false });
+    var bRes = await adminSb.from('bookings').select('*').order('created_at',{ascending:false});
     allBookings = bRes.data || [];
-
     renderStats();
     renderCharts();
     renderAllUsers();
@@ -502,410 +373,480 @@ async function loadData() {
     renderClinics();
     renderPros();
     renderPending();
+    renderSubscriptions();
     renderBookings();
-
+    await loadTickets();
   } catch(e) {
     showAlert('Error loading data: ' + e.message, 'err');
   }
 }
 
-// ── STATS ─────────────────────────────────────────────────
-function renderStats() {
-  var patients = allUsers.filter(function(u) { return (u.user_metadata||{}).role === 'patient'; });
-  var clinics  = allUsers.filter(function(u) { return (u.user_metadata||{}).role === 'clinic'; });
-  var pros     = allUsers.filter(function(u) { return (u.user_metadata||{}).role === 'professional'; });
-  var total    = allUsers.length;
-
-  var pending  = allUsers.filter(function(u) {
-    var m = u.user_metadata||{};
-    return (m.role === 'clinic' || m.role === 'professional') && m.verified !== 'verified';
-  });
-  var verified = allUsers.filter(function(u) { return (u.user_metadata||{}).verified === 'verified'; });
-
-  var weekAgo  = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  var thisWeek = allUsers.filter(function(u) { return new Date(u.created_at) >= weekAgo; });
-
-  function setEl(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; }
-  function setBar(id, pct, color) { var el = document.getElementById(id); if (el) { el.style.width = pct + '%'; if (color) el.style.background = color; } }
-
-  setEl('stat-total', total);
-  setEl('stat-total-sub', 'All portals');
-  setEl('stat-patients', patients.length);
-  setEl('stat-patients-sub', Math.round(patients.length/Math.max(total,1)*100) + '% of users');
-  setEl('stat-clinics', clinics.length);
-  setEl('stat-clinics-sub', Math.round(clinics.length/Math.max(total,1)*100) + '% of users');
-  setEl('stat-pros', pros.length);
-  setEl('stat-pros-sub', Math.round(pros.length/Math.max(total,1)*100) + '% of users');
-  setEl('stat-bookings', allBookings.length);
-  setEl('stat-pending', pending.length);
-  setEl('stat-verified', verified.length);
-  setEl('stat-week', thisWeek.length);
-
-  setBar('bar-total', 100);
-  setBar('bar-patients', total ? Math.round(patients.length/total*100) : 0);
-  setBar('bar-clinics',  total ? Math.round(clinics.length/total*100)  : 0);
-  setBar('bar-pros',     total ? Math.round(pros.length/total*100)     : 0);
-}
-
-// ── CHARTS ────────────────────────────────────────────────
-function renderCharts() {
-  // Weekly signup chart
-  var weeks = [];
-  for (var i = 7; i >= 0; i--) {
-    var start = new Date(); start.setDate(start.getDate() - i*7 - 6);
-    var end   = new Date(); end.setDate(end.getDate() - i*7);
-    var count = allUsers.filter(function(u) {
-      var d = new Date(u.created_at);
-      return d >= start && d <= end;
-    }).length;
-    weeks.push({ label: 'W' + (8-i), count: count });
-  }
-  var max = Math.max.apply(null, weeks.map(function(w){return w.count;})) || 1;
-  var colors = ['#534AB7','#185FA5','#3B6D11','#5DCAA5','#534AB7','#185FA5','#3B6D11','#5DCAA5'];
-  var chartEl  = document.getElementById('signup-chart');
-  var labelsEl = document.getElementById('signup-labels');
-  if (chartEl) {
-    chartEl.innerHTML = weeks.map(function(w, i) {
-      var h = Math.max(4, Math.round(w.count / max * 110));
-      return '<div class="chart-bar-col">' +
-        '<div class="chart-bar-val">' + (w.count || '') + '</div>' +
-        '<div class="chart-bar-fill" style="height:' + h + 'px;background:' + colors[i] + ';"></div>' +
-        '</div>';
-    }).join('');
-  }
-  if (labelsEl) {
-    labelsEl.innerHTML = weeks.map(function(w) {
-      return '<div style="flex:1;text-align:center;font-size:10px;color:#888;">' + w.label + '</div>';
-    }).join('');
-  }
-
-  // Portal breakdown donut-style
-  var patients = allUsers.filter(function(u){return (u.user_metadata||{}).role==='patient';}).length;
-  var clinics  = allUsers.filter(function(u){return (u.user_metadata||{}).role==='clinic';}).length;
-  var pros     = allUsers.filter(function(u){return (u.user_metadata||{}).role==='professional';}).length;
-  var total    = allUsers.length || 1;
-  var bdEl = document.getElementById('portal-breakdown');
-  if (bdEl) {
-    bdEl.innerHTML = [
-      {label:'Patients', count:patients, color:'#534AB7', bg:'#EEEDFE'},
-      {label:'Clinics', count:clinics, color:'#185FA5', bg:'#E6F1FB'},
-      {label:'Professionals', count:pros, color:'#3B6D11', bg:'#EAF3DE'}
-    ].map(function(item) {
-      var pct = Math.round(item.count/total*100);
-      return '<div style="margin-bottom:.875rem;">' +
-        '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;">' +
-        '<span style="font-weight:500;color:#26215C;">' + item.label + '</span>' +
-        '<span style="color:#888;">' + item.count + ' (' + pct + '%)</span>' +
-        '</div>' +
-        '<div style="height:8px;background:#f0f0f0;border-radius:4px;">' +
-        '<div style="height:8px;border-radius:4px;background:' + item.color + ';width:' + pct + '%;transition:width .4s;"></div>' +
-        '</div></div>';
-    }).join('');
-  }
+async function loadTickets() {
+  try {
+    if (!adminSb) return;
+    var res = await adminSb.from('support_tickets').select('*').order('created_at',{ascending:false});
+    allTickets = res.data || [];
+    renderTickets();
+    var open = allTickets.filter(function(t){ return t.status === 'open'; }).length;
+    var badge = document.getElementById('support-badge');
+    var statEl = document.getElementById('stat-tickets');
+    if (badge) { badge.textContent = open; badge.style.display = open > 0 ? 'inline' : 'none'; }
+    if (statEl) statEl.textContent = open;
+  } catch(e) {}
 }
 
 // ── HELPERS ───────────────────────────────────────────────
 function fmtDate(d) {
   if (!d) return '-';
-  return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
-
 function initials(name) {
   if (!name) return '?';
-  var parts = name.trim().split(' ');
-  return parts.length >= 2 ? (parts[0][0]+parts[parts.length-1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
+  var p = name.trim().split(' ');
+  return p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
 }
-
-function avatarColors(role) {
-  return role === 'patient' ? '#534AB7' : role === 'clinic' ? '#185FA5' : '#3B6D11';
+function avatarBg(role) {
+  return role==='patient'?'#534AB7':role==='clinic'?'#185FA5':'#3B6D11';
 }
-
 function verBadge(meta) {
-  var v = meta.verified || 'pending';
-  var cls = v === 'verified' ? 'badge-verified' : v === 'rejected' ? 'badge-rejected' : 'badge-pending';
-  return '<span class="badge ' + cls + '">' + v + '</span>';
+  var v = meta.verified||'pending';
+  return '<span class="badge badge-'+(v==='verified'?'verified':v==='rejected'?'rejected':'pending')+'">'+v+'</span>';
 }
-
 function profileBadge(meta) {
-  return meta.profile_complete
-    ? '<span class="badge badge-verified">Complete</span>'
-    : '<span class="badge badge-pending">Incomplete</span>';
+  return meta.profile_complete ? '<span class="badge badge-verified">Complete</span>' : '<span class="badge badge-pending">Incomplete</span>';
+}
+function planBadge(meta) {
+  var p = meta.subscription_plan;
+  var s = meta.subscription_status;
+  if (s === 'active' && p) return '<span class="badge badge-'+p+'">'+p.charAt(0).toUpperCase()+p.slice(1)+'</span>';
+  return '<span class="badge badge-trial">Trial</span>';
+}
+function trialDaysLeft(user) {
+  var created = new Date(user.created_at);
+  var days = Math.max(0, 30 - Math.floor((new Date()-created)/(1000*60*60*24)));
+  var m = user.user_metadata||{};
+  if (m.subscription_status === 'active') return '<span style="color:#3B6D11;font-size:12px;">Subscribed</span>';
+  if (days === 0) return '<span style="color:#A32D2D;font-size:12px;font-weight:500;">Expired</span>';
+  if (days <= 7)  return '<span style="color:#B8860B;font-size:12px;font-weight:500;">'+days+' days</span>';
+  return '<span style="font-size:12px;color:#888;">'+days+' days</span>';
 }
 
-// ── RENDER ALL USERS ──────────────────────────────────────
+// ── STATS ─────────────────────────────────────────────────
+function renderStats() {
+  var patients   = allUsers.filter(function(u){return (u.user_metadata||{}).role==='patient';});
+  var clinics    = allUsers.filter(function(u){return (u.user_metadata||{}).role==='clinic';});
+  var pros       = allUsers.filter(function(u){return (u.user_metadata||{}).role==='professional';});
+  var providers  = clinics.concat(pros);
+  var pending    = providers.filter(function(u){return (u.user_metadata||{}).verified!=='verified';});
+  var weekAgo    = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+  var thisWeek   = allUsers.filter(function(u){return new Date(u.created_at)>=weekAgo;});
+  var paid       = providers.filter(function(u){return (u.user_metadata||{}).subscription_status==='active';});
+  var foundation = providers.filter(function(u){return (u.user_metadata||{}).subscription_plan==='foundation';});
+  var principal  = providers.filter(function(u){return (u.user_metadata||{}).subscription_plan==='principal';});
+  var enterprise = providers.filter(function(u){return (u.user_metadata||{}).subscription_plan==='enterprise';});
+  var onTrial    = providers.filter(function(u){
+    var m=u.user_metadata||{};
+    if (m.subscription_status==='active') return false;
+    var days=Math.floor((new Date()-new Date(u.created_at))/(1000*60*60*24));
+    return days < 30;
+  });
+  var expired = providers.filter(function(u){
+    var m=u.user_metadata||{};
+    if (m.subscription_status==='active') return false;
+    return Math.floor((new Date()-new Date(u.created_at))/(1000*60*60*24)) >= 30;
+  });
+
+  function s(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  function b(id,pct,col){var e=document.getElementById(id);if(e){e.style.width=pct+'%';if(col)e.style.background=col;}}
+  var total = allUsers.length || 1;
+  s('stat-total',allUsers.length); s('stat-total-sub',allUsers.length+' registered users');
+  s('stat-patients',patients.length); s('stat-patients-sub',Math.round(patients.length/total*100)+'% of users');
+  s('stat-clinics',clinics.length); s('stat-clinics-sub',clinics.filter(function(u){return(u.user_metadata||{}).verified==='verified';}).length+' verified');
+  s('stat-pros',pros.length); s('stat-pros-sub',pros.filter(function(u){return(u.user_metadata||{}).verified==='verified';}).length+' verified');
+  s('stat-bookings',allBookings.length);
+  s('stat-pending',pending.length);
+  s('stat-paid',paid.length); s('stat-paid-sub',paid.length+' active plan'+(paid.length!==1?'s':''));
+  s('stat-trial',onTrial.length);
+  s('stat-foundation',foundation.length);
+  s('stat-principal',principal.length);
+  s('stat-enterprise',enterprise.length);
+  s('stat-expired',expired.length);
+  s('stat-week',thisWeek.length);
+  b('bar-patients',Math.round(patients.length/total*100),'#534AB7');
+  b('bar-clinics',Math.round(clinics.length/total*100),'#185FA5');
+  b('bar-pros',Math.round(pros.length/total*100),'#3B6D11');
+}
+
+// ── CHARTS ────────────────────────────────────────────────
+function renderCharts() {
+  var now = new Date();
+  var weeks = [];
+  for (var i=7;i>=0;i--) {
+    var start = new Date(now); start.setDate(start.getDate()-((i+1)*7));
+    var end   = new Date(now); end.setDate(end.getDate()-(i*7));
+    var count = allUsers.filter(function(u){var d=new Date(u.created_at);return d>=start&&d<end;}).length;
+    var label = end.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    weeks.push({count:count,label:label});
+  }
+  var max = Math.max.apply(null, weeks.map(function(w){return w.count;})) || 1;
+  var chartEl  = document.getElementById('signup-chart');
+  var labelEl  = document.getElementById('signup-labels');
+  if (chartEl) chartEl.innerHTML = weeks.map(function(w){
+    var h = Math.max(4,Math.round(w.count/max*120));
+    return '<div class="chart-bar-col"><div class="chart-bar-val">'+w.count+'</div><div class="chart-bar-fill" style="height:'+h+'px;background:#534AB7;"></div></div>';
+  }).join('');
+  if (labelEl) labelEl.innerHTML = weeks.map(function(w){
+    return '<div style="flex:1;text-align:center;font-size:10px;color:#888;">'+w.label+'</div>';
+  }).join('');
+
+  var breakdown = document.getElementById('portal-breakdown');
+  if (!breakdown) return;
+  var patients  = allUsers.filter(function(u){return(u.user_metadata||{}).role==='patient';}).length;
+  var clinics   = allUsers.filter(function(u){return(u.user_metadata||{}).role==='clinic';}).length;
+  var pros      = allUsers.filter(function(u){return(u.user_metadata||{}).role==='professional';}).length;
+  var total     = Math.max(patients+clinics+pros,1);
+  var items     = [{label:'Patients',count:patients,color:'#534AB7'},{label:'Clinics',count:clinics,color:'#185FA5'},{label:'Professionals',count:pros,color:'#3B6D11'}];
+  breakdown.innerHTML = items.map(function(item){
+    var pct = Math.round(item.count/total*100);
+    return '<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="font-weight:500;">'+item.label+'</span><span style="color:#888;">'+item.count+' ('+pct+'%)</span></div><div style="height:8px;background:#f0f0f0;border-radius:4px;"><div style="height:8px;border-radius:4px;background:'+item.color+';width:'+pct+'%;"></div></div></div>';
+  }).join('');
+}
+
+// ── RENDER TABLES ─────────────────────────────────────────
 function renderAllUsers() {
   var tbody = document.getElementById('all-tbody');
   if (!tbody) return;
-  if (!allUsers.length) { tbody.innerHTML = '<tr><td colspan="8" class="loading">No users found.</td></tr>'; return; }
-  tbody.innerHTML = allUsers.map(function(u, i) {
-    var m = u.user_metadata || {};
-    var name = m.full_name || m.clinic_name || '-';
-    var role = m.role || 'unknown';
-    var loc  = m.location || '-';
-    return '<tr>' +
-      '<td style="color:#aaa;">' + (i+1) + '</td>' +
-      '<td><div style="display:flex;align-items:center;gap:8px;">' +
-      '<div class="admin-avatar" style="background:' + avatarColors(role) + ';">' + initials(name) + '</div>' +
-      '<div><div style="font-weight:500;">' + (name || '-') + '</div></div></div></td>' +
-      '<td style="color:#888;">' + u.email + '</td>' +
-      '<td><span class="badge badge-' + role + '">' + role + '</span></td>' +
-      '<td>' + loc + '</td>' +
-      '<td>' + fmtDate(u.created_at) + '</td>' +
-      '<td>' + (role==='clinic'||role==='professional' ? verBadge(m) : profileBadge(m)) + '</td>' +
-      '<td>' + (role==='clinic'||role==='professional' ? actionBtns(u.id, m.verified) : '-') + '</td>' +
+  if (!allUsers.length) { tbody.innerHTML = '<tr><td colspan="9" class="loading">No users found.</td></tr>'; return; }
+  tbody.innerHTML = allUsers.map(function(u,i){
+    var m = u.user_metadata||{};
+    var name = m.full_name||m.clinic_name||'-';
+    var role = m.role||'unknown';
+    return '<tr>'+
+      '<td style="color:#aaa;">'+(i+1)+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:'+avatarBg(role)+';">'+initials(name)+'</div><span style="font-weight:500;">'+name+'</span></div></td>'+
+      '<td style="color:#888;">'+u.email+'</td>'+
+      '<td><span class="badge badge-'+role+'">'+role+'</span></td>'+
+      '<td>'+(m.location||'-')+'</td>'+
+      '<td>'+fmtDate(u.created_at)+'</td>'+
+      '<td>'+(role==='clinic'||role==='professional'?planBadge(m):'-')+'</td>'+
+      '<td>'+(role==='clinic'||role==='professional'?verBadge(m):profileBadge(m))+'</td>'+
+      '<td>'+(role==='clinic'||role==='professional'?actionBtns(u.id,m.verified):'-')+'</td>'+
       '</tr>';
   }).join('');
 }
 
-// ── RENDER PATIENTS ───────────────────────────────────────
 function renderPatients() {
   var tbody = document.getElementById('patients-tbody');
   if (!tbody) return;
-  var users = allUsers.filter(function(u){return (u.user_metadata||{}).role==='patient';});
+  var users = allUsers.filter(function(u){return(u.user_metadata||{}).role==='patient';});
   if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">No patients yet.</td></tr>'; return; }
-  tbody.innerHTML = users.map(function(u, i) {
-    var m = u.user_metadata || {};
-    return '<tr>' +
-      '<td style="color:#aaa;">' + (i+1) + '</td>' +
-      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:#534AB7;">' + initials(m.full_name) + '</div><span style="font-weight:500;">' + (m.full_name||'-') + '</span></div></td>' +
-      '<td style="color:#888;">' + u.email + '</td>' +
-      '<td>' + (m.location||'-') + '</td>' +
-      '<td>' + (m.last_visit||'-') + '</td>' +
-      '<td>' + profileBadge(m) + '</td>' +
-      '<td>' + fmtDate(u.created_at) + '</td>' +
+  tbody.innerHTML = users.map(function(u,i){
+    var m=u.user_metadata||{};
+    return '<tr>'+
+      '<td style="color:#aaa;">'+(i+1)+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:#534AB7;">'+initials(m.full_name)+'</div><span style="font-weight:500;">'+(m.full_name||'-')+'</span></div></td>'+
+      '<td style="color:#888;">'+u.email+'</td>'+
+      '<td>'+(m.location||'-')+'</td>'+
+      '<td>'+(m.last_visit||'-')+'</td>'+
+      '<td>'+profileBadge(m)+'</td>'+
+      '<td>'+fmtDate(u.created_at)+'</td>'+
       '</tr>';
   }).join('');
 }
 
-// ── RENDER CLINICS ────────────────────────────────────────
 function renderClinics() {
   var tbody = document.getElementById('clinics-tbody');
   if (!tbody) return;
-  var users = allUsers.filter(function(u){return (u.user_metadata||{}).role==='clinic';});
-  if (!users.length) { tbody.innerHTML = '<tr><td colspan="8" class="loading">No clinics yet.</td></tr>'; return; }
-  tbody.innerHTML = users.map(function(u, i) {
-    var m = u.user_metadata || {};
-    var bookingCount = allBookings.filter(function(b){return b.provider_id===u.id;}).length;
-    return '<tr>' +
-      '<td style="color:#aaa;">' + (i+1) + '</td>' +
-      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:#185FA5;">' + initials(m.clinic_name) + '</div><span style="font-weight:500;">' + (m.clinic_name||'-') + '</span></div></td>' +
-      '<td style="color:#888;">' + u.email + '</td>' +
-      '<td>' + (m.location||'-') + '</td>' +
-      '<td style="font-size:12px;color:#185FA5;">' + (m.mdcn_no||'-') + '</td>' +
-      '<td style="font-weight:500;">' + bookingCount + '</td>' +
-      '<td>' + verBadge(m) + '</td>' +
-      '<td>' + actionBtns(u.id, m.verified) + '</td>' +
+  var users = allUsers.filter(function(u){return(u.user_metadata||{}).role==='clinic';});
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="10" class="loading">No clinics yet.</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u,i){
+    var m=u.user_metadata||{};
+    var bookings = allBookings.filter(function(b){return b.provider_id===u.id;}).length;
+    return '<tr>'+
+      '<td style="color:#aaa;">'+(i+1)+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:#185FA5;">'+initials(m.clinic_name)+'</div><span style="font-weight:500;">'+(m.clinic_name||'-')+'</span></div></td>'+
+      '<td style="color:#888;">'+u.email+'</td>'+
+      '<td>'+(m.location||'-')+'</td>'+
+      '<td style="font-size:12px;color:#185FA5;">'+(m.mdcn_no||'-')+'</td>'+
+      '<td>'+planBadge(m)+'</td>'+
+      '<td>'+trialDaysLeft(u)+'</td>'+
+      '<td style="font-weight:500;">'+bookings+'</td>'+
+      '<td>'+verBadge(m)+'</td>'+
+      '<td>'+actionBtns(u.id,m.verified)+'</td>'+
       '</tr>';
   }).join('');
 }
 
-// ── RENDER PROFESSIONALS ──────────────────────────────────
 function renderPros() {
   var tbody = document.getElementById('pros-tbody');
   if (!tbody) return;
-  var users = allUsers.filter(function(u){return (u.user_metadata||{}).role==='professional';});
-  if (!users.length) { tbody.innerHTML = '<tr><td colspan="8" class="loading">No professionals yet.</td></tr>'; return; }
-  tbody.innerHTML = users.map(function(u, i) {
-    var m = u.user_metadata || {};
-    return '<tr>' +
-      '<td style="color:#aaa;">' + (i+1) + '</td>' +
-      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:#3B6D11;">' + initials(m.full_name) + '</div><span style="font-weight:500;">' + (m.full_name||'-') + '</span></div></td>' +
-      '<td style="color:#888;">' + u.email + '</td>' +
-      '<td>' + (m.regulator||'-') + '</td>' +
-      '<td style="font-size:12px;color:#3B6D11;">' + (m.reg_no||'-') + '</td>' +
-      '<td>' + (m.location||'-') + '</td>' +
-      '<td>' + verBadge(m) + '</td>' +
-      '<td>' + actionBtns(u.id, m.verified) + '</td>' +
+  var users = allUsers.filter(function(u){return(u.user_metadata||{}).role==='professional';});
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="10" class="loading">No professionals yet.</td></tr>'; return; }
+  tbody.innerHTML = users.map(function(u,i){
+    var m=u.user_metadata||{};
+    return '<tr>'+
+      '<td style="color:#aaa;">'+(i+1)+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:#3B6D11;">'+initials(m.full_name)+'</div><span style="font-weight:500;">'+(m.full_name||'-')+'</span></div></td>'+
+      '<td style="color:#888;">'+u.email+'</td>'+
+      '<td>'+(m.regulator||'-')+'</td>'+
+      '<td style="font-size:12px;color:#3B6D11;">'+(m.reg_no||'-')+'</td>'+
+      '<td>'+(m.location||'-')+'</td>'+
+      '<td>'+planBadge(m)+'</td>'+
+      '<td>'+trialDaysLeft(u)+'</td>'+
+      '<td>'+verBadge(m)+'</td>'+
+      '<td>'+actionBtns(u.id,m.verified)+'</td>'+
       '</tr>';
   }).join('');
 }
 
-// ── RENDER PENDING ────────────────────────────────────────
 function renderPending() {
   var tbody = document.getElementById('pending-tbody');
   if (!tbody) return;
-  var users = allUsers.filter(function(u) {
-    var m = u.user_metadata||{};
-    return (m.role==='clinic'||m.role==='professional') && m.verified !== 'verified';
-  });
+  var users = allUsers.filter(function(u){var m=u.user_metadata||{};return(m.role==='clinic'||m.role==='professional')&&m.verified!=='verified';});
   if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">No pending verifications.</td></tr>'; return; }
-  tbody.innerHTML = users.map(function(u, i) {
-    var m = u.user_metadata || {};
-    var name = m.clinic_name || m.full_name || '-';
+  tbody.innerHTML = users.map(function(u,i){
+    var m=u.user_metadata||{};
+    var name = m.clinic_name||m.full_name||'-';
     var details = m.role==='clinic'
-      ? (m.address||'') + (m.mdcn_no ? ' | MDCN: ' + m.mdcn_no : '')
-      : (m.regulator||'') + (m.reg_no ? ' | ' + m.reg_no : '') + (m.degree ? ' | ' + m.degree : '');
-    return '<tr>' +
-      '<td style="color:#aaa;">' + (i+1) + '</td>' +
-      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:' + avatarColors(m.role) + ';">' + initials(name) + '</div><span style="font-weight:500;">' + name + '</span></div></td>' +
-      '<td style="color:#888;">' + u.email + '</td>' +
-      '<td><span class="badge badge-' + m.role + '">' + m.role + '</span></td>' +
-      '<td style="font-size:12px;color:#888;max-width:220px;">' + details + '</td>' +
-      '<td>' + fmtDate(u.created_at) + '</td>' +
-      '<td>' + actionBtns(u.id, m.verified) + '</td>' +
+      ? (m.address||'')+(m.mdcn_no?' | MDCN: '+m.mdcn_no:'')
+      : (m.regulator||'')+(m.reg_no?' | '+m.reg_no:'')+(m.degree?' | '+m.degree:'');
+    return '<tr>'+
+      '<td style="color:#aaa;">'+(i+1)+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px;"><div class="admin-avatar" style="background:'+avatarBg(m.role)+';">'+initials(name)+'</div><span style="font-weight:500;">'+name+'</span></div></td>'+
+      '<td style="color:#888;">'+u.email+'</td>'+
+      '<td><span class="badge badge-'+m.role+'">'+m.role+'</span></td>'+
+      '<td style="font-size:12px;color:#888;max-width:220px;">'+details+'</td>'+
+      '<td>'+fmtDate(u.created_at)+'</td>'+
+      '<td>'+actionBtns(u.id,m.verified)+'</td>'+
       '</tr>';
   }).join('');
 }
 
-// ── RENDER BOOKINGS ───────────────────────────────────────
+function renderSubscriptions() {
+  var clinics = allUsers.filter(function(u){return(u.user_metadata||{}).role==='clinic';});
+  var pros    = allUsers.filter(function(u){return(u.user_metadata||{}).role==='professional';});
+  var feeMap  = {clinic:{foundation:8,principal:6,enterprise:5},professional:{foundation:10,principal:8,enterprise:5}};
+
+  function subRow(u) {
+    var m = u.user_metadata||{};
+    var role = m.role;
+    var name = m.clinic_name||m.full_name||u.email;
+    var plan = m.subscription_plan||'—';
+    var billing = m.subscription_billing||'—';
+    var trialEnd = new Date(u.created_at); trialEnd.setDate(trialEnd.getDate()+30);
+    var trialStr = trialEnd < new Date() ? '<span style="color:#A32D2D;font-size:12px;">Expired '+fmtDate(trialEnd)+'</span>' : fmtDate(trialEnd);
+    var status = m.subscription_status==='active'
+      ? '<span class="badge badge-active">Active</span>'
+      : trialEnd >= new Date()
+        ? '<span class="badge badge-trial">Trial</span>'
+        : '<span class="badge badge-rejected">Expired</span>';
+    var fee = m.success_fee !== undefined ? m.success_fee+'%' : (feeMap[role]&&feeMap[role][plan] ? feeMap[role][plan]+'%' : '—');
+    return '<tr>'+
+      '<td style="font-weight:500;">'+name+'</td>'+
+      '<td>'+planBadge(m)+'</td>'+
+      '<td style="font-size:12px;">'+billing+'</td>'+
+      '<td>'+trialStr+'</td>'+
+      '<td>'+status+'</td>'+
+      '<td style="font-size:12px;color:#888;">'+fee+'</td>'+
+      '</tr>';
+  }
+
+  var ct = document.getElementById('subs-clinic-tbody');
+  if (ct) ct.innerHTML = clinics.length ? clinics.map(subRow).join('') : '<tr><td colspan="6" class="loading">No clinics yet.</td></tr>';
+  var pt = document.getElementById('subs-pro-tbody');
+  if (pt) pt.innerHTML = pros.length ? pros.map(subRow).join('') : '<tr><td colspan="6" class="loading">No professionals yet.</td></tr>';
+}
+
 function renderBookings() {
   var tbody = document.getElementById('bookings-tbody');
   if (!tbody) return;
   if (!allBookings.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">No bookings yet.</td></tr>'; return; }
-  tbody.innerHTML = allBookings.map(function(b, i) {
-    var isWalkin = b.provider_type === 'walkin';
-    return '<tr>' +
-      '<td style="color:#aaa;">' + (i+1) + '</td>' +
-      '<td style="font-weight:500;">' + (b.patient_name||'-') + '</td>' +
-      '<td>' + (b.provider_name||'-') + '</td>' +
-      '<td><span class="badge ' + (isWalkin?'badge-pro':'badge-clinic') + '">' + (isWalkin?'walk-in':'online') + '</span></td>' +
-      '<td>' + (b.preferred_date||'-') + '</td>' +
-      '<td style="font-size:12px;color:#888;max-width:200px;">' + ((b.complaint||'').slice(0,60) + (b.complaint&&b.complaint.length>60?'...':'')) + '</td>' +
-      '<td><span class="badge ' + (b.status==='confirmed'?'badge-verified':b.status==='pending'?'badge-pending':'badge-rejected') + '">' + (b.status||'-') + '</span></td>' +
+  tbody.innerHTML = allBookings.map(function(b,i){
+    var isWalkin = b.provider_type==='walkin';
+    var isJob    = b.provider_type==='job_application';
+    var typeLabel = isJob?'job application':isWalkin?'walk-in':'online booking';
+    var typeCls   = isJob?'badge-pro':isWalkin?'badge-verified':'badge-clinic';
+    return '<tr>'+
+      '<td style="color:#aaa;">'+(i+1)+'</td>'+
+      '<td style="font-weight:500;">'+(b.patient_name||'-')+'</td>'+
+      '<td>'+(b.provider_name||'-')+'</td>'+
+      '<td><span class="badge '+typeCls+'">'+typeLabel+'</span></td>'+
+      '<td>'+(b.preferred_date||'-')+'</td>'+
+      '<td style="font-size:12px;color:#888;max-width:200px;">'+((b.complaint||'').slice(0,60)+((b.complaint||'').length>60?'...':''))+'</td>'+
+      '<td><span class="badge '+(b.status==='confirmed'?'badge-verified':b.status==='pending'?'badge-pending':'badge-rejected')+'">'+(b.status||'-')+'</span></td>'+
       '</tr>';
   }).join('');
+}
+
+function renderTickets() {
+  var listEl  = document.getElementById('tickets-list');
+  if (!listEl) return;
+  var filter  = document.getElementById('ticket-filter') ? document.getElementById('ticket-filter').value : 'all';
+  var tickets = filter==='all' ? allTickets : allTickets.filter(function(t){return t.status===filter;});
+
+  if (!tickets.length) {
+    listEl.innerHTML = '<div class="loading">No '+(filter==='all'?'':filter+' ')+'tickets yet.</div>';
+    return;
+  }
+
+  listEl.innerHTML = tickets.map(function(t) {
+    var statusCls = t.status==='resolved'?'badge-resolved':t.status==='escalated'?'badge-escalated':'badge-open';
+    var date = new Date(t.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return '<div class="ticket-row">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">'+
+        '<div style="display:flex;align-items:center;gap:8px;">'+
+          '<div style="width:30px;height:30px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;">'+(t.user_email?t.user_email[0].toUpperCase():'?')+'</div>'+
+          '<div>'+
+            '<div style="font-size:13px;font-weight:500;color:#26215C;">'+(t.user_email||'Anonymous')+'</div>'+
+            '<div style="font-size:11px;color:#888;">'+date+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<span class="badge '+statusCls+'">'+t.status+'</span>'+
+      '</div>'+
+      '<div style="font-size:13px;color:#26215C;line-height:1.5;padding-left:38px;">'+(t.message||'').slice(0,200)+((t.message||'').length>200?'...':'')+'</div>'+
+      (t.reply ? '<div style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:6px;padding:6px 10px;margin-left:38px;"><strong>Reply sent:</strong> '+t.reply+'</div>' : '')+
+      '<div style="display:flex;gap:8px;padding-left:38px;">'+
+        (t.status!=='resolved' ? '<button class="action-btn btn-verify" data-id="'+t.id+'" onclick="openTicketModal(this.dataset.id)">Reply &amp; resolve</button>' : '')+
+        '<button class="action-btn" style="background:#f0f0f0;color:#555;" data-id="'+t.id+'" onclick="viewTicketHistory(this.dataset.id)">View full history</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── TICKET ACTIONS ────────────────────────────────────────
+function openTicketModal(ticketId) {
+  activeTicketId = ticketId;
+  var ticket = allTickets.find(function(t){return t.id===ticketId;});
+  if (!ticket) return;
+  var content = document.getElementById('ticket-modal-content');
+  var history = [];
+  try { history = JSON.parse(ticket.history||'[]'); } catch(e){}
+  content.innerHTML =
+    '<div style="margin-bottom:1rem;"><div style="font-size:12px;color:#888;margin-bottom:4px;">From</div><div style="font-size:13px;font-weight:500;">'+(ticket.user_email||'Anonymous')+'</div></div>'+
+    '<div style="margin-bottom:1rem;"><div style="font-size:12px;color:#888;margin-bottom:4px;">Message</div><div style="font-size:13px;color:#26215C;background:#fafafa;border-radius:8px;padding:.75rem;">'+(ticket.message||'')+'</div></div>'+
+    (history.length ? '<div style="font-size:12px;color:#888;margin-bottom:6px;">Conversation history ('+history.length+' messages)</div>'+
+      '<div style="background:#f5f5f5;border-radius:8px;padding:.75rem;max-height:200px;overflow-y:auto;">'+
+        history.map(function(m){
+          return '<div style="margin-bottom:8px;"><span style="font-size:11px;font-weight:600;color:'+(m.role==='user'?'#534AB7':'#3B6D11')+'">'+(m.role==='user'?'User':'AI')+':</span> <span style="font-size:12px;">'+m.content.slice(0,150)+'</span></div>';
+        }).join('')+
+      '</div>' : '');
+  document.getElementById('ticket-modal').style.display = 'flex';
+}
+
+function viewTicketHistory(ticketId) {
+  openTicketModal(ticketId);
+}
+
+function closeTicketModal() {
+  document.getElementById('ticket-modal').style.display = 'none';
+  document.getElementById('ticket-reply-text').value = '';
+  activeTicketId = null;
+}
+
+async function sendTicketReply() {
+  var reply = document.getElementById('ticket-reply-text').value.trim();
+  if (!reply) { alert('Please write a reply before sending.'); return; }
+  if (!activeTicketId) return;
+  try {
+    await adminSb.from('support_tickets').update({ status:'resolved', reply:reply, resolved_at:new Date().toISOString() }).eq('id', activeTicketId);
+    showAlert('Reply sent and ticket resolved.', 'ok');
+    closeTicketModal();
+    await loadTickets();
+  } catch(e) {
+    showAlert('Error updating ticket: ' + e.message, 'err');
+  }
 }
 
 // ── VERIFY / REJECT ───────────────────────────────────────
 function actionBtns(userId, currentStatus) {
   var uid = userId;
-  var viewBtn = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" data-uid="' + uid + '" onclick="viewProfile(this.dataset.uid)">View profile</button> ';
-  if (currentStatus === 'verified') {
-    return viewBtn + '<span style="font-size:11px;color:#3B6D11;">Verified</span> <button class="action-btn btn-reject" data-uid="' + uid + '" onclick="setVerification(this.dataset.uid,&quot;rejected&quot;)">Reject</button>';
-  }
-  return viewBtn +
-    '<button class="action-btn btn-verify" data-uid="' + uid + '" onclick="setVerification(this.dataset.uid,&quot;verified&quot;)">Verify</button>' +
-    '<button class="action-btn btn-reject" data-uid="' + uid + '" onclick="setVerification(this.dataset.uid,&quot;rejected&quot;)">Reject</button>';
+  var view = '<button class="action-btn" style="background:#E6F1FB;color:#185FA5;" data-uid="'+uid+'" onclick="viewProfile(this.dataset.uid)">View</button> ';
+  if (currentStatus==='verified') return view+'<button class="action-btn btn-reject" data-uid="'+uid+'" onclick="setVerification(this.dataset.uid,\'rejected\')">Reject</button>';
+  return view+'<button class="action-btn btn-verify" data-uid="'+uid+'" onclick="setVerification(this.dataset.uid,\'verified\')">Verify</button>'+'<button class="action-btn btn-reject" data-uid="'+uid+'" onclick="setVerification(this.dataset.uid,\'rejected\')">Reject</button>';
 }
 
 async function setVerification(userId, status) {
   try {
-    var res = await fetch(SUPABASE_URL + '/auth/v1/admin/users/' + userId, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'Bearer ' + SERVICE_ROLE_KEY,
-        'apikey': SERVICE_ROLE_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ user_metadata: { verified: status } })
+    var res = await fetch(SUPABASE_URL+'/auth/v1/admin/users/'+userId,{
+      method:'PUT',
+      headers:{'Authorization':'Bearer '+SERVICE_ROLE_KEY,'apikey':SERVICE_ROLE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({user_metadata:{verified:status}})
     });
-    if (res.ok) {
-      showAlert('User ' + status + ' successfully.', 'ok');
-      await loadData();
-    } else {
-      var err = await res.json();
-      showAlert('Error: ' + (err.message || 'Unknown error'), 'err');
-    }
-  } catch(e) {
-    showAlert('Error: ' + e.message, 'err');
-  }
+    if (res.ok) { showAlert('User '+status+' successfully.','ok'); await loadData(); }
+    else { var err=await res.json(); showAlert('Error: '+(err.message||'Unknown'),'err'); }
+  } catch(e) { showAlert('Error: '+e.message,'err'); }
 }
 
-// ── VIEW PROFILE MODAL ─────────────────────────────────────
+// ── PROFILE MODAL ─────────────────────────────────────────
 function viewProfile(userId) {
-  var user = allUsers.find(function(u) { return u.id === userId; });
-  if (!user) { showAlert('User not found.', 'err'); return; }
-  var m = user.user_metadata || {};
-  var role = m.role || 'unknown';
-  var content = document.getElementById('profile-modal-content');
-  var modal = document.getElementById('profile-modal');
-
+  var user = allUsers.find(function(u){return u.id===userId;});
+  if (!user) { showAlert('User not found.','err'); return; }
+  var m = user.user_metadata||{};
+  var role = m.role||'unknown';
   var rows = [];
-  rows.push(['Email', user.email]);
-  rows.push(['Role', role]);
-  rows.push(['Signed up', new Date(user.created_at).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})]);
-  rows.push(['Verification status', m.verified || 'Pending']);
-
-  if (role === 'patient') {
-    if (m.full_name)   rows.push(['Full name', m.full_name]);
-    if (m.location)    rows.push(['Location', m.location]);
-    if (m.phone)       rows.push(['Phone', m.phone]);
-    if (m.allergies)   rows.push(['Allergies', m.allergies]);
-    if (m.medications) rows.push(['Medications', m.medications]);
-    if (m.conditions)  rows.push(['Conditions', m.conditions]);
-    if (m.anxiety)     rows.push(['Dental anxiety', m.anxiety]);
-    if (m.last_visit)  rows.push(['Last visit', m.last_visit]);
-  } else if (role === 'clinic') {
-    if (m.clinic_name) rows.push(['Clinic name', m.clinic_name]);
-    if (m.location)    rows.push(['Location', m.location]);
-    if (m.address)     rows.push(['Address', m.address]);
-    if (m.phone)       rows.push(['Phone', m.phone]);
-    if (m.open)        rows.push(['Opening time', m.open]);
-    if (m.close)       rows.push(['Closing time', m.close]);
-    if (m.mdcn_no)     rows.push(['MDCN licence no.', m.mdcn_no]);
-    if (m.dthrbn_no)   rows.push(['DTHRBN licence no.', m.dthrbn_no]);
-    if (m.services && m.services.length) rows.push(['Services', m.services.join(', ')]);
-    if (m.payment && m.payment.length)   rows.push(['Payment methods', m.payment.join(', ')]);
-    var days = ['mon','tue','wed','thu','fri','sat','sun']
-      .filter(function(d) { return m['day_' + d]; })
-      .map(function(d) { return d.charAt(0).toUpperCase() + d.slice(1); });
-    if (days.length) rows.push(['Open days', days.join(', ')]);
-    if (m.staff_roster && m.staff_roster.length) rows.push(['Staff count', m.staff_roster.length]);
-  } else if (role === 'professional') {
-    if (m.full_name)   rows.push(['Full name', m.full_name]);
-    if (m.location)    rows.push(['Location', m.location]);
-    if (m.phone)       rows.push(['Phone', m.phone]);
-    if (m.regulator)   rows.push(['Regulatory body', m.regulator]);
-    if (m.reg_no)      rows.push(['Registration no.', m.reg_no]);
-    if (m.apl)         rows.push(['Practising licence year', m.apl]);
-    if (m.degree)      rows.push(['Degree', m.degree]);
-    if (m.uni)         rows.push(['Institution', m.uni]);
-    if (m.grad_yr)     rows.push(['Graduation year', m.grad_yr]);
-    if (m.nysc)        rows.push(['NYSC year', m.nysc]);
-    if (m.experience)  rows.push(['Experience', m.experience]);
-    if (m.rate_day)    rows.push(['Day rate', '&#8358;' + Number(m.rate_day).toLocaleString()]);
-    if (m.rate_home)   rows.push(['Home visit rate', '&#8358;' + Number(m.rate_home).toLocaleString()]);
-    if (m.insurer)     rows.push(['Insurer', m.insurer]);
-    if (m.ins_exp)     rows.push(['Insurance expiry', m.ins_exp]);
-    var prefs = [];
-    if (m.w_fulltime)  prefs.push('Full-time');
-    if (m.w_parttime)  prefs.push('Part-time');
-    if (m.w_sessional) prefs.push('Sessional');
-    if (m.w_gig)       prefs.push('Gig');
-    if (m.w_home)      prefs.push('Home visits');
-    if (prefs.length)  rows.push(['Open to', prefs.join(', ')]);
-    if (m.extra_quals) rows.push(['Additional qualifications', m.extra_quals]);
+  rows.push(['Email',user.email]);
+  rows.push(['Role',role]);
+  rows.push(['Signed up',fmtDate(user.created_at)]);
+  rows.push(['Verification',m.verified||'Pending']);
+  if (role==='clinic'||role==='professional') {
+    var plan = m.subscription_plan||'Trial';
+    var trialEnd = new Date(user.created_at); trialEnd.setDate(trialEnd.getDate()+30);
+    var daysLeft = Math.max(0,Math.floor((trialEnd-new Date())/(1000*60*60*24)));
+    rows.push(['Subscription plan',plan.charAt(0).toUpperCase()+plan.slice(1)]);
+    rows.push(['Billing',m.subscription_billing||'—']);
+    rows.push(['Trial ends',m.subscription_status==='active'?'Subscribed — N/A':fmtDate(trialEnd)+' ('+daysLeft+' days left)']);
+    rows.push(['Success fee',(m.success_fee!==undefined?m.success_fee+'%':'—')]);
+  }
+  if (role==='patient') {
+    if (m.full_name)   rows.push(['Full name',m.full_name]);
+    if (m.location)    rows.push(['Location',m.location]);
+    if (m.phone)       rows.push(['Phone',m.phone]);
+    if (m.allergies)   rows.push(['Allergies',m.allergies]);
+    if (m.medications) rows.push(['Medications',m.medications]);
+    if (m.conditions)  rows.push(['Conditions',m.conditions]);
+    if (m.last_visit)  rows.push(['Last visit',m.last_visit]);
+  } else if (role==='clinic') {
+    if (m.clinic_name) rows.push(['Clinic name',m.clinic_name]);
+    if (m.location)    rows.push(['Location',m.location]);
+    if (m.address)     rows.push(['Address',m.address]);
+    if (m.phone)       rows.push(['Phone',m.phone]);
+    if (m.mdcn_no)     rows.push(['MDCN licence',m.mdcn_no]);
+    if (m.services&&m.services.length) rows.push(['Services',m.services.join(', ')]);
+    if (m.staff_roster&&m.staff_roster.length) rows.push(['Staff',m.staff_roster.length+' members']);
+  } else if (role==='professional') {
+    if (m.full_name)   rows.push(['Full name',m.full_name]);
+    if (m.location)    rows.push(['Location',m.location]);
+    if (m.regulator)   rows.push(['Regulator',m.regulator]);
+    if (m.reg_no)      rows.push(['Reg. no.',m.reg_no]);
+    if (m.degree)      rows.push(['Degree',m.degree]);
+    if (m.uni)         rows.push(['Institution',m.uni]);
+    if (m.experience)  rows.push(['Experience',m.experience]);
+    if (m.rate_day)    rows.push(['Day rate','&#8358;'+Number(m.rate_day).toLocaleString()]);
   }
 
-  var requiredClinic = ['clinic_name', 'location', 'phone', 'mdcn_no'];
-  var requiredPro    = ['full_name', 'regulator', 'reg_no', 'degree', 'uni'];
-  var missing = [];
-  if (role === 'clinic')       missing = requiredClinic.filter(function(f) { return !m[f]; });
-  if (role === 'professional') missing = requiredPro.filter(function(f) { return !m[f]; });
-
-  var avatarColor = role === 'patient' ? '#534AB7' : role === 'clinic' ? '#185FA5' : '#3B6D11';
-  var displayName = m.full_name || m.clinic_name || user.email;
-
-  var tableRows = rows.map(function(r) {
-    return '<tr style="border-bottom:1px solid #f5f5f5;">' +
-      '<td style="font-size:12px;color:#888;padding:7px 0;width:45%;font-weight:500;">' + r[0] + '</td>' +
-      '<td style="font-size:13px;color:#26215C;padding:7px 0;">' + (r[1] || '&mdash;') + '</td>' +
-      '</tr>';
-  }).join('');
-
-  var completenessHtml = missing.length
-    ? '<div style="background:#FFF8E6;border:1px solid #F0D060;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#B8860B;">&#9888; Incomplete — missing: ' + missing.map(function(f) { return f.replace(/_/g,' '); }).join(', ') + '</div>'
-    : '<div style="background:#EAF3DE;border-radius:8px;padding:.5rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#3B6D11;">&#10003; Profile appears complete</div>';
-
-  var verifyBtn = m.verified !== 'verified'
-    ? '<button class="action-btn btn-verify" style="padding:8px 16px;font-size:13px;" data-uid="' + user.id + '" onclick="setVerification(this.dataset.uid,&quot;verified&quot;);closeProfileModal()">Verify</button>'
-    : '<span style="font-size:12px;color:#3B6D11;padding:8px 0;">Already verified</span>';
-
-  var rejectBtn = m.verified !== 'rejected'
-    ? '<button class="action-btn btn-reject" style="padding:8px 16px;font-size:13px;margin-left:8px;" data-uid="' + user.id + '" onclick="setVerification(this.dataset.uid,&quot;rejected&quot;);closeProfileModal()">Reject</button>'
-    : '';
+  var required = role==='clinic'?['clinic_name','location','phone','mdcn_no']:role==='professional'?['full_name','regulator','reg_no','degree']:[];
+  var missing  = required.filter(function(f){return !m[f];});
+  var avatarColor = avatarBg(role);
+  var displayName = m.full_name||m.clinic_name||user.email;
+  var content = document.getElementById('profile-modal-content');
 
   content.innerHTML =
-    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">' +
-      '<div style="width:48px;height:48px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;flex-shrink:0;">' + initials(displayName) + '</div>' +
-      '<div><div style="font-size:17px;font-weight:600;color:#26215C;">' + displayName + '</div>' +
-      '<div style="font-size:12px;color:#888;">' + user.email + '</div></div>' +
-    '</div>' +
-    completenessHtml +
-    '<table style="width:100%;border-collapse:collapse;">' + tableRows + '</table>' +
-    '<div style="display:flex;align-items:center;margin-top:1.5rem;">' + verifyBtn + rejectBtn + '</div>';
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem;">'+
+      '<div style="width:48px;height:48px;border-radius:50%;background:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;">'+initials(displayName)+'</div>'+
+      '<div><div style="font-size:17px;font-weight:600;color:#26215C;">'+displayName+'</div><div style="font-size:12px;color:#888;">'+user.email+'</div></div>'+
+    '</div>'+
+    (missing.length
+      ? '<div style="background:#FFF8E6;border:1px solid #F0D060;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#B8860B;">&#9888; Missing: '+missing.map(function(f){return f.replace(/_/g,' ');}).join(', ')+'</div>'
+      : '<div style="background:#EAF3DE;border-radius:8px;padding:.5rem 1rem;margin-bottom:1.25rem;font-size:13px;color:#3B6D11;">&#10003; Profile complete</div>')+
+    '<table style="width:100%;border-collapse:collapse;">'+
+      rows.map(function(r){return '<tr style="border-bottom:1px solid #f5f5f5;"><td style="font-size:12px;color:#888;padding:7px 0;width:45%;font-weight:500;">'+r[0]+'</td><td style="font-size:13px;color:#26215C;padding:7px 0;">'+(r[1]||'&mdash;')+'</td></tr>';}).join('')+
+    '</table>'+
+    '<div style="display:flex;gap:8px;margin-top:1.5rem;">'+
+      (m.verified!=='verified'?'<button class="action-btn btn-verify" style="padding:8px 16px;font-size:13px;" data-uid="'+user.id+'" onclick="setVerification(this.dataset.uid,\'verified\');closeProfileModal()">Verify</button>':'')+
+      (m.verified!=='rejected'?'<button class="action-btn btn-reject" style="padding:8px 16px;font-size:13px;" data-uid="'+user.id+'" onclick="setVerification(this.dataset.uid,\'rejected\');closeProfileModal()">Reject</button>':'')+
+    '</div>';
 
-  modal.style.display = 'flex';
+  document.getElementById('profile-modal').style.display = 'flex';
 }
 
 function closeProfileModal() {
@@ -916,18 +857,19 @@ function closeProfileModal() {
 function showTab(name, btn) {
   document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
   document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
-  var tab = document.getElementById('tab-' + name);
+  var tab = document.getElementById('tab-'+name);
   if (tab) tab.classList.add('active');
   btn.classList.add('active');
+  if (name==='support') loadTickets();
+  if (name==='subscriptions') renderSubscriptions();
 }
 
 // ── SEARCH / FILTER ───────────────────────────────────────
 function filterTable(tbodyId, query) {
   var tbody = document.getElementById(tbodyId);
   if (!tbody) return;
-  var rows = tbody.querySelectorAll('tr');
   var q = query.toLowerCase();
-  rows.forEach(function(row) {
+  tbody.querySelectorAll('tr').forEach(function(row){
     row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 }
@@ -935,49 +877,38 @@ function filterTable(tbodyId, query) {
 // ── EXPORT CSV ────────────────────────────────────────────
 function exportCSV(type) {
   var rows = [];
-  var users = type === 'patients'  ? allUsers.filter(function(u){return (u.user_metadata||{}).role==='patient';})
-            : type === 'clinics'   ? allUsers.filter(function(u){return (u.user_metadata||{}).role==='clinic';})
-            : type === 'pros'      ? allUsers.filter(function(u){return (u.user_metadata||{}).role==='professional';})
-            : type === 'bookings'  ? null
-            : allUsers;
+  var users = type==='patients'  ? allUsers.filter(function(u){return(u.user_metadata||{}).role==='patient';})
+            : type==='clinics'   ? allUsers.filter(function(u){return(u.user_metadata||{}).role==='clinic';})
+            : type==='pros'      ? allUsers.filter(function(u){return(u.user_metadata||{}).role==='professional';})
+            : type==='subs-clinic' ? allUsers.filter(function(u){return(u.user_metadata||{}).role==='clinic';})
+            : type==='subs-pro'  ? allUsers.filter(function(u){return(u.user_metadata||{}).role==='professional';})
+            : type==='bookings'  ? null : allUsers;
 
-  if (type === 'bookings') {
-    rows.push(['Patient','Patient Email','Provider','Provider Type','Date','Time','Complaint','Service','Status','Created']);
-    allBookings.forEach(function(b) {
-      rows.push([b.patient_name, b.patient_email, b.provider_name, b.provider_type, b.preferred_date, b.preferred_time, b.complaint, b.service_requested||'', b.status, b.created_at]);
+  if (type==='bookings') {
+    rows.push(['Patient','Email','Provider','Type','Date','Time','Complaint','Status']);
+    allBookings.forEach(function(b){ rows.push([b.patient_name,b.patient_email,b.provider_name,b.provider_type,b.preferred_date,b.preferred_time,b.complaint,b.status]); });
+  } else if (type==='subs-clinic'||type==='subs-pro') {
+    rows.push(['Name','Email','Plan','Billing','Success Fee','Trial End','Status']);
+    users.forEach(function(u){
+      var m=u.user_metadata||{};
+      var trialEnd=new Date(u.created_at);trialEnd.setDate(trialEnd.getDate()+30);
+      rows.push([m.clinic_name||m.full_name||'',u.email,m.subscription_plan||'trial',m.subscription_billing||'',m.success_fee||'',trialEnd.toLocaleDateString('en-GB'),m.subscription_status||'trial']);
     });
   } else {
-    rows.push(['Name','Email','Role','Location','Signup Date','Verified','Profile Complete']);
-    users.forEach(function(u) {
-      var m = u.user_metadata||{};
-      rows.push([m.full_name||m.clinic_name||'', u.email, m.role||'', m.location||'', u.created_at, m.verified||'pending', m.profile_complete?'yes':'no']);
+    rows.push(['Name','Email','Role','Location','Signup','Plan','Verified']);
+    users.forEach(function(u){
+      var m=u.user_metadata||{};
+      rows.push([m.full_name||m.clinic_name||'',u.email,m.role||'',m.location||'',u.created_at,m.subscription_plan||'trial',m.verified||'pending']);
     });
   }
 
-  var csv = rows.map(function(r){
-    return r.map(function(cell){ return '"'+(cell||'').toString().replace(/"/g,'""')+'"'; }).join(',');
-  }).join('\n');
-
-  var blob = new Blob([csv], {type:'text/csv'});
+  var csv = rows.map(function(r){return r.map(function(c){return '"'+(c||'').toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob = new Blob([csv],{type:'text/csv'});
   var url  = URL.createObjectURL(blob);
   var a    = document.createElement('a');
-  a.href   = url;
-  a.download = 'dfhq-' + type + '-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
+  a.href=url; a.download='dfhq-'+type+'-'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
   URL.revokeObjectURL(url);
 }
 </script>
-
-<!-- Profile modal -->
-<div id="profile-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-      <div style="font-size:15px;font-weight:600;color:#0D1B3E;">Profile details</div>
-      <button onclick="closeProfileModal()" style="background:none;border:none;font-size:20px;color:#888;cursor:pointer;line-height:1;">✕</button>
-    </div>
-    <div id="profile-modal-content"></div>
-  </div>
-</div>
-
 </body>
 </html>

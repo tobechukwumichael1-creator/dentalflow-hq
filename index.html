@@ -1990,7 +1990,7 @@ tr:last-child td { border-bottom: none; }
           <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           Invoices &amp; billing
         </div>
-        <div class="sidebar-item bl" data-title="Plans &amp; subscription" onclick="go('s-pricing')">
+        <div class="sidebar-item bl" data-title="Plans &amp; subscription" onclick="openPricing('s-clinic-dash','clinic')">
           <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M12 11v1l.5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           Plans &amp; subscription
         </div>
@@ -2302,8 +2302,17 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
 
+        <!-- Upgrade prompt — shown on Foundation plan only -->
+        <div id="analytics-upgrade-prompt" style="display:none;background:#E6F1FB;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:#0C447C;">Unlock advanced analytics</div>
+            <div style="font-size:12px;color:#378ADD;margin-top:2px;">Revenue breakdown, patient retention and staff utilisation are available on Principal and Enterprise plans.</div>
+          </div>
+          <button onclick="openPricing('s-clinic-dash','clinic')" style="background:#185FA5;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;">Upgrade plan →</button>
+        </div>
+
         <!-- Revenue + retention row -->
-        <div class="two-col">
+        <div class="two-col analytics-advanced" style="display:none;">
           <div class="card">
             <div class="card-header"><div class="card-title">Revenue breakdown</div></div>
             <div style="padding:1rem 1.25rem;">
@@ -2330,7 +2339,7 @@ tr:last-child td { border-bottom: none; }
         </div>
 
         <!-- Staff utilisation + top treatments -->
-        <div class="two-col">
+        <div class="two-col analytics-advanced" style="display:none;">
           <div class="card">
             <div class="card-header"><div class="card-title">Staff utilisation</div></div>
             <div style="padding:.5rem 0;">
@@ -2817,7 +2826,7 @@ tr:last-child td { border-bottom: none; }
           My profile
           <span class="sidebar-badge" style="background:#534AB7;">88%</span>
         </div>
-        <div class="sidebar-item gr" data-title="Plans &amp; subscription" onclick="go('s-pricing')">
+        <div class="sidebar-item gr" data-title="Plans &amp; subscription" onclick="openPricing('s-pro-dash','pro')">
           <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           Plans &amp; subscription
         </div>
@@ -4859,7 +4868,7 @@ async function initApp() {
       var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
       var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
       go('s-clinic-dash');
-      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); } catch(e) { console.warn('clinic init', e); }
+      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); } catch(e) { console.warn('clinic init', e); }
     } else if (role === 'professional') {
       updateDashName('s-pro-dash', name);
       var sub = document.getElementById('pro-hero-sub');
@@ -5158,7 +5167,123 @@ async function confirmNewPassword() {
   }
 }
 
-// ── PRICING UI ─────────────────────────────────────────────
+// ── PRICING NAVIGATION ─────────────────────────────────────
+var pricingReturnScreen = 's-landing';
+
+function openPricing(returnScreen, tab) {
+  pricingReturnScreen = returnScreen || 's-landing';
+  go('s-pricing');
+  if (tab) showPricingTab(tab);
+}
+
+function goBackFromPricing() {
+  // If logged in return to their dashboard, otherwise landing
+  if (currentUser) {
+    var meta = (currentUser.user_metadata || {});
+    var role = meta.role;
+    if (pricingReturnScreen !== 's-landing') {
+      go(pricingReturnScreen);
+    } else if (role === 'clinic') {
+      go('s-clinic-dash');
+    } else if (role === 'professional') {
+      go('s-pro-dash');
+    } else if (role === 'patient') {
+      go('s-patient-dash');
+    } else {
+      go('s-landing');
+    }
+  } else {
+    go('s-landing');
+  }
+}
+
+// ── PLAN ENFORCEMENT ───────────────────────────────────────
+var PLAN_TIERS = { foundation: 1, principal: 2, enterprise: 3 };
+var PLAN_SUCCESS_FEE = {
+  clinic:       { foundation: 8, principal: 6, enterprise: 5 },
+  professional: { foundation: 10, principal: 8, enterprise: 5 }
+};
+
+function getUserPlan(user) {
+  if (!user) return null;
+  var meta = user.user_metadata || {};
+  return {
+    plan:   meta.subscription_plan || 'trial',
+    status: meta.subscription_status || 'trial',
+    tier:   PLAN_TIERS[meta.subscription_plan] || 0,
+    role:   meta.role || 'patient'
+  };
+}
+
+function enforceAnalyticsGating(user) {
+  var p = getUserPlan(user);
+  if (!p || p.role !== 'clinic') return;
+  var tier = p.tier;
+
+  // Foundation: hide advanced analytics cards (retention, staff, top treatments)
+  // Principal+: show all
+  var advancedCards = document.querySelectorAll('.analytics-advanced');
+  advancedCards.forEach(function(el) {
+    el.style.display = tier >= 2 ? 'block' : 'none';
+  });
+  var enterpriseCards = document.querySelectorAll('.analytics-enterprise');
+  enterpriseCards.forEach(function(el) {
+    el.style.display = tier >= 3 ? 'block' : 'none';
+  });
+
+  // Show upgrade prompts on hidden sections
+  var basicGate = document.getElementById('analytics-upgrade-prompt');
+  if (basicGate) basicGate.style.display = tier < 2 ? 'block' : 'none';
+}
+
+// ── TIER-RANKED PROVIDER SEARCH ────────────────────────────
+function renderProviders(providers, type) {
+  var el = document.getElementById('search-results');
+  if (!providers.length) {
+    el.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">No verified ' + (type === 'clinic' ? 'clinics' : 'professionals') + ' found in this area yet. Check back soon as more join the platform.</div>';
+    return;
+  }
+
+  // Sort by plan tier — Enterprise first, Principal second, Foundation/trial last
+  providers.sort(function(a, b) {
+    var planA = PLAN_TIERS[(a.user_metadata || {}).subscription_plan] || 0;
+    var planB = PLAN_TIERS[(b.user_metadata || {}).subscription_plan] || 0;
+    return planB - planA;
+  });
+
+  var bg  = type === 'clinic' ? '#E6F1FB' : '#EAF3DE';
+  var col = type === 'clinic' ? '#185FA5' : '#3B6D11';
+
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">' +
+    providers.map(function(p) {
+      var m    = p.user_metadata || {};
+      var name = m.clinic_name || m.full_name || 'Unknown';
+      var sub  = type === 'clinic'
+        ? [m.location, m.address].filter(Boolean).join(' · ')
+        : [m.regulator, m.location, m.experience].filter(Boolean).join(' · ');
+      var svcs = m.services && m.services.length ? m.services.slice(0,3).join(', ') : '';
+      var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+      var tier = m.subscription_plan || '';
+      var tierBadge = tier === 'enterprise'
+        ? '<span style="font-size:10px;background:#0D1B3E;color:#fff;padding:2px 8px;border-radius:20px;margin-left:4px;">Enterprise</span>'
+        : tier === 'principal'
+        ? '<span style="font-size:10px;background:#185FA5;color:#fff;padding:2px 8px;border-radius:20px;margin-left:4px;">Principal</span>'
+        : '';
+      var safeId   = p.id.replace(/'/g, '');
+      var safeName = name.replace(/'/g, '').replace(/"/g, '');
+      var safeSub  = sub.replace(/'/g, '').replace(/"/g, '');
+      return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:12px;padding:1.25rem;cursor:pointer;' + (tier === 'enterprise' ? 'border-color:#185FA5;' : '') + '" onclick="openBookingModal(\'' + safeId + '\',\'' + safeName + '\',\'' + safeSub + '\')">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;">' +
+        '<div style="width:40px;height:40px;border-radius:10px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:' + col + ';flex-shrink:0;">' + ini + '</div>' +
+        '<div><div style="display:flex;align-items:center;gap:4px;"><div style="font-size:14px;font-weight:500;color:#26215C;">' + name + '</div>' + tierBadge + '</div>' +
+        '<div style="font-size:12px;color:#888780;">' + (sub || 'Nigeria') + '</div></div></div>' +
+        (svcs ? '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + svcs + '</div>' : '') +
+        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:20px;">Verified</span>' +
+        '<span style="font-size:12px;color:#534AB7;font-weight:500;">Book →</span></div></div>';
+    }).join('') + '</div>';
+}
+
 var billingAnnual = false;
 var pricingTab = 'clinic';
 
@@ -5183,10 +5308,17 @@ function toggleBilling() {
 
 function selectPlan(portalType, tier) {
   if (!currentUser) { go(portalType === 'clinic' ? 's-clinic-login' : 's-pro-login'); return; }
-  var billing = billingAnnual ? 'annual' : 'monthly';
-  getSb().auth.updateUser({ data: { subscription_plan: tier, subscription_billing: billing, subscription_selected: new Date().toISOString() } });
-  alert('Plan selected: ' + tier + ' (' + billing + '). Payment will be enabled once Flutterwave is connected. Your 30-day trial continues.');
-  go(portalType === 'clinic' ? 's-clinic-dash' : 's-pro-dash');
+  var billing    = billingAnnual ? 'annual' : 'monthly';
+  var role       = portalType === 'clinic' ? 'clinic' : 'professional';
+  var successFee = (PLAN_SUCCESS_FEE[role] || {})[tier] || 10;
+  getSb().auth.updateUser({ data: {
+    subscription_plan:     tier,
+    subscription_billing:  billing,
+    subscription_selected: new Date().toISOString(),
+    success_fee:           successFee
+  }});
+  alert('Plan selected: ' + tier.charAt(0).toUpperCase() + tier.slice(1) + ' (' + billing + '). Success fee: ' + successFee + '%. Payment will be enabled once Flutterwave is connected. Your 30-day trial continues.');
+  goBackFromPricing();
 }
 
 // ── TRIAL & SUBSCRIPTION MANAGEMENT ───────────────────────
@@ -5324,11 +5456,11 @@ function closeBookingModal() {
 ══════════════════════════════════════════════════════════ -->
 <div id="s-pricing" class="screen">
   <div style="background:#0D1B3E;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;">
-    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="go('s-landing')">
+    <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="goBackFromPricing()">
       <svg width="28" height="28" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0D1B3E"/><rect x="8" y="42" width="50" height="16" rx="8" fill="#639922"/><rect x="42" y="8" width="16" height="50" rx="8" fill="#1a5c2a"/><rect x="42" y="42" width="16" height="16" fill="#1a5c2a"/><circle cx="50" cy="50" r="15" fill="#6B5CE7"/><text x="50" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" font-family="Georgia,serif" font-style="italic">DF</text></svg>
       <div style="font-size:13px;font-weight:700;color:#fff;">DENTAL FLOW HQ</div>
     </div>
-    <button onclick="go('s-landing')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;">← Back</button>
+    <button onclick="goBackFromPricing()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;">← Back</button>
   </div>
 
   <div style="max-width:960px;margin:0 auto;padding:3rem 1.5rem;">

@@ -2593,10 +2593,13 @@ tr:last-child td { border-bottom: none; }
         <div class="card">
           <div class="card-header">
             <div class="card-title">Pending requests</div>
-            <span style="font-size:12px;color:#888780;" id="cd-requests-count">0 awaiting response</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;color:#888780;" id="cd-requests-count">0 awaiting response</span>
+              <button class="btn btn-blue btn-sm" onclick="loadBookingRequests()">Refresh</button>
+            </div>
           </div>
           <div id="cd-requests-list">
-            <div style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No booking requests yet. Patients will appear here when they request an appointment with your clinic.</div>
+            <div style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No pending booking requests yet.</div>
           </div>
         </div>
         <!-- Patient dental history modal -->
@@ -2884,11 +2887,23 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Jobs -->
       <div id="pro-jobs" class="tab-panel">
-        <div class="card">
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;margin-bottom:.75rem;">Job listings are coming soon. Complete your profile to be matched with relevant roles.</div>
-            <button class="btn btn-green btn-sm">Complete my profile</button>
-          </div>
+        <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:4px;">Job listings</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Vacancies posted by verified clinics on the platform.</div>
+        <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;">
+          <select id="jobs-location" class="f-input f-input-green" style="max-width:180px;margin-bottom:0;">
+            <option value="">All locations</option>
+            <option>Lagos</option><option>Abuja (FCT)</option><option>Rivers</option>
+            <option>Kano</option><option>Oyo</option><option>Enugu</option>
+            <option>Delta</option><option>Anambra</option><option>Kaduna</option><option>Other</option>
+          </select>
+          <select id="jobs-type" class="f-input f-input-green" style="max-width:180px;margin-bottom:0;">
+            <option value="">All types</option>
+            <option>Full-time</option><option>Part-time</option><option>Sessional</option><option>Gig</option>
+          </select>
+          <button class="btn btn-green btn-sm" onclick="loadJobListings()">Search</button>
+        </div>
+        <div id="pro-jobs-list">
+          <div style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">Loading job listings...</div>
         </div>
       </div>
 
@@ -3521,7 +3536,8 @@ async function patientRegister() {
   if (!name||!email||!password) { showError('patient-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('patient-reg-error','Password must be at least 6 characters.'); return; }
   if (password !== password2)   { showError('patient-reg-error','Passwords do not match.'); return; }
-  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient' } } });
+  const refCode = getStoredRefCode();
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient', referral_code: refCode || undefined } } });
   if (error) { showError('patient-reg-error', error.message); return; }
   showSuccess('patient-reg-success');
 }
@@ -3555,7 +3571,8 @@ async function clinicRegister() {
   if (!name||!email||!password) { showError('clinic-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('clinic-reg-error','Password must be at least 6 characters.'); return; }
   if (password !== password2)   { showError('clinic-reg-error','Passwords do not match.'); return; }
-  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic' } } });
+  const refCode = getStoredRefCode();
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic', referral_code: refCode || undefined } } });
   if (error) { showError('clinic-reg-error', error.message); return; }
   showSuccess('clinic-reg-success');
 }
@@ -3588,7 +3605,8 @@ async function proRegister() {
   if (!name||!email||!password) { showError('pro-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('pro-reg-error','Password must be at least 6 characters.'); return; }
   if (password !== password2)   { showError('pro-reg-error','Passwords do not match.'); return; }
-  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey } } });
+  const refCode = getStoredRefCode();
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey, referral_code: refCode || undefined } } });
   if (error) { showError('pro-reg-error', error.message); return; }
   showSuccess('pro-reg-success');
 }
@@ -4863,18 +4881,18 @@ async function initApp() {
     if (role === 'patient') {
       updateDashName('s-patient-dash', name);
       go('s-patient-dash');
-      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); renderReferralData(currentUser); } catch(e) { console.warn('patient init', e); }
+      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); renderReferralData(currentUser); loadPatientRecords(); } catch(e) { console.warn('patient init', e); }
     } else if (role === 'clinic') {
       var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
       var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
       go('s-clinic-dash');
-      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); } catch(e) { console.warn('clinic init', e); }
+      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); loadBookingRequests(); } catch(e) { console.warn('clinic init', e); }
     } else if (role === 'professional') {
       updateDashName('s-pro-dash', name);
       var sub = document.getElementById('pro-hero-sub');
       if (sub && meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
       go('s-pro-dash');
-      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); checkSubscription(currentUser); } catch(e) { console.warn('pro init', e); }
+      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); checkSubscription(currentUser); loadJobListings(); } catch(e) { console.warn('pro init', e); }
     }
   } catch(err) {
     console.warn('Session check failed:', err);
@@ -5167,7 +5185,244 @@ async function confirmNewPassword() {
   }
 }
 
-// ── PRICING NAVIGATION ─────────────────────────────────────
+// ── ITEM 2: Referral code from URL ────────────────────────
+function getRefCodeFromUrl() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    return params.get('ref') || '';
+  } catch(e) { return ''; }
+}
+
+// Auto-show correct portal + tab if ?ref= is in URL
+(function() {
+  var code = getRefCodeFromUrl();
+  if (code) {
+    // Store in sessionStorage so it survives tab navigation
+    sessionStorage.setItem('dfhq_ref', code);
+  }
+})();
+
+function getStoredRefCode() {
+  return getRefCodeFromUrl() || sessionStorage.getItem('dfhq_ref') || '';
+}
+
+// ── ITEM 3: Clinic booking requests (real data) ────────────
+async function loadBookingRequests() {
+  if (!currentUser) return;
+  var listEl  = document.getElementById('cd-requests-list');
+  var countEl = document.getElementById('cd-requests-count');
+  if (!listEl) return;
+
+  listEl.innerHTML = '<div style="padding:2rem;text-align:center;font-size:13px;color:#888780;">Loading...</div>';
+
+  var res = await getSb()
+    .from('bookings')
+    .select('*')
+    .eq('provider_id', currentUser.id)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
+
+  if (res.error) {
+    listEl.innerHTML = '<div style="padding:2rem;text-align:center;font-size:13px;color:#888780;">Could not load requests.</div>';
+    return;
+  }
+
+  var requests = res.data || [];
+  if (countEl) countEl.textContent = requests.length + ' awaiting response';
+
+  // Update sidebar badge
+  var badge = document.querySelector('.sidebar-item[onclick*="cd-requests"] .sidebar-badge');
+  if (badge) badge.textContent = requests.length;
+
+  if (!requests.length) {
+    listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;font-size:13px;color:#888780;">No pending booking requests yet. They will appear here when patients request an appointment.</div>';
+    return;
+  }
+
+  listEl.innerHTML = '<table><tr><th>Patient</th><th>Complaint</th><th>Requested date</th><th>Service</th><th>Action</th></tr>' +
+    requests.map(function(b) {
+      return '<tr>' +
+        '<td><strong>' + (b.patient_name || '—') + '</strong><div style="font-size:11px;color:#888780;">' + (b.patient_email || '') + '</div></td>' +
+        '<td style="font-size:12px;color:#888780;max-width:160px;">' + (b.complaint ? b.complaint.slice(0,60) + (b.complaint.length > 60 ? '...' : '') : '—') + '</td>' +
+        '<td style="font-size:12px;">' + (b.preferred_date ? fmtDate(b.preferred_date) : '—') + (b.preferred_time ? ' · ' + fmtTime(b.preferred_time) : '') + '</td>' +
+        '<td style="font-size:12px;color:#888780;">' + (b.service_requested || '—') + '</td>' +
+        '<td>' +
+          '<button class="btn btn-sm" style="background:var(--green-lt);color:var(--green);border:none;margin-right:4px;" ' +
+          'onclick="updateBookingStatus(\'' + b.id + '\',\'confirmed\')">Approve</button>' +
+          '<button class="btn btn-sm" style="background:var(--red-lt);color:var(--red);border:none;" ' +
+          'onclick="updateBookingStatus(\'' + b.id + '\',\'cancelled\')">Decline</button>' +
+        '</td></tr>';
+    }).join('') + '</table>';
+}
+
+async function updateBookingStatus(bookingId, status) {
+  var res = await getSb().from('bookings').update({ status: status }).eq('id', bookingId);
+  if (!res.error) {
+    loadBookingRequests();
+    loadClinicBookings();
+    if (status === 'confirmed') {
+      // Trigger referral credit check
+      getSb().rpc('credit_referral', { p_booking_id: bookingId }).catch(function(){});
+    }
+  }
+}
+
+// ── ITEM 4: Patient records from walk-ins ──────────────────
+async function loadPatientRecords() {
+  if (!currentUser) return;
+  var listEl = document.getElementById('pd-records-list');
+  if (!listEl) return;
+
+  // Fetch bookings where patient_id matches OR patient_email matches
+  var res = await getSb()
+    .from('bookings')
+    .select('*')
+    .eq('patient_id', currentUser.id)
+    .neq('provider_type', null)
+    .order('preferred_date', { ascending: false });
+
+  if (res.error || !res.data || !res.data.length) {
+    listEl.innerHTML = '<div style="padding:2.5rem 1.25rem;text-align:center;"><div style="font-size:13px;color:#888780;margin-bottom:.5rem;">No records yet.</div><div style="font-size:12px;color:#B4B2A9;">Your dental records will appear here after each clinic visit.</div></div>';
+    return;
+  }
+
+  listEl.innerHTML = res.data.map(function(b) {
+    var isWalkin = b.provider_type === 'walkin';
+    var notes = {};
+    try { notes = JSON.parse(b.notes || '{}'); } catch(e) {}
+
+    var fields = [];
+    if (notes.chief_complaint || b.complaint) fields.push(['Chief complaint', notes.chief_complaint || b.complaint]);
+    if (notes.diagnosis_1) fields.push(['Diagnosis 1', notes.diagnosis_1]);
+    if (notes.diagnosis_2) fields.push(['Diagnosis 2', notes.diagnosis_2]);
+    if (notes.tx_done || b.service_requested) fields.push(['Treatment done', notes.tx_done || b.service_requested]);
+    if (notes.tx_plan) fields.push(['Treatment plan', notes.tx_plan]);
+    if (notes.dentist || notes.attending_clinician) fields.push(['Clinician', notes.dentist || notes.attending_clinician]);
+    if (notes.next) fields.push(['Next appointment', fmtDate(notes.next)]);
+    if (notes.eoe_oh) fields.push(['EOE oral hygiene', notes.eoe_oh]);
+    if (notes.ioe_oh) fields.push(['IOE oral hygiene', notes.ioe_oh]);
+    if (notes.findings) fields.push(['Findings', notes.findings]);
+    if (notes.extra_notes) fields.push(['Additional notes', notes.extra_notes]);
+
+    return '<div class="card mb2">' +
+      '<div class="card-header">' +
+        '<div>' +
+          '<div class="card-title">Visit — ' + fmtDate(b.preferred_date || b.created_at) + '</div>' +
+          '<div style="font-size:12px;color:#888780;margin-top:2px;">' + b.provider_name + (isWalkin ? ' · Walk-in' : '') + '</div>' +
+        '</div>' +
+        '<span class="tag ' + (b.status === 'confirmed' ? 'tag-gr' : b.status === 'pending' ? 'tag-pu' : 'tag-neu') + '">' + (b.status || 'recorded') + '</span>' +
+      '</div>' +
+      (fields.length ? '<div style="padding:1rem 1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+        fields.map(function(f) {
+          return '<div style="background:#fafafa;border-radius:8px;padding:.625rem .875rem;">' +
+            '<div style="font-size:11px;color:#888780;margin-bottom:2px;">' + f[0] + '</div>' +
+            '<div style="font-size:13px;color:#26215C;">' + (f[1] || '—') + '</div>' +
+            '</div>';
+        }).join('') + '</div>'
+        : '<div style="padding:1.25rem;font-size:13px;color:#888780;">No clinical details recorded for this visit yet.</div>') +
+      '</div>';
+  }).join('') +
+  '<div style="text-align:center;padding:1rem;font-size:12px;color:#B4B2A9;">Your records are managed by your clinic. Contact them directly with any questions.</div>';
+}
+
+// ── ITEM 5: Professional job listings ─────────────────────
+async function loadJobListings() {
+  var listEl   = document.getElementById('pro-jobs-list');
+  var location = document.getElementById('jobs-location') ? document.getElementById('jobs-location').value : '';
+  var type     = document.getElementById('jobs-type') ? document.getElementById('jobs-type').value : '';
+  if (!listEl) return;
+
+  listEl.innerHTML = '<div style="padding:2rem;text-align:center;font-size:13px;color:#888780;">Loading listings...</div>';
+
+  try {
+    // Fetch all verified clinics and extract their vacancies from user_metadata
+    var res = await getSb().rpc('get_providers');
+    var clinics = (res.data || []).filter(function(p) {
+      return (p.user_metadata || {}).role === 'clinic';
+    });
+
+    var jobs = [];
+    clinics.forEach(function(c) {
+      var m = c.user_metadata || {};
+      var vacs = m.vacancies || [];
+      vacs.forEach(function(v) {
+        if (!v.title) return;
+        if (location && m.location && m.location !== location) return;
+        if (type && v.type && v.type !== type) return;
+        jobs.push({
+          clinic_id:   c.id,
+          clinic_name: m.clinic_name || 'Unknown clinic',
+          location:    m.location || '',
+          address:     m.address || '',
+          mdcn:        m.mdcn_no || '',
+          plan:        m.subscription_plan || '',
+          title:       v.title,
+          type:        v.type || '',
+          licence:     v.lic || '',
+          phone:       m.phone || ''
+        });
+      });
+    });
+
+    // Sort: Enterprise clinics first
+    jobs.sort(function(a, b) {
+      return (PLAN_TIERS[b.plan] || 0) - (PLAN_TIERS[a.plan] || 0);
+    });
+
+    if (!jobs.length) {
+      listEl.innerHTML = '<div style="padding:2.5rem;text-align:center;font-size:13px;color:#888780;">No vacancies found matching your criteria. Check back as more clinics join the platform.</div>';
+      return;
+    }
+
+    listEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;">' +
+      jobs.map(function(j) {
+        var tierBadge = j.plan === 'enterprise'
+          ? '<span style="font-size:10px;background:#0D1B3E;color:#fff;padding:2px 8px;border-radius:20px;">Enterprise</span>'
+          : j.plan === 'principal'
+          ? '<span style="font-size:10px;background:#185FA5;color:#fff;padding:2px 8px;border-radius:20px;">Principal</span>'
+          : '';
+        var ini = j.clinic_name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+        return '<div style="background:#fff;border:0.5px solid var(--border-g);border-radius:12px;padding:1.25rem;' + (j.plan === 'enterprise' ? 'border-color:#185FA5;' : '') + '">' +
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;">' +
+            '<div style="width:38px;height:38px;border-radius:9px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#3B6D11;flex-shrink:0;">' + ini + '</div>' +
+            '<div><div style="font-size:13px;font-weight:500;color:#26215C;display:flex;align-items:center;gap:4px;">' + j.clinic_name + ' ' + tierBadge + '</div>' +
+            '<div style="font-size:11px;color:#888780;">' + [j.type, j.location].filter(Boolean).join(' · ') + '</div></div>' +
+          '</div>' +
+          '<div style="font-size:14px;font-weight:500;color:#26215C;margin-bottom:4px;">' + j.title + '</div>' +
+          (j.licence ? '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + j.licence + ' required</div>' : '<div style="margin-bottom:.75rem;"></div>') +
+          '<div style="display:flex;gap:8px;">' +
+            '<button class="btn btn-green btn-sm" onclick="applyForJob(\'' + j.clinic_id + '\',\'' + j.title.replace(/'/g,'') + '\',\'' + j.clinic_name.replace(/'/g,'') + '\')">Apply →</button>' +
+            (j.phone ? '<a href="tel:' + j.phone + '" class="btn btn-sm" style="border:0.5px solid var(--border-g);color:#3B6D11;text-decoration:none;">Call clinic</a>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+
+  } catch(e) {
+    listEl.innerHTML = '<div style="padding:2rem;text-align:center;font-size:13px;color:#888780;">Could not load listings. Please try again.</div>';
+  }
+}
+
+async function applyForJob(clinicId, jobTitle, clinicName) {
+  if (!currentUser) { alert('Please sign in to apply.'); return; }
+  var meta = currentUser.user_metadata || {};
+  // Submit a booking record as a job application
+  var res = await getSb().from('bookings').insert([{
+    patient_id:        currentUser.id,
+    patient_name:      meta.full_name || currentUser.email,
+    patient_email:     currentUser.email,
+    provider_id:       clinicId,
+    provider_name:     clinicName,
+    provider_type:     'job_application',
+    preferred_date:    new Date().toISOString().split('T')[0],
+    preferred_time:    '00:00',
+    complaint:         'Job application: ' + jobTitle,
+    service_requested: jobTitle,
+    status:            'pending'
+  }]);
+  if (res.error) { alert('Could not submit application. Please try again.'); return; }
+  alert('Application sent to ' + clinicName + ' for the ' + jobTitle + ' position. They will be in touch.');
+}
+
 var pricingReturnScreen = 's-landing';
 
 function openPricing(returnScreen, tab) {

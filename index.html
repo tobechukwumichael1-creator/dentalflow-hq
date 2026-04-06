@@ -1157,6 +1157,7 @@ tr:last-child td { border-bottom: none; }
         <a onclick="go('s-patient-login')">For patients</a>
         <a onclick="go('s-clinic-login')">For clinics</a>
         <a onclick="go('s-pro-login')">For professionals</a>
+        <a onclick="go('s-pricing')" style="color:#534AB7;font-weight:500;">Pricing</a>
       </div>
       <button class="lp-nav-cta" onclick="go('s-patient-login')">Get started</button>
     </nav>
@@ -1379,6 +1380,7 @@ tr:last-child td { border-bottom: none; }
         <a onclick="go('s-patient-login')">Patients</a>
         <a onclick="go('s-clinic-login')">Clinics</a>
         <a onclick="go('s-pro-login')">Professionals</a>
+        <a onclick="go('s-pricing')">Pricing</a>
       </div>
       <div class="lp-footer-copy">dentalflowhq.io &middot; Nigeria &amp; Africa &middot; &copy; 2026</div>
     </footer>
@@ -1987,6 +1989,10 @@ tr:last-child td { border-bottom: none; }
         <div class="sidebar-item bl" data-title="Invoices &amp; billing" onclick="setTab('cd-invoices',this)">
           <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="1" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           Invoices &amp; billing
+        </div>
+        <div class="sidebar-item bl" data-title="Plans &amp; subscription" onclick="go('s-pricing')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M12 11v1l.5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Plans &amp; subscription
         </div>
       </nav>
       <div class="sidebar-bot">
@@ -2811,7 +2817,10 @@ tr:last-child td { border-bottom: none; }
           My profile
           <span class="sidebar-badge" style="background:#534AB7;">88%</span>
         </div>
-      </nav>
+        <div class="sidebar-item gr" data-title="Plans &amp; subscription" onclick="go('s-pricing')">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Plans &amp; subscription
+        </div>
       <div class="sidebar-bot">
         <div class="sidebar-item gr" onclick="go('s-landing')">
           <svg viewBox="0 0 16 16" fill="none"><path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>

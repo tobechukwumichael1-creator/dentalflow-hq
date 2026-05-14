@@ -811,7 +811,7 @@ function viewProfile(userId) {
     if (m.address)     rows.push(['Address',m.address]);
     if (m.phone)       rows.push(['Phone',m.phone]);
     if (m.mdcn_no)     rows.push(['MDCN licence',m.mdcn_no]);
-    if (m.services&&m.services.length) rows.push(['Services',m.services.join(', ')]);
+    if (m.services&&m.services.length) rows.push(['Services',m.services.map(function(s){return typeof s==='object'?s.name:s;}).join(', ')]);
     if (m.staff_roster&&m.staff_roster.length) rows.push(['Staff',m.staff_roster.length+' members']);
   } else if (role==='professional') {
     if (m.full_name)   rows.push(['Full name',m.full_name]);

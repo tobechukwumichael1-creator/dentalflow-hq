@@ -4746,7 +4746,9 @@ function renderClinicOverview(meta) {
   var svcOverview = document.getElementById('cd-svc-overview');
   if (svcOverview && svcs.length) {
     svcOverview.innerHTML = svcs.slice(0,5).map(function(s){
-      return '<div class="card-row"><div class="flex-1"><div class="font-medium">' + s.name + '</div></div><span style="font-size:12px;font-weight:500;color:#185FA5;">' + s.price + '</span></div>';
+      var sName  = typeof s === 'object' ? (s.name  || '—') : s;
+      var sPrice = typeof s === 'object' ? (s.price || 'Varies') : '';
+      return '<div class="card-row"><div class="flex-1"><div class="font-medium">' + sName + '</div></div><span style="font-size:12px;font-weight:500;color:#185FA5;">' + sPrice + '</span></div>';
     }).join('') + (svcs.length > 5 ? '<div style="padding:.5rem 1.25rem;font-size:12px;color:#888780;">+' + (svcs.length-5) + ' more services</div>' : '');
   }
 

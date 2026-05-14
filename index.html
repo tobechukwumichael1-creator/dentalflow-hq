@@ -4320,7 +4320,7 @@ function providerCard(p, type) {
   var hours = (meta.open_time && meta.close_time) ? meta.open_time + ' - ' + meta.close_time : '';
   var payLabels = { cash:'Cash', transfer:'Bank transfer', pos:'POS/Card', hmo:'HMO', mobile:'Mobile money' };
   var pays = (meta.payments || []).map(function(x){ return payLabels[x]||x; }).join(', ');
-  var svcs = (meta.services || []).slice(0,3);
+  var svcs = (meta.services || []).slice(0,3).map(function(s){ return typeof s === 'object' ? s.name : s; });
   var workLabels = { fulltime:'Full-time', parttime:'Part-time', sessional:'Sessional', gig:'Gig', home:'Home visits' };
   var works = (meta.work_prefs || []).map(function(x){ return workLabels[x]||x; }).join(', ');
 
@@ -5516,7 +5516,7 @@ function renderProviders(providers, type) {
       var sub  = type === 'clinic'
         ? [m.location, m.address].filter(Boolean).join(' · ')
         : [m.regulator, m.location, m.experience].filter(Boolean).join(' · ');
-      var svcs = m.services && m.services.length ? m.services.slice(0,3).join(', ') : '';
+      var svcs = m.services && m.services.length ? m.services.slice(0,3).map(function(s){ return typeof s === 'object' ? s.name : s; }).join(', ') : '';
       var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
       var tier = m.subscription_plan || '';
       var tierBadge = tier === 'enterprise'
@@ -5668,7 +5668,7 @@ function renderProviders(providers, type) {
       var sub  = type === 'clinic'
         ? [m.location, m.address].filter(Boolean).join(' · ')
         : [m.regulator, m.location, m.experience].filter(Boolean).join(' · ');
-      var svcs = m.services && m.services.length ? m.services.slice(0,3).join(', ') : '';
+      var svcs = m.services && m.services.length ? m.services.slice(0,3).map(function(s){ return typeof s === 'object' ? s.name : s; }).join(', ') : '';
       var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
       var safeId   = p.id.replace(/'/g, '');
       var safeName = name.replace(/'/g, '').replace(/"/g, '');
@@ -5886,7 +5886,7 @@ function closeBookingModal() {
 ══════════════════════════════════════════════════════ -->
 <style>
 #dfhq-chat-btn {
-  position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+  position: fixed; bottom: 80px; right: 16px; z-index: 9000;
   width: 52px; height: 52px; border-radius: 50%;
   background: #534AB7; border: none; cursor: pointer;
   box-shadow: 0 4px 16px rgba(83,74,183,.4);
@@ -5894,6 +5894,10 @@ function closeBookingModal() {
   transition: transform .15s;
 }
 #dfhq-chat-btn:hover { transform: scale(1.08); }
+@media(min-width: 768px) {
+  #dfhq-chat-btn  { bottom: 28px; right: 28px; }
+  #dfhq-chat-panel { bottom: 90px; right: 28px; width: 360px; max-height: 520px; }
+}
 #dfhq-chat-badge {
   position: absolute; top: -2px; right: -2px;
   width: 18px; height: 18px; border-radius: 50%;
@@ -5902,8 +5906,8 @@ function closeBookingModal() {
   border: 2px solid #fff;
 }
 #dfhq-chat-panel {
-  position: fixed; bottom: 86px; right: 24px; z-index: 9000;
-  width: 360px; max-height: 520px;
+  position: fixed; bottom: 142px; right: 16px; z-index: 9000;
+  width: 340px; max-height: 480px;
   background: #fff; border-radius: 16px;
   border: 0.5px solid #e0daf5;
   box-shadow: 0 8px 32px rgba(13,27,62,.15);

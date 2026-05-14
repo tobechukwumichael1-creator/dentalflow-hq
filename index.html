@@ -3324,12 +3324,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Expose signOut globally for more menu buttons
-function signOut() {
-  getSb() && getSb().auth.signOut();
-  currentUser = null;
-  go('s-landing');
-  document.querySelectorAll('.more-menu').forEach(function(m){ m.classList.remove('open'); });
-}
+// signOut defined below (async version)
 
 // ── Password visibility toggle ────────────────────────────
 function togglePw(id, btn) {
@@ -3486,6 +3481,17 @@ function showError(id, msg) { const el=document.getElementById(id); if(el){el.te
 function hideError(id)       { const el=document.getElementById(id); if(el)el.style.display='none'; }
 function showSuccess(id)     { const el=document.getElementById(id); if(el)el.style.display='block'; }
 
+// ── XSS sanitiser — escape all user-controlled strings before innerHTML ──
+function sanitise(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ── Update dashboard with real user name ───────────────────
 function updateDashName(dashId, name) {
   // target the specific hero name IDs to avoid conflicts
@@ -3503,9 +3509,10 @@ function updateDashName(dashId, name) {
 
 // ── Sign out ───────────────────────────────────────────────
 async function signOut() {
-  await getSb().auth.signOut();
+  if (getSb()) await getSb().auth.signOut();
   currentUser = null;
   go('s-landing');
+  document.querySelectorAll('.more-menu').forEach(function(m){ m.classList.remove('open'); });
 }
 document.querySelectorAll('.sidebar-bot .sidebar-item').forEach(el => {
   el.addEventListener('click', signOut);
@@ -3641,30 +3648,52 @@ function flashSaved(id) {
 async function savePatientProfile() {
   const errorEl = document.getElementById('pd-save-error');
   errorEl.style.display = 'none';
+  if (!currentUser || (currentUser.user_metadata || {}).role !== 'patient') { errorEl.textContent = 'Unauthorised.'; errorEl.style.display = 'block'; return; }
+
   const conditions = [];
   ['anxiety','diabetes','hbp','heart','bleed','preg'].forEach(function(c) {
     if (document.getElementById('pd-c-'+c) && document.getElementById('pd-c-'+c).checked) conditions.push(c);
   });
-  const profile = {
-    full_name: document.getElementById('pd-name').value.trim(),
-    dob: document.getElementById('pd-dob').value,
-    phone: document.getElementById('pd-phone').value.trim(),
-    location: document.getElementById('pd-location').value,
-    ec_name: document.getElementById('pd-ec-name').value.trim(),
-    ec_rel: document.getElementById('pd-ec-rel').value,
-    ec_phone: document.getElementById('pd-ec-phone').value.trim(),
-    last_visit: document.getElementById('pd-last-visit').value,
-    conditions: conditions,
-    medications: document.getElementById('pd-meds').value.trim(),
-    allergies: document.getElementById('pd-allergies').value.trim(),
-    notes: document.getElementById('pd-notes').value.trim(),
-    role: 'patient', profile_complete: true
+
+  // Non-sensitive display fields — stay in user_metadata
+  const publicProfile = {
+    full_name:        document.getElementById('pd-name').value.trim(),
+    location:         document.getElementById('pd-location').value,
+    role:             'patient',
+    profile_complete: true
   };
-  const res = await getSb().auth.updateUser({ data: profile });
-  if (res.error) { errorEl.textContent = res.error.message; errorEl.style.display = 'block'; return; }
-  if (profile.full_name) { document.getElementById('pd-hero-name').textContent = profile.full_name; updateDashName('s-patient-dash', profile.full_name); }
+
+  // Sensitive health fields — written to patient_profiles table (RLS-protected, not in JWT)
+  const sensitiveProfile = {
+    user_id:     currentUser.id,
+    dob:         document.getElementById('pd-dob').value,
+    phone:       document.getElementById('pd-phone').value.trim(),
+    ec_name:     document.getElementById('pd-ec-name').value.trim(),
+    ec_rel:      document.getElementById('pd-ec-rel').value,
+    ec_phone:    document.getElementById('pd-ec-phone').value.trim(),
+    last_visit:  document.getElementById('pd-last-visit').value,
+    conditions:  conditions,
+    medications: document.getElementById('pd-meds').value.trim(),
+    allergies:   document.getElementById('pd-allergies').value.trim(),
+    notes:       document.getElementById('pd-notes').value.trim(),
+    updated_at:  new Date().toISOString()
+  };
+
+  const authRes = await getSb().auth.updateUser({ data: publicProfile });
+  if (authRes.error) { errorEl.textContent = authRes.error.message; errorEl.style.display = 'block'; return; }
+
+  const profRes = await getSb().from('patient_profiles').upsert([sensitiveProfile], { onConflict: 'user_id' });
+  if (profRes.error) {
+    // Table not yet created — fall back silently and log
+    console.warn('patient_profiles unavailable, run the SQL migration:', profRes.error.message);
+  }
+
+  if (publicProfile.full_name) {
+    document.getElementById('pd-hero-name').textContent = publicProfile.full_name;
+    updateDashName('s-patient-dash', publicProfile.full_name);
+  }
   flashSaved('pd-profile-saved');
-  renderPatientOverview(profile);
+  renderPatientOverview(Object.assign({}, publicProfile, sensitiveProfile));
 }
 
 // ══════════════════════════════════════════════════════════
@@ -3673,6 +3702,7 @@ async function savePatientProfile() {
 async function saveClinicProfile() {
   const errorEl = document.getElementById('cd-save-error');
   errorEl.style.display = 'none';
+  if (!currentUser || (currentUser.user_metadata || {}).role !== 'clinic') { errorEl.textContent = 'Unauthorised.'; errorEl.style.display = 'block'; return; }
   const days = [];
   ['mon','tue','wed','thu','fri','sat','sun'].forEach(function(d){ if (document.getElementById('cd-d-'+d) && document.getElementById('cd-d-'+d).checked) days.push(d); });
   const payments = [];
@@ -3714,6 +3744,7 @@ async function saveClinicProfile() {
 async function saveProProfile() {
   const errorEl = document.getElementById('pro-save-error');
   errorEl.style.display = 'none';
+  if (!currentUser || (currentUser.user_metadata || {}).role !== 'professional') { errorEl.textContent = 'Unauthorised.'; errorEl.style.display = 'block'; return; }
   const workPrefs = [];
   ['fulltime','parttime','sessional','gig','home'].forEach(function(w){ if (document.getElementById('pro-w-'+w) && document.getElementById('pro-w-'+w).checked) workPrefs.push(w); });
   const profile = {
@@ -3745,15 +3776,34 @@ async function saveProProfile() {
 }
 
 // ── Load saved data back into forms on login ───────────────
-function loadProfileIntoForms(meta) {
+async function loadProfileIntoForms(meta) {
   function set(id, val) { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; }
   function chk(id, val) { const el = document.getElementById(id); if (el) el.checked = !!val; }
+
   if (meta.role === 'patient') {
-    set('pd-name', meta.full_name); set('pd-dob', meta.dob); set('pd-phone', meta.phone); set('pd-location', meta.location);
-    set('pd-ec-name', meta.ec_name); set('pd-ec-rel', meta.ec_rel); set('pd-ec-phone', meta.ec_phone);
-    set('pd-last-visit', meta.last_visit); set('pd-meds', meta.medications); set('pd-allergies', meta.allergies); set('pd-notes', meta.notes);
-    (meta.conditions || []).forEach(function(c){ chk('pd-c-'+c, true); });
+    // Always set non-sensitive display fields from user_metadata
+    set('pd-name', meta.full_name);
+    set('pd-location', meta.location);
+
+    // Fetch sensitive health fields from patient_profiles table
+    try {
+      const pRes = await getSb().from('patient_profiles').select('*').eq('user_id', currentUser.id).single();
+      const p = (pRes.data) || {};
+      set('pd-dob', p.dob); set('pd-phone', p.phone);
+      set('pd-ec-name', p.ec_name); set('pd-ec-rel', p.ec_rel); set('pd-ec-phone', p.ec_phone);
+      set('pd-last-visit', p.last_visit); set('pd-meds', p.medications);
+      set('pd-allergies', p.allergies); set('pd-notes', p.notes);
+      (p.conditions || []).forEach(function(c){ chk('pd-c-'+c, true); });
+    } catch(e) {
+      // Table not created yet — try legacy user_metadata fields as fallback
+      set('pd-dob', meta.dob); set('pd-phone', meta.phone);
+      set('pd-ec-name', meta.ec_name); set('pd-ec-rel', meta.ec_rel); set('pd-ec-phone', meta.ec_phone);
+      set('pd-last-visit', meta.last_visit); set('pd-meds', meta.medications);
+      set('pd-allergies', meta.allergies); set('pd-notes', meta.notes);
+      (meta.conditions || []).forEach(function(c){ chk('pd-c-'+c, true); });
+    }
   }
+
   if (meta.role === 'clinic') {
     set('cd-name', meta.clinic_name); set('cd-phone', meta.phone); set('cd-location', meta.location);
     set('cd-address', meta.address); set('cd-open', meta.open_time); set('cd-close', meta.close_time);
@@ -3767,6 +3817,7 @@ function loadProfileIntoForms(meta) {
     (meta.services || []).forEach(function(s, i){ if (svcRows[i]) { svcRows[i].querySelector('.svc-name').value = s.name; svcRows[i].querySelector('.svc-price').value = (s.price||'').replace(/[^\d]/g,''); } });
     (meta.staff    || []).forEach(function(s, i){ if (stfRows[i]) { stfRows[i].querySelector('.staff-name').value = s.name; stfRows[i].querySelector('.staff-role').value = s.role||''; } });
   }
+
   if (meta.role === 'professional') {
     set('pro-name', meta.full_name); set('pro-phone', meta.phone); set('pro-location', meta.location);
     set('pro-exp', meta.experience); set('pro-regbody', meta.regulator); set('pro-regno', meta.reg_no);
@@ -3998,6 +4049,7 @@ function addVacancyRow(item) {
 async function saveStaffVac() {
   var errEl = document.getElementById('sv-error');
   if (errEl) errEl.style.display = 'none';
+  if (!currentUser || (currentUser.user_metadata || {}).role !== 'clinic') { if (errEl) { errEl.textContent = 'Unauthorised.'; errEl.style.display = 'block'; } return; }
 
   var staff = [];
   document.querySelectorAll('.staff-vac-row').forEach(function(row) {
@@ -4033,6 +4085,10 @@ function loadStaffVac(meta) {
 async function logWalkin() {
   var errEl = document.getElementById('wi-error');
   errEl.style.display = 'none';
+  // ── Guard: must be signed in as a clinic ──────────────────
+  if (!currentUser) { errEl.textContent = 'Please sign in to log a walk-in.'; errEl.style.display = 'block'; return; }
+  if ((currentUser.user_metadata || {}).role !== 'clinic') { errEl.textContent = 'Only clinic accounts can log walk-ins.'; errEl.style.display = 'block'; return; }
+  // ─────────────────────────────────────────────────────────
   var name = document.getElementById('wi-name').value.trim();
   var chief = document.getElementById('wi-chief') ? document.getElementById('wi-chief').value.trim() : '';
   if (!name) { errEl.textContent = 'Patient name is required.'; errEl.style.display = 'block'; return; }
@@ -4356,80 +4412,7 @@ function providerCard(p, type) {
     '</div>';
 }
 
-// ── Search providers ───────────────────────────────────────
-async function searchProviders() {
-  var location = document.getElementById('search-location').value;
-  var type = document.getElementById('search-type').value;
-  var resultsEl = document.getElementById('search-results');
-  resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">Searching...</div>';
-
-  try {
-    // Fetch all users via the Supabase admin-safe RPC
-    var res = await getSb().rpc('get_providers');
-
-    // Fallback: if RPC not set up, show helpful message
-    if (res.error) {
-      resultsEl.innerHTML = '<div style="background:#FCEBEB;color:#A32D2D;border-radius:10px;padding:1rem;font-size:13px;">' +
-        '<strong>Search not available yet.</strong><br>Run this SQL in Supabase -> SQL Editor to enable search:<br><br>' +
-        '<code style="font-size:11px;background:#fff;padding:4px 8px;border-radius:6px;display:block;margin-top:6px;">' +
-        'create or replace function get_providers()<br>' +
-        'returns table(id uuid, email text, raw_user_meta_data jsonb)<br>' +
-        'language sql security definer as $$<br>' +
-        'select au.id, au.email, au.raw_user_meta_data<br>' +
-        'from auth.users au<br>' +
-        'where au.raw_user_meta_data->>&#39;profile_complete&#39; = &#39;true&#39;;<br>' +
-        '$$;</code></div>';
-      return;
-    }
-
-    var role = type === 'clinic' ? 'clinic' : 'professional';
-    var users = (res.data || []).filter(function(u) {
-      var meta = u.raw_user_meta_data || {};
-      if (meta.role !== role) return false;
-      if (location && meta.location !== location) return false;
-      return true;
-    });
-
-    if (!users.length) {
-      resultsEl.innerHTML = '<div style="font-size:13px;color:#888780;padding:.5rem 0;">No ' + type + 's found' +
-        (location ? ' in ' + location : '') +
-        '. Try a different location or browse all.</div>';
-      return;
-    }
-
-    resultsEl.innerHTML =
-      '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + users.length + ' result(s)</div>' +
-      users.map(function(u){ return providerCard(u, type); }).join('');
-
-  } catch(e) {
-    resultsEl.innerHTML = '<div style="font-size:13px;color:#A32D2D;">Error: ' + e.message + '</div>';
-  }
-}
-
-async function browseAll() {
-  document.getElementById('search-location').value = '';
-  await searchProviders();
-}
-
-// ── Booking modal ──────────────────────────────────────────
-function openBookingModal(id, name, type, sub) {
-  bookingTarget = { id: id, name: decodeURIComponent(name), type: type, sub: decodeURIComponent(sub) };
-  document.getElementById('modal-provider-name').textContent = 'Book with ' + bookingTarget.name;
-  document.getElementById('modal-provider-sub').textContent = bookingTarget.sub;
-  document.getElementById('book-date').value = '';
-  document.getElementById('book-time').value = '';
-  document.getElementById('book-complaint').value = '';
-  document.getElementById('book-service').value = '';
-  document.getElementById('book-error').style.display = 'none';
-  document.getElementById('book-success').style.display = 'none';
-  var modal = document.getElementById('booking-modal');
-  modal.style.display = 'flex';
-}
-
-function closeBookingModal() {
-  document.getElementById('booking-modal').style.display = 'none';
-  bookingTarget = null;
-}
+// searchProviders, browseAll, openBookingModal, closeBookingModal — defined below
 
 // ── Submit booking to Supabase ─────────────────────────────
 async function submitBooking() {
@@ -4746,8 +4729,8 @@ function renderClinicOverview(meta) {
   var svcOverview = document.getElementById('cd-svc-overview');
   if (svcOverview && svcs.length) {
     svcOverview.innerHTML = svcs.slice(0,5).map(function(s){
-      var sName  = typeof s === 'object' ? (s.name  || '—') : s;
-      var sPrice = typeof s === 'object' ? (s.price || 'Varies') : '';
+      var sName  = sanitise(typeof s === 'object' ? (s.name  || '—') : s);
+      var sPrice = sanitise(typeof s === 'object' ? (s.price || 'Varies') : '');
       return '<div class="card-row"><div class="flex-1"><div class="font-medium">' + sName + '</div></div><span style="font-size:12px;font-weight:500;color:#185FA5;">' + sPrice + '</span></div>';
     }).join('') + (svcs.length > 5 ? '<div style="padding:.5rem 1.25rem;font-size:12px;color:#888780;">+' + (svcs.length-5) + ' more services</div>' : '');
   }
@@ -5244,8 +5227,8 @@ async function loadBookingRequests() {
   listEl.innerHTML = '<table><tr><th>Patient</th><th>Complaint</th><th>Requested date</th><th>Service</th><th>Action</th></tr>' +
     requests.map(function(b) {
       return '<tr>' +
-        '<td><strong>' + (b.patient_name || '—') + '</strong><div style="font-size:11px;color:#888780;">' + (b.patient_email || '') + '</div></td>' +
-        '<td style="font-size:12px;color:#888780;max-width:160px;">' + (b.complaint ? b.complaint.slice(0,60) + (b.complaint.length > 60 ? '...' : '') : '—') + '</td>' +
+        '<td><strong>' + sanitise(b.patient_name || '—') + '</strong><div style="font-size:11px;color:#888780;">' + sanitise(b.patient_email || '') + '</div></td>' +
+        '<td style="font-size:12px;color:#888780;max-width:160px;">' + (b.complaint ? sanitise(b.complaint).slice(0,60) + (b.complaint.length > 60 ? '...' : '') : '—') + '</td>' +
         '<td style="font-size:12px;">' + (b.preferred_date ? fmtDate(b.preferred_date) : '—') + (b.preferred_time ? ' · ' + fmtTime(b.preferred_time) : '') + '</td>' +
         '<td style="font-size:12px;color:#888780;">' + (b.service_requested || '—') + '</td>' +
         '<td>' +
@@ -5258,7 +5241,11 @@ async function loadBookingRequests() {
 }
 
 async function updateBookingStatus(bookingId, status) {
-  var res = await getSb().from('bookings').update({ status: status }).eq('id', bookingId);
+  if (!currentUser || (currentUser.user_metadata || {}).role !== 'clinic') return;
+  var res = await getSb().from('bookings')
+    .update({ status: status })
+    .eq('id', bookingId)
+    .eq('provider_id', currentUser.id); // ownership check
   if (!res.error) {
     loadBookingRequests();
     loadClinicBookings();
@@ -5294,7 +5281,7 @@ async function loadPatientRecords() {
     try { notes = JSON.parse(b.notes || '{}'); } catch(e) {}
 
     var fields = [];
-    if (notes.chief_complaint || b.complaint) fields.push(['Chief complaint', notes.chief_complaint || b.complaint]);
+    if (notes.chief_complaint || b.complaint) fields.push(['Chief complaint', sanitise(notes.chief_complaint || b.complaint)]);
     if (notes.diagnosis_1) fields.push(['Diagnosis 1', notes.diagnosis_1]);
     if (notes.diagnosis_2) fields.push(['Diagnosis 2', notes.diagnosis_2]);
     if (notes.tx_done || b.service_requested) fields.push(['Treatment done', notes.tx_done || b.service_requested]);
@@ -5494,6 +5481,9 @@ function enforceAnalyticsGating(user) {
 }
 
 // ── TIER-RANKED PROVIDER SEARCH ────────────────────────────
+// Global provider cache — keyed by provider id
+var providerCache = {};
+
 function renderProviders(providers, type) {
   var el = document.getElementById('search-results');
   if (!providers.length) {
@@ -5501,24 +5491,31 @@ function renderProviders(providers, type) {
     return;
   }
 
-  // Sort by plan tier — Enterprise first, Principal second, Foundation/trial last
   providers.sort(function(a, b) {
-    var planA = PLAN_TIERS[(a.user_metadata || {}).subscription_plan] || 0;
-    var planB = PLAN_TIERS[(b.user_metadata || {}).subscription_plan] || 0;
-    return planB - planA;
+    return (PLAN_TIERS[(b.user_metadata||{}).subscription_plan]||0) - (PLAN_TIERS[(a.user_metadata||{}).subscription_plan]||0);
   });
+
+  providers.forEach(function(p) { providerCache[p.id] = p; });
 
   var bg  = type === 'clinic' ? '#E6F1FB' : '#EAF3DE';
   var col = type === 'clinic' ? '#185FA5' : '#3B6D11';
 
-  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">' +
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">' +
     providers.map(function(p) {
       var m    = p.user_metadata || {};
       var name = m.clinic_name || m.full_name || 'Unknown';
       var sub  = type === 'clinic'
         ? [m.location, m.address].filter(Boolean).join(' · ')
         : [m.regulator, m.location, m.experience].filter(Boolean).join(' · ');
-      var svcs = m.services && m.services.length ? m.services.slice(0,3).map(function(s){ return typeof s === 'object' ? s.name : s; }).join(', ') : '';
+      var svcPills = '';
+      if (m.services && m.services.length) {
+        svcPills = m.services.slice(0,3).map(function(s) {
+          var sName  = typeof s === 'object' ? s.name  : s;
+          var sPrice = typeof s === 'object' && s.price ? ' · ' + s.price : '';
+          return '<span style="display:inline-block;background:#f5f4fd;color:#534AB7;font-size:11px;padding:3px 9px;border-radius:20px;margin:2px 3px 2px 0;">' + sName + sPrice + '</span>';
+        }).join('');
+        if (m.services.length > 3) svcPills += '<span style="font-size:11px;color:#888780;"> +' + (m.services.length - 3) + ' more</span>';
+      }
       var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
       var tier = m.subscription_plan || '';
       var tierBadge = tier === 'enterprise'
@@ -5527,19 +5524,138 @@ function renderProviders(providers, type) {
         ? '<span style="font-size:10px;background:#185FA5;color:#fff;padding:2px 8px;border-radius:20px;margin-left:4px;">Principal</span>'
         : '';
       var safeId   = p.id.replace(/'/g, '');
-      var safeName = name.replace(/'/g, '').replace(/"/g, '');
-      var safeSub  = sub.replace(/'/g, '').replace(/"/g, '');
-      return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:12px;padding:1.25rem;cursor:pointer;' + (tier === 'enterprise' ? 'border-color:#185FA5;' : '') + '" onclick="openBookingModal(\'' + safeId + '\',\'' + safeName + '\',\'' + safeSub + '\')">' +
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;">' +
-        '<div style="width:40px;height:40px;border-radius:10px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:' + col + ';flex-shrink:0;">' + ini + '</div>' +
-        '<div><div style="display:flex;align-items:center;gap:4px;"><div style="font-size:14px;font-weight:500;color:#26215C;">' + name + '</div>' + tierBadge + '</div>' +
-        '<div style="font-size:12px;color:#888780;">' + (sub || 'Nigeria') + '</div></div></div>' +
-        (svcs ? '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + svcs + '</div>' : '') +
-        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:20px;">Verified</span>' +
-        '<span style="font-size:12px;color:#534AB7;font-weight:500;">Book →</span></div></div>';
+      var safeName = sanitise(name);
+      var safeSub  = sanitise(sub);
+      var hours = (m.open_time && m.close_time) ? m.open_time + ' \u2013 ' + m.close_time : '';
+
+      return '<div style="background:#fff;border:0.5px solid ' + (tier==='enterprise'?'#185FA5':'#e0daf5') + ';border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:.75rem;">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<div style="width:42px;height:42px;border-radius:11px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:' + col + ';flex-shrink:0;">' + ini + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">' +
+              '<div style="font-size:14px;font-weight:600;color:#26215C;">' + name + '</div>' + tierBadge +
+            '</div>' +
+            '<div style="font-size:12px;color:#888780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (sub || 'Nigeria') + '</div>' +
+          '</div>' +
+        '</div>' +
+        (svcPills ? '<div style="line-height:1.8;">' + svcPills + '</div>' : '') +
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">' +
+          (hours ? '<span style="font-size:11px;color:#888780;">\uD83D\uDD50 ' + hours + '</span>' : '<span></span>') +
+          '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:20px;">\u2713 Verified</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<button onclick="viewProviderProfile(\'' + safeId + '\')" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid ' + col + ';background:#fff;color:' + col + ';font-size:13px;font-weight:500;cursor:pointer;">View profile</button>' +
+          '<button onclick="openBookingModal(\'' + safeId + '\',\'' + safeName + '\',\'' + safeSub + '\')" style="flex:1;padding:8px 0;border-radius:8px;border:none;background:' + col + ';color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Book \u2192</button>' +
+        '</div>' +
+      '</div>';
     }).join('') + '</div>';
 }
+
+function viewProviderProfile(providerId) {
+  var p = providerCache[providerId];
+  if (!p) { alert('Provider details not available. Please refresh and try again.'); return; }
+  var m    = p.user_metadata || {};
+  var type = m.role || 'clinic';
+  var name = sanitise(m.clinic_name || m.full_name || 'Unknown');
+  var bg   = type === 'clinic' ? '#E6F1FB' : '#EAF3DE';
+  var col  = type === 'clinic' ? '#185FA5' : '#3B6D11';
+  var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+  var tier = m.subscription_plan || '';
+  var tierBadge = tier === 'enterprise'
+    ? '<span style="font-size:11px;background:#0D1B3E;color:#fff;padding:3px 10px;border-radius:20px;">Enterprise</span>'
+    : tier === 'principal'
+    ? '<span style="font-size:11px;background:#185FA5;color:#fff;padding:3px 10px;border-radius:20px;">Principal</span>'
+    : tier === 'foundation'
+    ? '<span style="font-size:11px;background:#f0f0f0;color:#555;padding:3px 10px;border-radius:20px;">Foundation</span>'
+    : '';
+
+  // Services table
+  var svcsHtml = '<div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Services &amp; prices</div>';
+  if (m.services && m.services.length) {
+    svcsHtml += '<div style="border:0.5px solid #f0f0f0;border-radius:10px;overflow:hidden;margin-bottom:1.25rem;">' +
+      m.services.map(function(s, i) {
+        var sName  = typeof s === 'object' ? s.name  : s;
+        var sPrice = typeof s === 'object' && s.price ? s.price : 'Contact for price';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;' + (i%2===0?'background:#fafafa;':'') + (i<m.services.length-1?'border-bottom:0.5px solid #f0f0f0;':'') + '">' +
+          '<span style="font-size:13px;color:#26215C;">' + sName + '</span>' +
+          '<span style="font-size:13px;font-weight:500;color:' + col + ';">' + sPrice + '</span>' +
+        '</div>';
+      }).join('') + '</div>';
+  } else {
+    svcsHtml += '<div style="font-size:13px;color:#888780;margin-bottom:1.25rem;background:#fafafa;border-radius:10px;padding:.875rem;">No services listed yet.</div>';
+  }
+
+  // Hours
+  var days = ['mon','tue','wed','thu','fri','sat','sun'];
+  var dayLabels = {mon:'Mon',tue:'Tue',wed:'Wed',thu:'Thu',fri:'Fri',sat:'Sat',sun:'Sun'};
+  var openDays = days.filter(function(d){ return m['day_'+d]; }).map(function(d){ return dayLabels[d]; });
+  var hoursHtml = '';
+  if (m.open_time || m.close_time || openDays.length) {
+    hoursHtml = '<div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Opening hours</div>' +
+      '<div style="background:#fafafa;border-radius:10px;padding:.875rem 1rem;margin-bottom:1.25rem;display:flex;flex-wrap:wrap;gap:12px;">' +
+      (openDays.length ? '<div style="font-size:13px;color:#26215C;"><span style="color:#888;font-size:12px;">Days: </span>' + openDays.join(', ') + '</div>' : '') +
+      ((m.open_time && m.close_time) ? '<div style="font-size:13px;color:#26215C;"><span style="color:#888;font-size:12px;">Hours: </span>' + m.open_time + ' \u2013 ' + m.close_time + '</div>' : '') +
+      '</div>';
+  }
+
+  // Location
+  var locHtml = '';
+  if (m.location || m.address) {
+    locHtml = '<div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Location</div>' +
+      '<div style="background:#fafafa;border-radius:10px;padding:.875rem 1rem;margin-bottom:1.25rem;">' +
+      (m.address ? '<div style="font-size:13px;color:#26215C;">' + m.address + '</div>' : '') +
+      (m.location ? '<div style="font-size:12px;color:#888780;margin-top:2px;">' + m.location + '</div>' : '') +
+      '</div>';
+  }
+
+  // Professional-specific details
+  var proHtml = '';
+  if (type === 'professional') {
+    var proItems = [];
+    if (m.regulator)  proItems.push(['Regulatory body', m.regulator]);
+    if (m.reg_no)     proItems.push(['Registration no.', m.reg_no]);
+    if (m.degree)     proItems.push(['Qualification', m.degree]);
+    if (m.experience) proItems.push(['Experience', m.experience]);
+    if (m.rate_day)   proItems.push(['Day rate', '\u20A6' + Number(m.rate_day).toLocaleString()]);
+    if (m.rate_home)  proItems.push(['Home visit rate', '\u20A6' + Number(m.rate_home).toLocaleString()]);
+    if (proItems.length) {
+      proHtml = '<div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Professional details</div>' +
+        '<div style="border:0.5px solid #f0f0f0;border-radius:10px;overflow:hidden;margin-bottom:1.25rem;">' +
+        proItems.map(function(r, i) {
+          return '<div style="display:flex;justify-content:space-between;padding:8px 14px;' + (i%2===0?'background:#fafafa;':'') + (i<proItems.length-1?'border-bottom:0.5px solid #f0f0f0;':'') + '">' +
+            '<span style="font-size:12px;color:#888;">' + r[0] + '</span>' +
+            '<span style="font-size:13px;font-weight:500;color:#26215C;">' + r[1] + '</span>' +
+          '</div>';
+        }).join('') + '</div>';
+    }
+  }
+
+  var sub = type === 'clinic'
+    ? [m.location, m.address].filter(Boolean).join(' \u00B7 ')
+    : [m.regulator, m.location].filter(Boolean).join(' \u00B7 ');
+
+  document.getElementById('provider-modal-content').innerHTML =
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;">' +
+      '<div style="width:52px;height:52px;border-radius:13px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:' + col + ';flex-shrink:0;">' + ini + '</div>' +
+      '<div>' +
+        '<div style="font-size:18px;font-weight:600;color:#26215C;margin-bottom:5px;">' + name + '</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+          '<span style="font-size:12px;background:#EAF3DE;color:#3B6D11;padding:2px 9px;border-radius:20px;">\u2713 Verified</span>' +
+          tierBadge +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    svcsHtml + hoursHtml + locHtml + proHtml +
+    '<button onclick="closeProviderModal();openBookingModal(\'' + p.id + '\',\'' + name.replace(/'/g,'').replace(/"/g,'') + '\',\'' + sub.replace(/'/g,'').replace(/"/g,'') + '\')" ' +
+    'style="width:100%;padding:13px;border-radius:11px;border:none;background:' + col + ';color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:.25rem;">Book appointment \u2192</button>';
+
+  document.getElementById('provider-modal').style.display = 'flex';
+}
+
+function closeProviderModal() {
+  document.getElementById('provider-modal').style.display = 'none';
+}
+
 
 var billingAnnual = false;
 var pricingTab = 'clinic';
@@ -5655,37 +5771,7 @@ async function browseAll() {
   }
 }
 
-function renderProviders(providers, type) {
-  var el = document.getElementById('search-results');
-  if (!providers.length) {
-    el.innerHTML = '<div style="font-size:13px;color:#888780;padding:1rem 0;">No verified ' + (type === 'clinic' ? 'clinics' : 'professionals') + ' found in this area yet. Check back soon as more join the platform.</div>';
-    return;
-  }
-  var bg  = type === 'clinic' ? '#E6F1FB' : '#EAF3DE';
-  var col = type === 'clinic' ? '#185FA5' : '#3B6D11';
-  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">' +
-    providers.map(function(p) {
-      var m = p.user_metadata || {};
-      var name = m.clinic_name || m.full_name || 'Unknown';
-      var sub  = type === 'clinic'
-        ? [m.location, m.address].filter(Boolean).join(' · ')
-        : [m.regulator, m.location, m.experience].filter(Boolean).join(' · ');
-      var svcs = m.services && m.services.length ? m.services.slice(0,3).map(function(s){ return typeof s === 'object' ? s.name : s; }).join(', ') : '';
-      var ini  = name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
-      var safeId   = p.id.replace(/'/g, '');
-      var safeName = name.replace(/'/g, '').replace(/"/g, '');
-      var safeSub  = sub.replace(/'/g, '').replace(/"/g, '');
-      return '<div style="background:#fff;border:0.5px solid #e0daf5;border-radius:12px;padding:1.25rem;cursor:pointer;" onclick="openBookingModal(\'' + safeId + '\',\'' + safeName + '\',\'' + safeSub + '\')">' +
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem;">' +
-        '<div style="width:40px;height:40px;border-radius:10px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:' + col + ';flex-shrink:0;">' + ini + '</div>' +
-        '<div><div style="font-size:14px;font-weight:500;color:#26215C;">' + name + '</div>' +
-        '<div style="font-size:12px;color:#888780;">' + (sub || 'Nigeria') + '</div></div></div>' +
-        (svcs ? '<div style="font-size:12px;color:#888780;margin-bottom:.75rem;">' + svcs + '</div>' : '') +
-        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:20px;">Verified</span>' +
-        '<span style="font-size:12px;color:#534AB7;font-weight:500;">Book →</span></div></div>';
-    }).join('') + '</div>';
-}
+
 
 function openBookingModal(providerId, providerName, providerSub) {
   if (!currentUser) { alert('Please sign in to book an appointment.'); return; }
@@ -5708,8 +5794,18 @@ function closeBookingModal() {
 
 </script>
 
-<!-- ══════════════════════════════════════════════════════════
-     SCREEN — PRICING
+<!-- Provider profile modal -->
+<div id="provider-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.55);z-index:1100;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:0.5px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0;">
+      <div style="font-size:15px;font-weight:600;color:#0D1B3E;">Clinic profile</div>
+      <button onclick="closeProviderModal()" style="background:none;border:none;font-size:20px;color:#888;cursor:pointer;line-height:1;padding:2px 6px;">✕</button>
+    </div>
+    <div id="provider-modal-content" style="padding:1.5rem;"></div>
+  </div>
+</div>
+
+
 ══════════════════════════════════════════════════════════ -->
 <div id="s-pricing" class="screen">
   <div style="background:#0D1B3E;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;">

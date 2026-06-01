@@ -1423,15 +1423,34 @@ tr:last-child td { border-bottom: none; }
       <!-- Sign in view -->
       <div id="patient-signin-view">
         <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Welcome back</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Sign in to your patient account</div>
-        <label class="f-label" style="color:#534AB7;">Email address</label>
-        <input id="patient-signin-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
-        <label class="f-label" style="color:#534AB7;">Password</label>
-        <div class="pw-wrap"><input id="patient-signin-password" class="f-input f-input-purple" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('patient-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <div id="patient-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
-        <button class="f-btn" style="background:#534AB7;" onclick="patientSignIn()">Sign in</button>
-        <div class="text-center" style="margin-top:.75rem;">
-          <a style="font-size:12px;color:#7F77DD;cursor:pointer;" onclick="togglePatientView('reset')">Forgot password?</a>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Sign in to your patient account</div>
+        <div style="display:flex;background:#f5f5f5;border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;">
+          <button id="pd-si-email-tab" onclick="switchSignInMethod('pd','email')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#534AB7;color:#fff;transition:all .15s;">Email</button>
+          <button id="pd-si-phone-tab" onclick="switchSignInMethod('pd','phone')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;transition:all .15s;">Phone / OTP</button>
+        </div>
+        <div id="pd-si-email-fields">
+          <label class="f-label" style="color:#534AB7;">Email address</label>
+          <input id="patient-signin-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
+          <label class="f-label" style="color:#534AB7;">Password</label>
+          <div class="pw-wrap"><input id="patient-signin-password" class="f-input f-input-purple" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('patient-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <div id="patient-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+          <button class="f-btn" style="background:#534AB7;" onclick="patientSignIn()">Sign in</button>
+          <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="togglePatientView('reset')">Forgot password?</a></div>
+        </div>
+        <div id="pd-si-phone-fields" style="display:none;">
+          <label class="f-label" style="color:#534AB7;">Phone number</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:.75rem;"><span style="display:flex;align-items:center;padding:0 12px;height:44px;background:#f5f4fd;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;color:#534AB7;font-weight:500;flex-shrink:0;">+234</span><input id="pd-signin-phone" class="f-input f-input-purple" type="tel" placeholder="08012345678" style="flex:1;margin-bottom:0;" /></div>
+          <div id="pd-si-phone-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+          <div id="pd-si-otp-row" style="display:none;margin-bottom:.5rem;">
+            <label class="f-label" style="color:#534AB7;">Enter the 6-digit OTP</label>
+            <input id="pd-signin-otp" class="f-input f-input-purple" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
+            <div id="pd-si-otp-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+            <button class="f-btn" style="background:#534AB7;" onclick="verifyPhoneOtp('pd','signin')">Verify &amp; sign in</button>
+            <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="sendPhoneOtp('pd','signin')">Resend OTP</a></div>
+          </div>
+          <div id="pd-si-send-row">
+            <button class="f-btn" style="background:#534AB7;" onclick="sendPhoneOtp('pd','signin')">Send OTP</button>
+          </div>
         </div>
         <div class="f-link">New to DentalFlow? <a style="color:#534AB7;cursor:pointer;" onclick="togglePatientView('register')">Create account</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
@@ -1450,19 +1469,39 @@ tr:last-child td { border-bottom: none; }
       <!-- Register view -->
       <div id="patient-register-view" style="display:none;">
         <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Create account</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Join DentalFlow HQ as a patient</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Join DentalFlow HQ as a patient</div>
+        <div style="display:flex;background:#f5f5f5;border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;">
+          <button id="pd-reg-email-tab" onclick="switchRegMethod('pd','email')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#534AB7;color:#fff;transition:all .15s;">Email</button>
+          <button id="pd-reg-phone-tab" onclick="switchRegMethod('pd','phone')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;transition:all .15s;">Phone / OTP</button>
+        </div>
         <label class="f-label" style="color:#534AB7;">Full name</label>
         <input id="patient-reg-name" class="f-input f-input-purple" type="text" placeholder="Your full name" />
-        <label class="f-label" style="color:#534AB7;">Email address</label>
-        <input id="patient-reg-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
-        <label class="f-label" style="color:#534AB7;">Password</label>
-        <div class="pw-wrap"><input id="patient-reg-password" class="f-input f-input-purple" type="password" placeholder="Min. 6 characters" oninput="checkMatch('patient')" /><button type="button" class="pw-toggle" onclick="togglePw('patient-reg-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <label class="f-label" style="color:#534AB7;">Confirm password</label>
-        <div class="pw-wrap"><input id="patient-reg-password2" class="f-input f-input-purple" type="password" placeholder="Repeat password" oninput="checkMatch('patient')" /><button type="button" class="pw-toggle" onclick="togglePw('patient-reg-password2',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <div id="patient-match" class="pw-match"></div>
+        <div id="pd-reg-email-fields">
+          <label class="f-label" style="color:#534AB7;">Email address</label>
+          <input id="patient-reg-email" class="f-input f-input-purple" type="email" placeholder="you@example.com" />
+          <label class="f-label" style="color:#534AB7;">Password</label>
+          <div class="pw-wrap"><input id="patient-reg-password" class="f-input f-input-purple" type="password" placeholder="Min. 6 characters" oninput="checkMatch('pd')" /><button type="button" class="pw-toggle" onclick="togglePw('patient-reg-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <label class="f-label" style="color:#534AB7;">Confirm password</label>
+          <div class="pw-wrap"><input id="patient-reg-password2" class="f-input f-input-purple" type="password" placeholder="Repeat password" oninput="checkMatch('pd')" /><button type="button" class="pw-toggle" onclick="togglePw('patient-reg-password2',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <div id="pd-match" class="pw-match"></div>
+        </div>
+        <div id="pd-reg-phone-fields" style="display:none;">
+          <label class="f-label" style="color:#534AB7;">Phone number</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:.75rem;"><span style="display:flex;align-items:center;padding:0 12px;height:44px;background:#f5f4fd;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;color:#534AB7;font-weight:500;flex-shrink:0;">+234</span><input id="pd-reg-phone" class="f-input f-input-purple" type="tel" placeholder="08012345678" style="flex:1;margin-bottom:0;" /></div>
+          <div id="pd-reg-otp-row" style="display:none;">
+            <label class="f-label" style="color:#534AB7;">Enter the 6-digit OTP</label>
+            <input id="pd-reg-otp" class="f-input f-input-purple" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
+            <div id="pd-reg-otp-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+            <button class="f-btn" style="background:#534AB7;" onclick="verifyPhoneOtp('pd','register')">Verify &amp; register</button>
+            <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#534AB7;cursor:pointer;" onclick="sendPhoneOtp('pd','register')">Resend OTP</a></div>
+          </div>
+          <div id="pd-reg-send-row">
+            <button class="f-btn" style="background:#534AB7;" onclick="sendPhoneOtp('pd','register')">Send OTP</button>
+          </div>
+        </div>
         <div id="patient-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <div id="patient-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Account created! Check your email to confirm, then sign in.</div>
-        <button class="f-btn" style="background:#534AB7;" onclick="patientRegister()">Create account</button>
+        <button class="f-btn" style="background:#534AB7;" id="pd-reg-btn" onclick="patientRegister()">Create account</button>
         <div class="f-link">Already have an account? <a style="color:#534AB7;cursor:pointer;" onclick="togglePatientView('signin')">Sign in</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
@@ -1873,16 +1912,35 @@ tr:last-child td { border-bottom: none; }
     <div class="split-form">
       <!-- Sign in view -->
       <div id="clinic-signin-view">
-        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Clinic sign in</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Access your clinic dashboard</div>
-        <label class="f-label" style="color:#185FA5;">Email address</label>
-        <input id="clinic-signin-email" class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
-        <label class="f-label" style="color:#185FA5;">Password</label>
-        <div class="pw-wrap"><input id="clinic-signin-password" class="f-input f-input-blue" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <div id="clinic-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
-        <button class="f-btn" style="background:#185FA5;" onclick="clinicSignIn()">Sign in</button>
-        <div class="text-center" style="margin-top:.75rem;">
-          <a style="font-size:12px;color:#378ADD;cursor:pointer;" onclick="toggleClinicView('reset')">Forgot password?</a>
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Welcome back</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Sign in to your clinic account</div>
+        <div style="display:flex;background:#f5f5f5;border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;">
+          <button id="cd-si-email-tab" onclick="switchSignInMethod('cd','email')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#185FA5;color:#fff;transition:all .15s;">Email</button>
+          <button id="cd-si-phone-tab" onclick="switchSignInMethod('cd','phone')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;transition:all .15s;">Phone / OTP</button>
+        </div>
+        <div id="cd-si-email-fields">
+          <label class="f-label" style="color:#185FA5;">Email address</label>
+          <input id="clinic-signin-email" class="f-input f-input-blue" type="email" placeholder="you@example.com" />
+          <label class="f-label" style="color:#185FA5;">Password</label>
+          <div class="pw-wrap"><input id="clinic-signin-password" class="f-input f-input-blue" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <div id="clinic-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+          <button class="f-btn" style="background:#185FA5;" onclick="clinicSignIn()">Sign in</button>
+          <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#185FA5;cursor:pointer;" onclick="toggleClinicView('reset')">Forgot password?</a></div>
+        </div>
+        <div id="cd-si-phone-fields" style="display:none;">
+          <label class="f-label" style="color:#185FA5;">Phone number</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:.75rem;"><span style="display:flex;align-items:center;padding:0 12px;height:44px;background:#E6F1FB;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;color:#185FA5;font-weight:500;flex-shrink:0;">+234</span><input id="cd-signin-phone" class="f-input f-input-blue" type="tel" placeholder="08012345678" style="flex:1;margin-bottom:0;" /></div>
+          <div id="cd-si-phone-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+          <div id="cd-si-otp-row" style="display:none;margin-bottom:.5rem;">
+            <label class="f-label" style="color:#185FA5;">Enter the 6-digit OTP</label>
+            <input id="cd-signin-otp" class="f-input f-input-blue" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
+            <div id="cd-si-otp-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+            <button class="f-btn" style="background:#185FA5;" onclick="verifyPhoneOtp('cd','signin')">Verify &amp; sign in</button>
+            <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#185FA5;cursor:pointer;" onclick="sendPhoneOtp('cd','signin')">Resend OTP</a></div>
+          </div>
+          <div id="cd-si-send-row">
+            <button class="f-btn" style="background:#185FA5;" onclick="sendPhoneOtp('cd','signin')">Send OTP</button>
+          </div>
         </div>
         <div class="f-link">New clinic? <a style="color:#185FA5;cursor:pointer;" onclick="toggleClinicView('register')">Register your clinic</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
@@ -1901,19 +1959,39 @@ tr:last-child td { border-bottom: none; }
       <!-- Register view -->
       <div id="clinic-register-view" style="display:none;">
         <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Register your clinic</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.75rem;">Join DentalFlow HQ as a clinic</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Create your clinic profile on DentalFlow HQ</div>
+        <div style="display:flex;background:#f5f5f5;border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;">
+          <button id="cd-reg-email-tab" onclick="switchRegMethod('cd','email')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#185FA5;color:#fff;transition:all .15s;">Email</button>
+          <button id="cd-reg-phone-tab" onclick="switchRegMethod('cd','phone')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;transition:all .15s;">Phone / OTP</button>
+        </div>
         <label class="f-label" style="color:#185FA5;">Clinic name</label>
         <input id="clinic-reg-name" class="f-input f-input-blue" type="text" placeholder="e.g. SmileCare Dental Clinic" />
-        <label class="f-label" style="color:#185FA5;">Email address</label>
-        <input id="clinic-reg-email" class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
-        <label class="f-label" style="color:#185FA5;">Password</label>
-        <div class="pw-wrap"><input id="clinic-reg-password" class="f-input f-input-blue" type="password" placeholder="Min. 6 characters" oninput="checkMatch('clinic')" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-reg-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <label class="f-label" style="color:#185FA5;">Confirm password</label>
-        <div class="pw-wrap"><input id="clinic-reg-password2" class="f-input f-input-blue" type="password" placeholder="Repeat password" oninput="checkMatch('clinic')" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-reg-password2',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <div id="clinic-match" class="pw-match"></div>
+        <div id="cd-reg-email-fields">
+          <label class="f-label" style="color:#185FA5;">Email address</label>
+          <input id="clinic-reg-email" class="f-input f-input-blue" type="email" placeholder="clinic@example.com" />
+          <label class="f-label" style="color:#185FA5;">Password</label>
+          <div class="pw-wrap"><input id="clinic-reg-password" class="f-input f-input-blue" type="password" placeholder="Min. 6 characters" oninput="checkMatch('clinic')" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-reg-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <label class="f-label" style="color:#185FA5;">Confirm password</label>
+          <div class="pw-wrap"><input id="clinic-reg-password2" class="f-input f-input-blue" type="password" placeholder="Repeat password" oninput="checkMatch('clinic')" /><button type="button" class="pw-toggle" onclick="togglePw('clinic-reg-password2',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <div id="cd-match" class="pw-match"></div>
+        </div>
+        <div id="cd-reg-phone-fields" style="display:none;">
+          <label class="f-label" style="color:#185FA5;">Clinic phone number</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:.75rem;"><span style="display:flex;align-items:center;padding:0 12px;height:44px;background:#E6F1FB;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;color:#185FA5;font-weight:500;flex-shrink:0;">+234</span><input id="cd-reg-phone" class="f-input f-input-blue" type="tel" placeholder="08012345678" style="flex:1;margin-bottom:0;" /></div>
+          <div id="cd-reg-otp-row" style="display:none;">
+            <label class="f-label" style="color:#185FA5;">Enter the 6-digit OTP</label>
+            <input id="cd-reg-otp" class="f-input f-input-blue" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
+            <div id="cd-reg-otp-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+            <button class="f-btn" style="background:#185FA5;" onclick="verifyPhoneOtp('cd','register')">Verify &amp; register</button>
+            <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#185FA5;cursor:pointer;" onclick="sendPhoneOtp('cd','register')">Resend OTP</a></div>
+          </div>
+          <div id="cd-reg-send-row">
+            <button class="f-btn" style="background:#185FA5;" onclick="sendPhoneOtp('cd','register')">Send OTP</button>
+          </div>
+        </div>
         <div id="clinic-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
-        <div id="clinic-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Clinic registered! Check your email to confirm, then sign in.</div>
-        <button class="f-btn" style="background:#185FA5;" onclick="clinicRegister()">Register clinic</button>
+        <div id="clinic-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Clinic registered! Check your email to confirm.</div>
+        <button class="f-btn" style="background:#185FA5;" id="cd-reg-btn" onclick="clinicRegister()">Register clinic</button>
         <div class="f-link">Already registered? <a style="color:#185FA5;cursor:pointer;" onclick="toggleClinicView('signin')">Sign in</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
@@ -2717,41 +2795,37 @@ tr:last-child td { border-bottom: none; }
     <div class="split-form">
       <!-- Sign in view -->
       <div id="pro-signin-view">
-        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Professional sign in</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Access your jobs, gigs, and earnings</div>
-        <label class="f-label" style="color:#3B6D11;">Email address</label>
-        <input id="pro-signin-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
-        <label class="f-label" style="color:#3B6D11;">Password</label>
-        <div class="pw-wrap"><input id="pro-signin-password" class="f-input f-input-green" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('pro-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
-        <div id="pro-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
-        <button class="f-btn" style="background:#3B6D11;" onclick="proSignIn()">Sign in</button>
-        <div class="text-center" style="margin-top:.75rem;">
-          <a style="font-size:12px;color:#639922;cursor:pointer;" onclick="toggleProView('reset')">Forgot password?</a>
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Welcome back</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Sign in to your professional account</div>
+        <div style="display:flex;background:#f5f5f5;border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;">
+          <button id="pro-si-email-tab" onclick="switchSignInMethod('pro','email')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#3B6D11;color:#fff;transition:all .15s;">Email</button>
+          <button id="pro-si-phone-tab" onclick="switchSignInMethod('pro','phone')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;transition:all .15s;">Phone / OTP</button>
+        </div>
+        <div id="pro-si-email-fields">
+          <label class="f-label" style="color:#3B6D11;">Email address</label>
+          <input id="pro-signin-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
+          <label class="f-label" style="color:#3B6D11;">Password</label>
+          <div class="pw-wrap"><input id="pro-signin-password" class="f-input f-input-green" type="password" placeholder="••••••••" /><button type="button" class="pw-toggle" onclick="togglePw('pro-signin-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <div id="pro-signin-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+          <button class="f-btn" style="background:#3B6D11;" onclick="proSignIn()">Sign in</button>
+          <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#3B6D11;cursor:pointer;" onclick="toggleProView('reset')">Forgot password?</a></div>
+        </div>
+        <div id="pro-si-phone-fields" style="display:none;">
+          <label class="f-label" style="color:#3B6D11;">Phone number</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:.75rem;"><span style="display:flex;align-items:center;padding:0 12px;height:44px;background:#EAF3DE;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;color:#3B6D11;font-weight:500;flex-shrink:0;">+234</span><input id="pro-signin-phone" class="f-input f-input-green" type="tel" placeholder="08012345678" style="flex:1;margin-bottom:0;" /></div>
+          <div id="pro-si-phone-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+          <div id="pro-si-otp-row" style="display:none;margin-bottom:.5rem;">
+            <label class="f-label" style="color:#3B6D11;">Enter the 6-digit OTP</label>
+            <input id="pro-signin-otp" class="f-input f-input-green" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
+            <div id="pro-si-otp-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+            <button class="f-btn" style="background:#3B6D11;" onclick="verifyPhoneOtp('pro','signin')">Verify &amp; sign in</button>
+            <div class="text-center" style="margin-top:.75rem;"><a style="font-size:12px;color:#3B6D11;cursor:pointer;" onclick="sendPhoneOtp('pro','signin')">Resend OTP</a></div>
+          </div>
+          <div id="pro-si-send-row">
+            <button class="f-btn" style="background:#3B6D11;" onclick="sendPhoneOtp('pro','signin')">Send OTP</button>
+          </div>
         </div>
         <div class="f-link">New professional? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('register')">Create profile</a></div>
-        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
-      </div>
-      <!-- Register view -->
-      <div id="pro-register-view" style="display:none;">
-        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Create your profile</div>
-        <div style="font-size:13px;color:#888780;margin-bottom:1rem;">Join DentalFlow HQ as a dental professional</div>
-        <label class="f-label" style="color:#3B6D11;">Full name</label>
-        <input id="pro-reg-name" class="f-input f-input-green" type="text" placeholder="e.g. Dr. Kwame Osei" />
-        <label class="f-label" style="color:#3B6D11;">Email address</label>
-        <input id="pro-reg-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
-        <label class="f-label" style="color:#3B6D11;">Password</label>
-        <input id="pro-reg-password" class="f-input f-input-green" type="password" placeholder="Min. 6 characters" />
-        <div style="font-size:12px;color:#3B6D11;font-weight:500;margin-bottom:8px;">I am a...</div>
-        <div class="prof-chips" id="pro-reg-chips">
-          <div class="prof-chip active" onclick="selectProfType(this,'MDCN')">Dental Surgeon</div>
-          <div class="prof-chip" onclick="selectProfType(this,'DTHRBN')">Therapist / Hygienist</div>
-          <div class="prof-chip" onclick="selectProfType(this,'DTRBN')">Dental Technologist</div>
-        </div>
-        <div id="reg-hint" class="reg-hint">Regulated by the <strong>Medical and Dental Council of Nigeria (MDCN)</strong></div>
-        <div id="pro-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
-        <div id="pro-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Profile created! Check your email to confirm, then sign in.</div>
-        <button class="f-btn" style="background:#3B6D11;" onclick="proRegister()">Create profile</button>
-        <div class="f-link">Already have an account? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('signin')">Sign in</a></div>
         <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
       <!-- Reset password view — professional -->
@@ -2764,6 +2838,50 @@ tr:last-child td { border-bottom: none; }
         <div id="pro-reset-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Reset link sent — check your email.</div>
         <button class="f-btn" style="background:#3B6D11;" onclick="sendReset('pro')">Send reset link</button>
         <div class="f-link"><a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('signin')">← Back to sign in</a></div>
+      </div>
+      <!-- Register view — professional -->
+      <div id="pro-register-view" style="display:none;">
+        <div style="font-size:22px;font-weight:500;color:#26215C;margin-bottom:.4rem;">Create your profile</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.25rem;">Join DentalFlow HQ as a dental professional</div>
+        <!-- Email / Phone toggle -->
+        <div style="display:flex;background:#f5f5f5;border-radius:10px;padding:3px;gap:3px;margin-bottom:1.25rem;">
+          <button id="pro-reg-email-tab" onclick="switchRegMethod('pro','email')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:#3B6D11;color:#fff;transition:all .15s;">Email</button>
+          <button id="pro-reg-phone-tab" onclick="switchRegMethod('pro','phone')" style="flex:1;padding:7px 0;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;background:none;color:#888780;transition:all .15s;">Phone / OTP</button>
+        </div>
+        <label class="f-label" style="color:#3B6D11;">Full name</label>
+        <input id="pro-reg-name" class="f-input f-input-green" type="text" placeholder="e.g. Dr. Kwame Osei" />
+        <!-- Professional type -->
+        <label class="f-label" style="color:#3B6D11;">I am a...</label>
+        <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;">
+          <button class="prof-chip active" onclick="selectProfType(this,'MDCN')">MDCN Dentist / Doctor</button>
+          <button class="prof-chip" onclick="selectProfType(this,'DTHRBN')">Dental Therapist / Hygienist</button>
+          <button class="prof-chip" onclick="selectProfType(this,'DTRBN')">Dental Technologist</button>
+        </div>
+        <div id="reg-hint" style="font-size:12px;color:#639922;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:1rem;">Regulated by the <strong>Medical and Dental Council of Nigeria (MDCN)</strong></div>
+        <!-- Email fields -->
+        <div id="pro-reg-email-fields">
+          <label class="f-label" style="color:#3B6D11;">Email address</label>
+          <input id="pro-reg-email" class="f-input f-input-green" type="email" placeholder="you@example.com" />
+          <label class="f-label" style="color:#3B6D11;">Password</label>
+          <div class="pw-wrap"><input id="pro-reg-password" class="f-input f-input-green" type="password" placeholder="Min. 6 characters" oninput="checkMatch('pro')" /><button type="button" class="pw-toggle" onclick="togglePw('pro-reg-password',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <label class="f-label" style="color:#3B6D11;">Confirm password</label>
+          <div class="pw-wrap"><input id="pro-reg-password2" class="f-input f-input-green" type="password" placeholder="Repeat password" oninput="checkMatch('pro')" /><button type="button" class="pw-toggle" onclick="togglePw('pro-reg-password2',this)"><svg viewBox="0 0 20 20" fill="none"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/></svg></button></div>
+          <div id="pro-match" class="pw-match"></div>
+        </div>
+        <!-- Phone fields -->
+        <div id="pro-reg-phone-fields" style="display:none;">
+          <label class="f-label" style="color:#3B6D11;">Phone number</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:.75rem;"><span style="display:flex;align-items:center;padding:0 12px;height:44px;background:#EAF3DE;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;color:#3B6D11;font-weight:500;flex-shrink:0;">+234</span><input id="pro-reg-phone" class="f-input f-input-green" type="tel" placeholder="08012345678" style="flex:1;margin-bottom:0;" /></div>
+          <div id="pro-reg-otp-row" style="display:none;">
+            <label class="f-label" style="color:#3B6D11;">Enter the 6-digit OTP</label>
+            <input id="pro-reg-otp" class="f-input f-input-green" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
+          </div>
+        </div>
+        <div id="pro-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
+        <div id="pro-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Profile created! Check your email to confirm, then sign in.</div>
+        <button class="f-btn" style="background:#3B6D11;" onclick="proRegister()">Create profile</button>
+        <div class="f-link">Already have an account? <a style="color:#3B6D11;cursor:pointer;" onclick="toggleProView('signin')">Sign in</a></div>
+        <div class="text-center mt2"><a style="font-size:12px;color:#888780;cursor:pointer;" onclick="go('s-landing')">← Back to home</a></div>
       </div>
     </div>
   </div>
@@ -3455,7 +3573,143 @@ function toggleProView(view) {
   document.getElementById('pro-reset-view').style.display    = view === 'reset'    ? 'block' : 'none';
 }
 
-// ── Password reset ─────────────────────────────────────────
+// ── PHONE AUTH HELPERS ────────────────────────────────────
+
+// Toggle between email and phone on sign-in forms
+function switchSignInMethod(pref, method) {
+  var emailFields = document.getElementById(pref + '-si-email-fields');
+  var phoneFields = document.getElementById(pref + '-si-phone-fields');
+  var emailTab    = document.getElementById(pref + '-si-email-tab');
+  var phoneTab    = document.getElementById(pref + '-si-phone-tab');
+  var colors      = { pd: '#534AB7', cd: '#185FA5', pro: '#3B6D11' };
+  var col = colors[pref] || '#534AB7';
+  if (emailFields) emailFields.style.display = method === 'email' ? 'block' : 'none';
+  if (phoneFields) phoneFields.style.display = method === 'phone' ? 'block' : 'none';
+  if (emailTab) { emailTab.style.background = method === 'email' ? col : 'none'; emailTab.style.color = method === 'email' ? '#fff' : '#888780'; }
+  if (phoneTab) { phoneTab.style.background = method === 'phone' ? col : 'none'; phoneTab.style.color = method === 'phone' ? '#fff' : '#888780'; }
+}
+
+// Toggle between email and phone on register forms
+function switchRegMethod(pref, method) {
+  var emailFields = document.getElementById(pref + '-reg-email-fields');
+  var phoneFields = document.getElementById(pref + '-reg-phone-fields');
+  var emailTab    = document.getElementById(pref + '-reg-email-tab');
+  var phoneTab    = document.getElementById(pref + '-reg-phone-tab');
+  var regBtn      = document.getElementById(pref + '-reg-btn');
+  var colors      = { pd: '#534AB7', cd: '#185FA5', pro: '#3B6D11' };
+  var col = colors[pref] || '#534AB7';
+  if (emailFields) emailFields.style.display = method === 'email' ? 'block' : 'none';
+  if (phoneFields) phoneFields.style.display = method === 'phone' ? 'block' : 'none';
+  if (emailTab) { emailTab.style.background = method === 'email' ? col : 'none'; emailTab.style.color = method === 'email' ? '#fff' : '#888780'; }
+  if (phoneTab) { phoneTab.style.background = method === 'phone' ? col : 'none'; phoneTab.style.color = method === 'phone' ? '#fff' : '#888780'; }
+  // Hide the email submit button when in phone mode (OTP flow handles submission)
+  if (regBtn) regBtn.style.display = method === 'email' ? 'block' : 'none';
+}
+
+// Normalise a Nigerian phone number to E.164 format (+234...)
+function normalisePhone(raw) {
+  var digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = '234' + digits.slice(1);
+  if (!digits.startsWith('234')) digits = '234' + digits;
+  return '+' + digits;
+}
+
+// Send OTP to phone number
+async function sendPhoneOtp(pref, mode) {
+  var phoneInput = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-phone' ) ||
+                   document.getElementById(pref + '-signin-phone') ||
+                   document.getElementById(pref + '-reg-phone');
+  var errEl = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-phone-error') ||
+              document.getElementById(pref + '-si-phone-error') ||
+              document.getElementById(pref + '-reg-otp-error');
+  if (!phoneInput) return;
+  var raw = phoneInput.value.trim();
+  if (!raw) { if (errEl) { errEl.textContent = 'Please enter your phone number.'; errEl.style.display = 'block'; } return; }
+  var phone = normalisePhone(raw);
+  if (phone.length < 13) { if (errEl) { errEl.textContent = 'Please enter a valid Nigerian phone number.'; errEl.style.display = 'block'; } return; }
+  if (errEl) errEl.style.display = 'none';
+
+  var btn = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-send-row') ||
+            document.getElementById(pref + '-si-send-row') ||
+            document.getElementById(pref + '-reg-send-row');
+  if (btn) btn.innerHTML = '<div style="font-size:13px;color:#888780;padding:8px 0;">Sending OTP...</div>';
+
+  const { error } = await getSb().auth.signInWithOtp({ phone: phone });
+
+  if (error) {
+    if (btn) btn.innerHTML = '<button class="f-btn" style="background:' + ({pd:'#534AB7',cd:'#185FA5',pro:'#3B6D11'}[pref]||'#534AB7') + ';" onclick="sendPhoneOtp(\'' + pref + '\',\'' + mode + '\')">Send OTP</button>';
+    if (errEl) { errEl.textContent = error.message.includes('SMS') || error.message.includes('provider')
+      ? 'SMS service not connected yet. Please use email registration or contact support.'
+      : error.message; errEl.style.display = 'block'; }
+    return;
+  }
+
+  // Show OTP entry
+  var otpRow = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-otp-row') ||
+               document.getElementById(pref + '-si-otp-row') ||
+               document.getElementById(pref + '-reg-otp-row');
+  var sendRow = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-send-row') ||
+                document.getElementById(pref + '-si-send-row') ||
+                document.getElementById(pref + '-reg-send-row');
+  if (sendRow) sendRow.style.display = 'none';
+  if (otpRow)  otpRow.style.display = 'block';
+  if (errEl) { errEl.textContent = 'OTP sent to ' + phone + '. Valid for 60 seconds.'; errEl.style.color = '#3B6D11'; errEl.style.display = 'block'; }
+
+  // Store phone for verification
+  window._phoneOtpTarget = { pref: pref, mode: mode, phone: phone };
+}
+
+// Verify OTP and sign in or register
+async function verifyPhoneOtp(pref, mode) {
+  var target = window._phoneOtpTarget || {};
+  var phone  = target.phone;
+  var otpEl  = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-otp') ||
+               document.getElementById(pref + '-signin-otp') ||
+               document.getElementById(pref + '-reg-otp');
+  var errEl  = document.getElementById(pref + '-' + (mode === 'signin' ? 'si' : 'reg') + '-otp-error') ||
+               document.getElementById(pref + '-si-otp-error') ||
+               document.getElementById(pref + '-reg-otp-error');
+  if (!phone || !otpEl) { if (errEl) { errEl.textContent = 'Please request an OTP first.'; errEl.style.display = 'block'; } return; }
+  var otp = otpEl.value.trim();
+  if (otp.length !== 6) { if (errEl) { errEl.textContent = 'Please enter the full 6-digit OTP.'; errEl.style.display = 'block'; } return; }
+  if (errEl) errEl.style.display = 'none';
+
+  const { data, error } = await getSb().auth.verifyOtp({ phone: phone, token: otp, type: 'sms' });
+  if (error) { if (errEl) { errEl.textContent = error.message; errEl.style.display = 'block'; } return; }
+
+  currentUser = data.user;
+  var meta = currentUser.user_metadata || {};
+
+  if (mode === 'register') {
+    // Set role and name from the form
+    var nameEl   = document.getElementById((pref === 'pd' ? 'patient' : pref === 'cd' ? 'clinic' : 'pro') + '-reg-name');
+    var name     = nameEl ? nameEl.value.trim() : '';
+    var role     = pref === 'pd' ? 'patient' : pref === 'cd' ? 'clinic' : 'professional';
+    var nameKey  = role === 'clinic' ? 'clinic_name' : 'full_name';
+    var update   = { role: role };
+    update[nameKey] = name;
+    if (role === 'professional') update.regulator = selectedProfKey;
+    var refCode = getStoredRefCode();
+    if (refCode) update.referral_code = refCode;
+    await getSb().auth.updateUser({ data: update });
+    currentUser.user_metadata = Object.assign({}, meta, update);
+  }
+
+  // Route to correct dashboard
+  var role = (currentUser.user_metadata || {}).role || 'patient';
+  if (role === 'clinic') {
+    go('s-clinic-dash');
+    try { loadProfileIntoForms(currentUser.user_metadata||{}); renderClinicOverview(currentUser.user_metadata||{}); loadClinicBookings(); loadBookingRequests(); checkSubscription(currentUser); renderReferralData(currentUser); } catch(e){}
+  } else if (role === 'professional') {
+    go('s-pro-dash');
+    try { loadProfileIntoForms(currentUser.user_metadata||{}); renderProOverview(currentUser.user_metadata||{}); loadProBookings(); checkSubscription(currentUser); renderReferralData(currentUser); loadJobListings(); } catch(e){}
+  } else {
+    go('s-patient-dash');
+    try { loadProfileIntoForms(currentUser.user_metadata||{}); renderPatientOverview(currentUser.user_metadata||{}); loadPatientBookings(); renderGuides(); renderReferralData(currentUser); } catch(e){}
+  }
+}
+
+
 async function sendReset(portal) {
   const emailEl = document.getElementById(portal + '-reset-email');
   const errEl   = document.getElementById(portal + '-reset-error');

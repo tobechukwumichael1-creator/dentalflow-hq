@@ -963,6 +963,15 @@ tr:last-child td { border-bottom: none; }
 <!-- ══════════════════════════════════════════════════════════
      SCREEN 1 — LANDING
 ══════════════════════════════════════════════════════════ -->
+<!-- ── WELCOME BACK BANNER — shown if a session exists, instead of auto-redirecting ── -->
+<div id="welcome-back-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#0D1B3E;padding:.875rem 1.5rem;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+  <span style="font-size:13px;color:#fff;" id="welcome-back-text">Welcome back!</span>
+  <div style="display:flex;gap:8px;">
+    <button onclick="continueWelcomeBack()" style="padding:7px 18px;border-radius:8px;border:none;background:#534AB7;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Continue to dashboard</button>
+    <button onclick="dismissWelcomeBack()" style="padding:7px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-size:13px;cursor:pointer;">Not you? Sign out</button>
+  </div>
+</div>
+
 <div id="s-landing" class="screen active">
 
   <!-- ── LANDING STYLES ── -->
@@ -3375,15 +3384,98 @@ tr:last-child td { border-bottom: none; }
    DentalFlow HQ - App Logic
    ============================================================ */
 
+// ── ROUTING — screen <-> URL path mapping ──────────────────
+var SCREEN_TO_PATH = {
+  's-landing':        '/',
+  's-patient-login':  '/patient/login',
+  's-patient-dash':   '/patient/dashboard',
+  's-clinic-login':   '/clinic/login',
+  's-clinic-dash':    '/clinic/dashboard',
+  's-pro-login':      '/professional/login',
+  's-pro-dash':        '/professional/dashboard',
+  's-set-password':   '/reset-password',
+  's-pricing':         '/pricing'
+};
+var PATH_TO_SCREEN = {};
+Object.keys(SCREEN_TO_PATH).forEach(function(screenId) {
+  PATH_TO_SCREEN[SCREEN_TO_PATH[screenId]] = screenId;
+});
+
+// Flag used to avoid pushing a new history entry when we are
+// reacting to a popstate (back/forward) navigation, or on first load.
+var _routingSilently = false;
+
 // ── Screen navigation ──────────────────────────────────────
-function go(screenId) {
+// `go(screenId)` shows the requested screen and, by default, updates
+// the URL via the History API so the address bar, refresh and the
+// browser back/forward buttons all reflect the current screen.
+// Pass `skipHistory = true` to change screens without touching the URL
+// (used internally when we are responding to a popstate event).
+function go(screenId, skipHistory) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(screenId);
   if (target) {
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
+  if (!skipHistory && !_routingSilently) {
+    var path = SCREEN_TO_PATH[screenId] || '/';
+    if (window.location.pathname !== path) {
+      window.history.pushState({ screen: screenId }, '', path);
+    }
+  }
+  document.title = screenTitle(screenId);
 }
+
+function screenTitle(screenId) {
+  var names = {
+    's-landing':        'DentalFlow HQ',
+    's-patient-login':  'Patient sign in — DentalFlow HQ',
+    's-patient-dash':   'Patient dashboard — DentalFlow HQ',
+    's-clinic-login':   'Clinic sign in — DentalFlow HQ',
+    's-clinic-dash':    'Clinic dashboard — DentalFlow HQ',
+    's-pro-login':      'Professional sign in — DentalFlow HQ',
+    's-pro-dash':        'Professional dashboard — DentalFlow HQ',
+    's-set-password':   'Reset password — DentalFlow HQ',
+    's-pricing':         'Pricing — DentalFlow HQ'
+  };
+  return names[screenId] || 'DentalFlow HQ';
+}
+
+// Screens that require a signed-in session to view directly via URL.
+// If someone lands on one of these paths without a session (e.g. a
+// shared/bookmarked link, or a refresh after sign-out), we bounce them
+// to the matching login screen instead of showing an empty dashboard.
+var DASH_SCREEN_TO_LOGIN = {
+  's-patient-dash': 's-patient-login',
+  's-clinic-dash':  's-clinic-login',
+  's-pro-dash':     's-pro-login'
+};
+
+// Resolve the current URL (pathname, optionally with a ?path= fallback
+// param set by 404.html on GitHub Pages) to a screen ID.
+function resolveScreenFromLocation() {
+  var path = window.location.pathname;
+  // GitHub Pages 404 fallback: 404.html redirects to /?path=/the/original/path
+  // By the time this script runs, the pathname is already the root ("/"),
+  // so we check the query string regardless of what the pathname looks like.
+  var params = new URLSearchParams(window.location.search);
+  var fallback = params.get('path');
+  if (fallback) path = fallback;
+  // Normalise trailing slash (except root)
+  if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
+  return PATH_TO_SCREEN[path] || null;
+}
+
+// Handle browser back/forward buttons.
+window.addEventListener('popstate', function(e) {
+  var screenId = (e.state && e.state.screen) || resolveScreenFromLocation() || 's-landing';
+  // If this is a dashboard screen but there's no active session, send to login instead.
+  if (DASH_SCREEN_TO_LOGIN[screenId] && !currentUser) {
+    screenId = DASH_SCREEN_TO_LOGIN[screenId];
+  }
+  go(screenId, true);
+});
 
 // ── Theme toggle ──────────────────────────────────────────
 function toggleTheme() {
@@ -4602,8 +4694,8 @@ async function loadAnalytics() {
 // ══════════════════════════════════════════════════════════
 // BOOKING SYSTEM
 // ══════════════════════════════════════════════════════════
-
-var bookingTarget = null; // { id, name, type, sub }
+// NOTE: the active provider being booked is tracked in `selectedProvider`,
+// declared further down near openBookingModal/closeBookingModal.
 
 // ── Format time for display ────────────────────────────────
 function fmtTime(t) {
@@ -4675,7 +4767,7 @@ async function submitBooking() {
   errEl.style.display = 'none';
   sucEl.style.display = 'none';
 
-  if (!bookingTarget) return;
+  if (!selectedProvider) { errEl.textContent = 'Something went wrong — please close and reopen the booking form.'; errEl.style.display = 'block'; return; }
   if (!currentUser) { errEl.textContent = 'Please sign in first.'; errEl.style.display = 'block'; return; }
 
   var date      = document.getElementById('book-date').value;
@@ -4693,23 +4785,32 @@ async function submitBooking() {
     patient_id:        currentUser.id,
     patient_name:      meta.full_name || currentUser.email,
     patient_email:     currentUser.email,
-    provider_id:       bookingTarget.id,
-    provider_name:     bookingTarget.name,
-    provider_type:     bookingTarget.type,
+    provider_id:       selectedProvider.id,
+    provider_name:     selectedProvider.name,
+    provider_type:     selectedProvider.type || 'clinic',
     preferred_date:    date,
     preferred_time:    time,
     complaint:         complaint,
     service_requested: service || null,
-    status:            'confirmed',
+    status:            'pending',
     notes:             null
   };
 
-  var res = await getSb().from('bookings').insert([booking]);
-  if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; return; }
+  var submitBtn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
 
-  sucEl.textContent = 'Booking confirmed with ' + bookingTarget.name + ' for ' + fmtDate(date) + ' at ' + fmtTime(time) + '. They will be in touch to confirm details.';
+  var res = await getSb().from('bookings').insert([booking]);
+
+  if (res.error) {
+    errEl.textContent = res.error.message;
+    errEl.style.display = 'block';
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send booking request'; }
+    return;
+  }
+
+  sucEl.textContent = 'Booking request sent to ' + selectedProvider.name + ' for ' + fmtDate(date) + ' at ' + fmtTime(time) + '. They will confirm shortly.';
   sucEl.style.display = 'block';
-  document.querySelector('#booking-modal button[onclick="submitBooking()"]').style.display = 'none';
+  if (submitBtn) submitBtn.style.display = 'none';
 
   // Refresh patient bookings list
   loadPatientBookings();
@@ -5082,11 +5183,35 @@ function renderProOverview(meta) {
 
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  go('s-landing'); // show landing immediately
+  // Resolve which screen the URL is asking for (supports refresh, bookmarks,
+  // shared links and the GitHub Pages 404.html fallback for deep links).
+  var requestedScreen = resolveScreenFromLocation();
+
+  if (requestedScreen && DASH_SCREEN_TO_LOGIN[requestedScreen]) {
+    // Dashboard screens need a confirmed session — show landing/loading
+    // state until initApp() has checked, to avoid a flash of an empty dashboard.
+    go('s-landing', true);
+  } else if (requestedScreen) {
+    // Non-gated screen (landing, a login screen, pricing, reset-password) — show it directly.
+    go(requestedScreen, true);
+  } else {
+    go('s-landing', true);
+  }
+
+  // Replace the initial history entry with the clean canonical path,
+  // so refresh, back/forward and the 404.html fallback redirect all
+  // converge on the same URL shape (e.g. /patient/dashboard, not
+  // /?path=/patient/dashboard).
+  _routingSilently = true;
+  var finalScreen = requestedScreen || 's-landing';
+  var cleanPath = SCREEN_TO_PATH[finalScreen] || '/';
+  try { window.history.replaceState({ screen: finalScreen }, '', cleanPath); } catch(e) {}
+  _routingSilently = false;
+
   // Poll until Supabase SDK is ready (defer loads it async)
   function waitForSb(tries) {
     if (window.supabase) {
-      initApp();
+      initApp(requestedScreen);
     } else if (tries > 0) {
       setTimeout(function(){ waitForSb(tries - 1); }, 100);
     } else {
@@ -5096,7 +5221,7 @@ document.addEventListener('DOMContentLoaded', function() {
   waitForSb(50); // poll every 100ms, up to 5 seconds
 });
 
-async function initApp() {
+async function initApp(requestedScreen) {
   try {
     // ── Handle Supabase password recovery link ──────────────
     var hash = window.location.hash;
@@ -5112,32 +5237,83 @@ async function initApp() {
     });
     var res = await getSb().auth.getSession();
     var session = res.data && res.data.session;
-    if (!session) return; // stay on landing
-    currentUser = session.user;
-    var meta = session.user.user_metadata || {};
-    var role = meta.role || 'patient';
-    var name = meta.full_name || meta.clinic_name || session.user.email;
-    if (role === 'patient') {
-      updateDashName('s-patient-dash', name);
-      go('s-patient-dash');
-      try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); renderReferralData(currentUser); loadPatientRecords(); } catch(e) { console.warn('patient init', e); }
-    } else if (role === 'clinic') {
-      var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
-      var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
-      go('s-clinic-dash');
-      try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); loadBookingRequests(); } catch(e) { console.warn('clinic init', e); }
-    } else if (role === 'professional') {
-      updateDashName('s-pro-dash', name);
-      var sub = document.getElementById('pro-hero-sub');
-      if (sub && meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
-      go('s-pro-dash');
-      try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); checkSubscription(currentUser); loadJobListings(); } catch(e) { console.warn('pro init', e); }
+
+    // ── No session at all ──────────────────────────────────
+    if (!session) {
+      // If a dashboard URL was requested directly (deep link/refresh) but
+      // there's no session, send to the matching login screen rather than
+      // leaving the person stranded on a blank landing page.
+      if (requestedScreen && DASH_SCREEN_TO_LOGIN[requestedScreen]) {
+        go(DASH_SCREEN_TO_LOGIN[requestedScreen]);
+      }
+      return;
     }
+
+    currentUser = session.user;
+
+    // ── A dashboard URL was requested directly — go straight there.
+    // No "Welcome back?" prompt needed: the person explicitly navigated
+    // to (or refreshed on) that exact URL, which is a clear enough signal.
+    if (requestedScreen && DASH_SCREEN_TO_LOGIN[requestedScreen]) {
+      enterDashboard(session);
+      return;
+    }
+
+    // ── Otherwise (landed on the homepage or another non-gated screen
+    // with an existing session) — show a "Welcome back" prompt instead
+    // of silently auto-redirecting.
+    window._pendingSession = session;
+    var meta = session.user.user_metadata || {};
+    var name = meta.full_name || meta.clinic_name || session.user.email;
+    var roleLabel = { patient: 'patient', clinic: 'clinic', professional: 'professional' }[meta.role] || 'patient';
+    var textEl = document.getElementById('welcome-back-text');
+    if (textEl) textEl.textContent = 'Welcome back, ' + name + '! Continue to your ' + roleLabel + ' dashboard?';
+    var banner = document.getElementById('welcome-back-banner');
+    if (banner) banner.style.display = 'flex';
   } catch(err) {
     console.warn('Session check failed:', err);
     // landing already visible, nothing to do
   }
 }
+
+// ── Enter the correct dashboard for a session, loading all dashboard data ──
+function enterDashboard(session) {
+  var meta = session.user.user_metadata || {};
+  var role = meta.role || 'patient';
+  var name = meta.full_name || meta.clinic_name || session.user.email;
+  if (role === 'patient') {
+    updateDashName('s-patient-dash', name);
+    go('s-patient-dash');
+    try { loadProfileIntoForms(meta); renderPatientOverview(meta); loadPatientBookings(); renderGuides(); renderReferralData(currentUser); loadPatientRecords(); } catch(e) { console.warn('patient init', e); }
+  } else if (role === 'clinic') {
+    var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
+    var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
+    go('s-clinic-dash');
+    try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); loadBookingRequests(); } catch(e) { console.warn('clinic init', e); }
+  } else if (role === 'professional') {
+    updateDashName('s-pro-dash', name);
+    var sub = document.getElementById('pro-hero-sub');
+    if (sub && meta.regulator && meta.reg_no) sub.textContent = meta.regulator + ' - Reg. No. ' + meta.reg_no;
+    go('s-pro-dash');
+    try { loadProfileIntoForms(meta); renderProOverview(meta); loadProBookings(); renderReferralData(currentUser); checkSubscription(currentUser); loadJobListings(); } catch(e) { console.warn('pro init', e); }
+  }
+}
+
+// ── "Continue to dashboard" button on the welcome-back banner ──
+function continueWelcomeBack() {
+  var banner = document.getElementById('welcome-back-banner');
+  if (banner) banner.style.display = 'none';
+  if (window._pendingSession) enterDashboard(window._pendingSession);
+}
+
+// ── "Not you? Sign out" button on the welcome-back banner ──
+async function dismissWelcomeBack() {
+  var banner = document.getElementById('welcome-back-banner');
+  if (banner) banner.style.display = 'none';
+  window._pendingSession = null;
+  await signOut();
+}
+
 // ── REFERRAL & WALLET SYSTEM ──────────────────────────────
 function makeRefCode(user) {
   var meta = user.user_metadata || {};
@@ -6029,13 +6205,17 @@ async function browseAll() {
 
 function openBookingModal(providerId, providerName, providerSub) {
   if (!currentUser) { alert('Please sign in to book an appointment.'); return; }
-  selectedProvider = { id: providerId, name: providerName, sub: providerSub };
+  var cached = providerCache[providerId];
+  var providerType = cached ? ((cached.user_metadata || {}).role || 'clinic') : 'clinic';
+  selectedProvider = { id: providerId, name: providerName, sub: providerSub, type: providerType };
   var nameEl = document.getElementById('modal-provider-name');
   var subEl  = document.getElementById('modal-provider-sub');
   if (nameEl) nameEl.textContent = providerName;
   if (subEl)  subEl.textContent  = providerSub;
   ['book-date','book-time','book-complaint','book-service'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
   ['book-error','book-success'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+  var submitBtn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
+  if (submitBtn) submitBtn.style.display = 'block';
   var modal = document.getElementById('booking-modal');
   if (modal) modal.style.display = 'flex';
 }

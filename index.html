@@ -3519,6 +3519,20 @@ var DASH_SCREEN_TO_LOGIN = {
   's-pro-dash':     's-pro-login'
 };
 
+// Which role each dashboard screen belongs to — used to make sure a
+// signed-in user can only ever land on their OWN dashboard, regardless
+// of which dashboard URL was requested (refresh, deep link, stale tab).
+var DASH_SCREEN_TO_ROLE = {
+  's-patient-dash': 'patient',
+  's-clinic-dash':  'clinic',
+  's-pro-dash':     'professional'
+};
+var ROLE_TO_DASH_SCREEN = {
+  'patient':      's-patient-dash',
+  'clinic':       's-clinic-dash',
+  'professional': 's-pro-dash'
+};
+
 // Resolve the current URL (pathname, optionally with a ?path= fallback
 // param set by 404.html on GitHub Pages) to a screen ID.
 function getCleanLocationPath() {
@@ -3561,6 +3575,14 @@ window.addEventListener('popstate', function(e) {
   if (DASH_SCREEN_TO_LOGIN[screenId] && !currentUser) {
     screenId = DASH_SCREEN_TO_LOGIN[screenId];
     tabId = null;
+  } else if (DASH_SCREEN_TO_ROLE[screenId] && currentUser) {
+    // There IS a session — but make sure it's the right role for this
+    // specific dashboard before navigating back/forward into it.
+    var sessionRole = (currentUser.user_metadata || {}).role || 'patient';
+    if (sessionRole !== DASH_SCREEN_TO_ROLE[screenId]) {
+      screenId = DASH_SCREEN_TO_LOGIN[screenId];
+      tabId = null;
+    }
   }
   go(screenId, true);
   if (tabId) activateTabSilently(screenId, tabId);
@@ -5305,6 +5327,26 @@ function renderProOverview(meta) {
 
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+  // A Supabase password-recovery (or email-confirmation) link always wins,
+  // regardless of which path it landed on — check this FIRST, before any
+  // other screen resolution, so it can never be silently overridden by
+  // the routing logic below stripping or ignoring the hash.
+  if (window.location.hash && window.location.hash.includes('type=recovery')) {
+    go('s-set-password', true);
+    _routingSilently = true;
+    try { window.history.replaceState({ screen: 's-set-password' }, '', SCREEN_TO_PATH['s-set-password'] + window.location.hash); } catch(e) {}
+    _routingSilently = false;
+    function waitForSbRecovery(tries) {
+      if (window.supabase) {
+        initApp('s-set-password', null);
+      } else if (tries > 0) {
+        setTimeout(function(){ waitForSbRecovery(tries - 1); }, 100);
+      }
+    }
+    waitForSbRecovery(50);
+    return;
+  }
+
   // Resolve which screen (and, for dashboards, which tab) the URL is asking
   // for — supports refresh, bookmarks, shared links and the GitHub Pages
   // 404.html fallback for deep links.
@@ -5327,10 +5369,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // so refresh, back/forward and the 404.html fallback redirect all
   // converge on the same URL shape (e.g. /patient/dashboard/find-care,
   // not /?path=/patient/dashboard/find-care).
+  // IMPORTANT: preserve window.location.hash — Supabase password-recovery
+  // and email-confirmation links arrive with a #access_token=...&type=...
+  // fragment that initApp() needs to inspect; stripping it here breaks
+  // the "set new password" flow.
   _routingSilently = true;
   var finalScreen = requestedScreen || 's-landing';
   var cleanPath = requestedTab ? tabPath(finalScreen, requestedTab) : (SCREEN_TO_PATH[finalScreen] || '/');
-  try { window.history.replaceState({ screen: finalScreen, tab: requestedTab }, '', cleanPath); } catch(e) {}
+  try { window.history.replaceState({ screen: finalScreen, tab: requestedTab }, '', cleanPath + window.location.hash); } catch(e) {}
   _routingSilently = false;
 
   // Poll until Supabase SDK is ready (defer loads it async)
@@ -5376,10 +5422,25 @@ async function initApp(requestedScreen, requestedTab) {
 
     currentUser = session.user;
 
-    // ── A dashboard URL was requested directly — go straight there.
-    // No "Welcome back?" prompt needed: the person explicitly navigated
-    // to (or refreshed on) that exact URL, which is a clear enough signal.
+    // ── A dashboard URL was requested directly — but first confirm this
+    // user's role actually matches that dashboard. A patient session
+    // refreshing on /professional/dashboard, for example, must NOT land
+    // on the professional's dashboard (security) and must NOT silently
+    // get bounced to /patient/dashboard with no explanation either
+    // (confusing — looks like the booking/portal vanished).
     if (requestedScreen && DASH_SCREEN_TO_LOGIN[requestedScreen]) {
+      var sessionRole = (session.user.user_metadata || {}).role || 'patient';
+      var expectedRole = DASH_SCREEN_TO_ROLE[requestedScreen];
+      if (expectedRole && sessionRole !== expectedRole) {
+        // Wrong portal for this account — explain, then send them to login
+        // for the portal they actually requested (NOT their own dashboard),
+        // so they can sign in with the right account if they have one.
+        alert('This is the ' + expectedRole + ' portal. You are signed in as a ' + sessionRole + ', so you have been sent to the ' + expectedRole + ' sign-in page instead. If you have a separate ' + expectedRole + ' account, please sign in with it.');
+        go(DASH_SCREEN_TO_LOGIN[requestedScreen]);
+        return;
+      }
+      // No "Welcome back?" prompt needed: the person explicitly navigated
+      // to (or refreshed on) that exact URL, which is a clear enough signal.
       enterDashboard(session);
       // Restore the specific tab that was requested (e.g. Find Care,
       // Walk-in) rather than leaving it on the default Overview tab

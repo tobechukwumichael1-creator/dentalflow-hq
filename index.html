@@ -3401,6 +3401,73 @@ Object.keys(SCREEN_TO_PATH).forEach(function(screenId) {
   PATH_TO_SCREEN[SCREEN_TO_PATH[screenId]] = screenId;
 });
 
+// ── TAB-LEVEL ROUTING — every sidebar tab gets its own URL ──
+// e.g. /patient/dashboard/find-care, /clinic/dashboard/walk-in
+// Each dashboard screen has its own tabId <-> slug map plus a
+// default tab (the one shown at the bare dashboard URL with no slug).
+var TAB_ROUTES = {
+  's-patient-dash': {
+    base:        SCREEN_TO_PATH['s-patient-dash'],
+    defaultTab:  'pd-overview',
+    tabToSlug: {
+      'pd-overview': 'overview', 'pd-appts': 'appointments', 'pd-profile': 'profile',
+      'pd-records':  'records',  'pd-refer': 'refer',         'pd-wallet':  'wallet',
+      'pd-clinics':  'find-care','pd-care':  'care-guides'
+    }
+  },
+  's-clinic-dash': {
+    base:        SCREEN_TO_PATH['s-clinic-dash'],
+    defaultTab:  'cd-overview',
+    tabToSlug: {
+      'cd-overview':  'overview',  'cd-schedule':  'schedule',  'cd-patients': 'patients',
+      'cd-staffvac':  'staff-vacancies', 'cd-staff': 'profile', 'cd-walkin':   'walk-in',
+      'cd-inventory': 'inventory', 'cd-requests':  'requests',  'cd-refer':    'refer',
+      'cd-ref-wallet':'referral-wallet', 'cd-analytics':'analytics', 'cd-invoices':'invoices'
+    }
+  },
+  's-pro-dash': {
+    base:        SCREEN_TO_PATH['s-pro-dash'],
+    defaultTab:  'pro-overview',
+    tabToSlug: {
+      'pro-overview':'overview', 'pro-jobs':'jobs', 'pro-gigs':'gigs',
+      'pro-availability':'availability', 'pro-messages':'messages', 'pro-refer':'refer',
+      'pro-ref-wallet':'referral-wallet', 'pro-earn':'earnings', 'pro-profile':'profile'
+    }
+  }
+};
+// Build reverse maps (slug -> tabId) and a global slug->{screen,tabId} lookup
+// keyed by the full base path, used when resolving an incoming URL.
+Object.keys(TAB_ROUTES).forEach(function(screenId) {
+  var entry = TAB_ROUTES[screenId];
+  entry.slugToTab = {};
+  Object.keys(entry.tabToSlug).forEach(function(tabId) {
+    entry.slugToTab[entry.tabToSlug[tabId]] = tabId;
+  });
+});
+
+function tabPath(screenId, tabId) {
+  var entry = TAB_ROUTES[screenId];
+  if (!entry) return SCREEN_TO_PATH[screenId] || '/';
+  var slug = entry.tabToSlug[tabId];
+  if (!slug || tabId === entry.defaultTab) return entry.base;
+  return entry.base + '/' + slug;
+}
+
+// Given a path like /patient/dashboard/find-care, return { screenId, tabId }
+// or null if it doesn't match any known dashboard + tab combination.
+function resolveTabFromPath(path) {
+  for (var screenId in TAB_ROUTES) {
+    var entry = TAB_ROUTES[screenId];
+    if (path === entry.base) return { screenId: screenId, tabId: entry.defaultTab };
+    if (path.indexOf(entry.base + '/') === 0) {
+      var slug = path.slice(entry.base.length + 1);
+      var tabId = entry.slugToTab[slug];
+      if (tabId) return { screenId: screenId, tabId: tabId };
+    }
+  }
+  return null;
+}
+
 // Flag used to avoid pushing a new history entry when we are
 // reacting to a popstate (back/forward) navigation, or on first load.
 var _routingSilently = false;
@@ -3454,7 +3521,7 @@ var DASH_SCREEN_TO_LOGIN = {
 
 // Resolve the current URL (pathname, optionally with a ?path= fallback
 // param set by 404.html on GitHub Pages) to a screen ID.
-function resolveScreenFromLocation() {
+function getCleanLocationPath() {
   var path = window.location.pathname;
   // GitHub Pages 404 fallback: 404.html redirects to /?path=/the/original/path
   // By the time this script runs, the pathname is already the root ("/"),
@@ -3464,17 +3531,39 @@ function resolveScreenFromLocation() {
   if (fallback) path = fallback;
   // Normalise trailing slash (except root)
   if (path.length > 1 && path.endsWith('/')) path = path.slice(0, -1);
-  return PATH_TO_SCREEN[path] || null;
+  return path;
+}
+
+function resolveScreenFromLocation() {
+  return PATH_TO_SCREEN[getCleanLocationPath()] || null;
+}
+
+// Resolve the current URL to a full { screenId, tabId } pair, trying an
+// exact top-level screen match first, then a dashboard + tab sub-path.
+// tabId is null if the path doesn't belong to one of the tabbed dashboards.
+function resolveFullLocation() {
+  var path = getCleanLocationPath();
+  // Try tab-aware resolution first — this also correctly handles the bare
+  // dashboard path (e.g. /patient/dashboard) by resolving it to the
+  // dashboard's default tab, instead of returning tabId:null.
+  var tabMatch = resolveTabFromPath(path);
+  if (tabMatch) return tabMatch;
+  if (PATH_TO_SCREEN[path]) return { screenId: PATH_TO_SCREEN[path], tabId: null };
+  return null;
 }
 
 // Handle browser back/forward buttons.
 window.addEventListener('popstate', function(e) {
-  var screenId = (e.state && e.state.screen) || resolveScreenFromLocation() || 's-landing';
+  var state = e.state || resolveFullLocation() || { screen: 's-landing', tab: null };
+  var screenId = state.screen || state.screenId || 's-landing';
+  var tabId    = state.tab    || state.tabId    || null;
   // If this is a dashboard screen but there's no active session, send to login instead.
   if (DASH_SCREEN_TO_LOGIN[screenId] && !currentUser) {
     screenId = DASH_SCREEN_TO_LOGIN[screenId];
+    tabId = null;
   }
   go(screenId, true);
+  if (tabId) activateTabSilently(screenId, tabId);
 });
 
 // ── Theme toggle ──────────────────────────────────────────
@@ -3564,61 +3653,94 @@ function checkMatch(prefix) {
 }
 
 // ── Mobile tab switching ───────────────────────────────────
-function mobTab(prefix, tabId, el) {
-  var dashId = prefix === 'pd' ? 's-patient-dash' : prefix === 'cd' ? 's-clinic-dash' : 's-pro-dash';
-  var dash = document.getElementById(dashId);
-  if (!dash) return;
-  dash.querySelectorAll('.tab-panel').forEach(function(t){ t.classList.remove('active'); });
+// ── Shared DOM updater for tab switching — used by setTab, navTo, mobTab
+// and by the router (popstate / initial load) so there is exactly one
+// place that knows how to visually activate a tab inside a dashboard.
+function applyTabDom(screenId, tabId, sourceEl) {
+  var dash = document.getElementById(screenId);
+  if (!dash) return false;
   var tab = document.getElementById(tabId);
-  if (tab) tab.classList.add('active');
-  var topbar = dash.querySelector('.topbar-title');
-  if (topbar && el.dataset && el.dataset.title) topbar.textContent = el.dataset.title;
+  if (!tab) return false;
+
+  dash.querySelectorAll('.tab-panel').forEach(function(t){ t.classList.remove('active'); });
+  tab.classList.add('active');
+
+  // Sidebar highlighting — find the sidebar item for this tab whether or
+  // not we were called from a click (sourceEl), so router-driven
+  // navigation (refresh, back/forward) highlights the right item too.
+  var sidebar = dash.querySelector('.sidebar');
+  var sidebarMatch = null;
+  if (sidebar) {
+    sidebar.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
+    sidebarMatch = (sourceEl && sourceEl.classList && sourceEl.classList.contains('sidebar-item'))
+      ? sourceEl
+      : sidebar.querySelector('[onclick*="\'' + tabId + '\'"]');
+    if (sidebarMatch) sidebarMatch.classList.add('active');
+  }
+
+  // Mobile bottom-nav highlighting, same dual approach.
   var navBar = dash.querySelector('.mob-nav-bar');
   if (navBar) {
     navBar.querySelectorAll('.mob-nav-item').forEach(function(i){ i.classList.remove('active'); });
-    el.classList.add('active');
+    var mobMatch = (sourceEl && sourceEl.classList && sourceEl.classList.contains('mob-nav-item'))
+      ? sourceEl
+      : navBar.querySelector('[onclick*="\'' + tabId + '\'"]');
+    if (mobMatch) mobMatch.classList.add('active');
   }
-  var sidebar = dash.querySelector('.sidebar');
-  if (sidebar) {
-    sidebar.querySelectorAll('.sidebar-item').forEach(function(i){ i.classList.remove('active'); });
-    var match = sidebar.querySelector('[onclick*="' + tabId + '"]');
-    if (match) match.classList.add('active');
+
+  // Topbar title — prefer the data-title on whichever element triggered
+  // this (sidebar item or mobile nav button), falling back to the
+  // sidebar match we already found above.
+  var topbarTitle = dash.querySelector('.topbar-title');
+  if (topbarTitle) {
+    var titleSource = (sourceEl && sourceEl.dataset && sourceEl.dataset.title)
+      || (sidebarMatch && sidebarMatch.dataset && sidebarMatch.dataset.title);
+    if (titleSource) topbarTitle.textContent = titleSource;
   }
+  return true;
 }
 
-// ── navTo - navigate to any tab by panel ID ───────────────
+// Used by the router (popstate, initial page load) to restore a tab
+// without pushing a duplicate history entry.
+function activateTabSilently(screenId, tabId) {
+  applyTabDom(screenId, tabId, null);
+}
+
+// ── Tab switching inside dashboards — called directly by sidebar items ──
+function setTab(tabId, el) {
+  const dash = el.closest('.dash');
+  if (!dash) return;
+  var screenId = dash.closest('.screen') ? dash.closest('.screen').id : null;
+  if (!screenId) return;
+  applyTabDom(screenId, tabId, el);
+  pushTabPath(screenId, tabId);
+}
+
+// ── navTo — navigate to any tab by panel ID (used by in-page links/buttons) ──
 function navTo(tabId) {
   var tab = document.getElementById(tabId);
   if (!tab) return;
   var dash = tab.closest('.dash');
   if (!dash) return;
-  var sidebarItem = dash.querySelector('[onclick*="' + tabId + '"]');
-  if (sidebarItem) setTab(tabId, sidebarItem);
+  var screenId = dash.closest('.screen') ? dash.closest('.screen').id : null;
+  if (!screenId) return;
+  applyTabDom(screenId, tabId, null);
+  pushTabPath(screenId, tabId);
 }
 
-// ── Tab switching inside dashboards ────────────────────────
-function setTab(tabId, el) {
-  // Find the dashboard this element belongs to
-  const dash = el.closest('.dash');
-  if (!dash) return;
+// ── mobTab — mobile bottom-nav tab switching ──
+function mobTab(prefix, tabId, el) {
+  var dashId = prefix === 'pd' ? 's-patient-dash' : prefix === 'cd' ? 's-clinic-dash' : 's-pro-dash';
+  applyTabDom(dashId, tabId, el);
+  pushTabPath(dashId, tabId);
+}
 
-  // Deactivate all tab panels in this dashboard
-  dash.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
-
-  // Deactivate all sidebar items in this dashboard
-  dash.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-
-  // Activate the target tab
-  const tab = document.getElementById(tabId);
-  if (tab) tab.classList.add('active');
-
-  // Activate the clicked sidebar item
-  el.classList.add('active');
-
-  // Update topbar title
-  const topbarTitle = dash.querySelector('.topbar-title');
-  if (topbarTitle && el.dataset.title) {
-    topbarTitle.textContent = el.dataset.title;
+// Push the URL for a tab change, unless we're silently syncing from the router.
+function pushTabPath(screenId, tabId) {
+  if (_routingSilently) return;
+  var path = tabPath(screenId, tabId);
+  if (window.location.pathname !== path) {
+    window.history.pushState({ screen: screenId, tab: tabId }, '', path);
   }
 }
 
@@ -5183,9 +5305,12 @@ function renderProOverview(meta) {
 
 // ── Restore session on load ────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  // Resolve which screen the URL is asking for (supports refresh, bookmarks,
-  // shared links and the GitHub Pages 404.html fallback for deep links).
-  var requestedScreen = resolveScreenFromLocation();
+  // Resolve which screen (and, for dashboards, which tab) the URL is asking
+  // for — supports refresh, bookmarks, shared links and the GitHub Pages
+  // 404.html fallback for deep links.
+  var located = resolveFullLocation();
+  var requestedScreen = located ? located.screenId : null;
+  var requestedTab    = located ? located.tabId    : null;
 
   if (requestedScreen && DASH_SCREEN_TO_LOGIN[requestedScreen]) {
     // Dashboard screens need a confirmed session — show landing/loading
@@ -5200,18 +5325,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Replace the initial history entry with the clean canonical path,
   // so refresh, back/forward and the 404.html fallback redirect all
-  // converge on the same URL shape (e.g. /patient/dashboard, not
-  // /?path=/patient/dashboard).
+  // converge on the same URL shape (e.g. /patient/dashboard/find-care,
+  // not /?path=/patient/dashboard/find-care).
   _routingSilently = true;
   var finalScreen = requestedScreen || 's-landing';
-  var cleanPath = SCREEN_TO_PATH[finalScreen] || '/';
-  try { window.history.replaceState({ screen: finalScreen }, '', cleanPath); } catch(e) {}
+  var cleanPath = requestedTab ? tabPath(finalScreen, requestedTab) : (SCREEN_TO_PATH[finalScreen] || '/');
+  try { window.history.replaceState({ screen: finalScreen, tab: requestedTab }, '', cleanPath); } catch(e) {}
   _routingSilently = false;
 
   // Poll until Supabase SDK is ready (defer loads it async)
   function waitForSb(tries) {
     if (window.supabase) {
-      initApp(requestedScreen);
+      initApp(requestedScreen, requestedTab);
     } else if (tries > 0) {
       setTimeout(function(){ waitForSb(tries - 1); }, 100);
     } else {
@@ -5221,7 +5346,7 @@ document.addEventListener('DOMContentLoaded', function() {
   waitForSb(50); // poll every 100ms, up to 5 seconds
 });
 
-async function initApp(requestedScreen) {
+async function initApp(requestedScreen, requestedTab) {
   try {
     // ── Handle Supabase password recovery link ──────────────
     var hash = window.location.hash;
@@ -5256,6 +5381,10 @@ async function initApp(requestedScreen) {
     // to (or refreshed on) that exact URL, which is a clear enough signal.
     if (requestedScreen && DASH_SCREEN_TO_LOGIN[requestedScreen]) {
       enterDashboard(session);
+      // Restore the specific tab that was requested (e.g. Find Care,
+      // Walk-in) rather than leaving it on the default Overview tab
+      // that enterDashboard's go() call shows by default.
+      if (requestedTab) activateTabSilently(requestedScreen, requestedTab);
       return;
     }
 

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DentalFlow HQ</title>
+<script>
+  // GitHub Pages serves this file for any path it doesn't recognise
+  // (e.g. /patient/dashboard after a refresh, since there's no real
+  // file at that path on a static host). We redirect back to the
+  // real index.html, passing the originally-requested path along as
+  // a query parameter so the app's router can restore the right screen.
+  var originalPath = window.location.pathname + window.location.search + window.location.hash;
+  window.location.replace('/?path=' + encodeURIComponent(window.location.pathname));
+</script>
+</head>
+<body>
+  <p>Redirecting&hellip; <a href="/">Click here</a> if you are not redirected automatically.</p>
+</body>
+</html>

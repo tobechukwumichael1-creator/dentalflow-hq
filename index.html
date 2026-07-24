@@ -1390,6 +1390,8 @@ tr:last-child td { border-bottom: none; }
         <a onclick="go('s-clinic-login')">Clinics</a>
         <a onclick="go('s-pro-login')">Professionals</a>
         <a onclick="go('s-pricing')">Pricing</a>
+        <a onclick="go('s-privacy')">Privacy Policy</a>
+        <a onclick="go('s-terms')">Terms of Service</a>
       </div>
       <div class="lp-footer-copy">dentalflowhq.io &middot; Nigeria &amp; Africa &middot; &copy; 2026</div>
     </footer>
@@ -1507,6 +1509,17 @@ tr:last-child td { border-bottom: none; }
           <div id="pd-reg-send-row">
             <button class="f-btn" style="background:#534AB7;" onclick="sendPhoneOtp('pd','register')">Send OTP</button>
           </div>
+        </div>
+        <!-- NDPA 2023 consent — required before registration -->
+        <div style="background:#f7f6fb;border-radius:10px;padding:.875rem 1rem;margin-bottom:1rem;">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-bottom:.625rem;">
+            <input type="checkbox" id="pd-consent-terms" style="margin-top:2px;accent-color:#534AB7;width:15px;height:15px;flex-shrink:0;"/>
+            <span style="font-size:12px;color:#5F5E5A;line-height:1.5;">I have read and agree to DentalFlow HQ&#39;s <a onclick="go(&#39;s-terms&#39;)" style="color:#534AB7;cursor:pointer;text-decoration:underline;">Terms of Service</a> and <a onclick="go(&#39;s-privacy&#39;)" style="color:#534AB7;cursor:pointer;text-decoration:underline;">Privacy Policy</a>, and consent to the collection and processing of my personal data in accordance with the Nigeria Data Protection Act 2023 (NDPA).</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="checkbox" id="pd-consent-health" style="margin-top:2px;accent-color:#534AB7;width:15px;height:15px;flex-shrink:0;"/>
+            <span style="font-size:12px;color:#5F5E5A;line-height:1.5;">I explicitly consent to my health information (including medical conditions, medications, and allergies) being stored securely and shared only with dental providers I choose to book with through the platform.</span>
+          </label>
         </div>
         <div id="patient-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <div id="patient-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Account created! Check your email to confirm, then sign in.</div>
@@ -1997,6 +2010,13 @@ tr:last-child td { border-bottom: none; }
           <div id="cd-reg-send-row">
             <button class="f-btn" style="background:#185FA5;" onclick="sendPhoneOtp('cd','register')">Send OTP</button>
           </div>
+        </div>
+        <!-- NDPA 2023 consent — required before registration -->
+        <div style="background:#f0f6fb;border-radius:10px;padding:.875rem 1rem;margin-bottom:1rem;">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="checkbox" id="cd-consent-terms" style="margin-top:2px;accent-color:#185FA5;width:15px;height:15px;flex-shrink:0;"/>
+            <span style="font-size:12px;color:#5F5E5A;line-height:1.5;">I have read and agree to DentalFlow HQ&#39;s <a onclick="go(&#39;s-terms&#39;)" style="color:#185FA5;cursor:pointer;text-decoration:underline;">Terms of Service</a> and <a onclick="go(&#39;s-privacy&#39;)" style="color:#185FA5;cursor:pointer;text-decoration:underline;">Privacy Policy</a>, including the Clinic Data Processing Agreement, and confirm I am authorised to register this clinic on DentalFlow HQ.</span>
+          </label>
         </div>
         <div id="clinic-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <div id="clinic-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Clinic registered! Check your email to confirm.</div>
@@ -2886,6 +2906,13 @@ tr:last-child td { border-bottom: none; }
             <input id="pro-reg-otp" class="f-input f-input-green" type="text" placeholder="000000" maxlength="6" style="letter-spacing:6px;font-size:20px;text-align:center;" />
           </div>
         </div>
+        <!-- NDPA 2023 consent — required before registration -->
+        <div style="background:#f2f7ee;border-radius:10px;padding:.875rem 1rem;margin-bottom:1rem;">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="checkbox" id="pro-consent-terms" style="margin-top:2px;accent-color:#3B6D11;width:15px;height:15px;flex-shrink:0;"/>
+            <span style="font-size:12px;color:#5F5E5A;line-height:1.5;">I have read and agree to DentalFlow HQ&#39;s <a onclick="go(&#39;s-terms&#39;)" style="color:#3B6D11;cursor:pointer;text-decoration:underline;">Terms of Service</a> and <a onclick="go(&#39;s-privacy&#39;)" style="color:#3B6D11;cursor:pointer;text-decoration:underline;">Privacy Policy</a>, and confirm that the regulatory credentials I have provided are accurate and current.</span>
+          </label>
+        </div>
         <div id="pro-reg-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
         <div id="pro-reg-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;display:none;">✓ Profile created! Check your email to confirm, then sign in.</div>
         <button class="f-btn" style="background:#3B6D11;" onclick="proRegister()">Create profile</button>
@@ -3394,7 +3421,9 @@ var SCREEN_TO_PATH = {
   's-pro-login':      '/professional/login',
   's-pro-dash':        '/professional/dashboard',
   's-set-password':   '/reset-password',
-  's-pricing':         '/pricing'
+  's-pricing':         '/pricing',
+  's-privacy':         '/privacy-policy',
+  's-terms':           '/terms-of-service'
 };
 var PATH_TO_SCREEN = {};
 Object.keys(SCREEN_TO_PATH).forEach(function(screenId) {
@@ -3504,7 +3533,9 @@ function screenTitle(screenId) {
     's-pro-login':      'Professional sign in — DentalFlow HQ',
     's-pro-dash':        'Professional dashboard — DentalFlow HQ',
     's-set-password':   'Reset password — DentalFlow HQ',
-    's-pricing':         'Pricing — DentalFlow HQ'
+    's-pricing':         'Pricing — DentalFlow HQ',
+    's-privacy':         'Privacy Policy — DentalFlow HQ',
+    's-terms':           'Terms of Service — DentalFlow HQ'
   };
   return names[screenId] || 'DentalFlow HQ';
 }
@@ -4033,8 +4064,12 @@ async function patientRegister() {
   if (!name||!email||!password) { showError('patient-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('patient-reg-error','Password must be at least 6 characters.'); return; }
   if (password !== password2)   { showError('patient-reg-error','Passwords do not match.'); return; }
+  const pdTerms  = document.getElementById('pd-consent-terms');
+  const pdHealth = document.getElementById('pd-consent-health');
+  if (!pdTerms  || !pdTerms.checked)  { showError('patient-reg-error','Please agree to the Terms of Service and Privacy Policy to continue.'); return; }
+  if (!pdHealth || !pdHealth.checked) { showError('patient-reg-error','Please consent to health data processing to continue. This is required to use DentalFlow HQ.'); return; }
   const refCode = getStoredRefCode();
-  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient', referral_code: refCode || undefined } } });
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'patient', referral_code: refCode || undefined, consent_terms: true, consent_health: true, consent_date: new Date().toISOString() } } });
   if (error) { showError('patient-reg-error', error.message); return; }
   showSuccess('patient-reg-success');
 }
@@ -4068,8 +4103,10 @@ async function clinicRegister() {
   if (!name||!email||!password) { showError('clinic-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('clinic-reg-error','Password must be at least 6 characters.'); return; }
   if (password !== password2)   { showError('clinic-reg-error','Passwords do not match.'); return; }
+  const cdTerms = document.getElementById('cd-consent-terms');
+  if (!cdTerms || !cdTerms.checked) { showError('clinic-reg-error','Please agree to the Terms of Service and Privacy Policy to continue.'); return; }
   const refCode = getStoredRefCode();
-  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic', referral_code: refCode || undefined } } });
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ clinic_name:name, role:'clinic', referral_code: refCode || undefined, consent_terms: true, consent_date: new Date().toISOString() } } });
   if (error) { showError('clinic-reg-error', error.message); return; }
   showSuccess('clinic-reg-success');
 }
@@ -4102,8 +4139,10 @@ async function proRegister() {
   if (!name||!email||!password) { showError('pro-reg-error','Please fill in all fields.'); return; }
   if (password.length < 6)      { showError('pro-reg-error','Password must be at least 6 characters.'); return; }
   if (password !== password2)   { showError('pro-reg-error','Passwords do not match.'); return; }
+  const proTerms = document.getElementById('pro-consent-terms');
+  if (!proTerms || !proTerms.checked) { showError('pro-reg-error','Please agree to the Terms of Service and Privacy Policy to continue.'); return; }
   const refCode = getStoredRefCode();
-  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey, referral_code: refCode || undefined } } });
+  const { error } = await getSb().auth.signUp({ email, password, options:{ data:{ full_name:name, role:'professional', regulator:selectedProfKey, referral_code: refCode || undefined, consent_terms: true, consent_date: new Date().toISOString() } } });
   if (error) { showError('pro-reg-error', error.message); return; }
   showSuccess('pro-reg-success');
 }
@@ -6902,6 +6941,145 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN — PRIVACY POLICY
+══════════════════════════════════════════════════════════ -->
+<div id="s-privacy" class="screen">
+  <div style="max-width:780px;margin:0 auto;padding:3rem 1.5rem 5rem;">
+    <div style="margin-bottom:2rem;display:flex;align-items:center;gap:12px;">
+      <button onclick="history.back()" style="background:none;border:none;font-size:13px;color:#888780;cursor:pointer;">← Back</button>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:#534AB7;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;">Legal</div>
+    <h1 style="font-size:28px;font-weight:500;color:#0D1B3E;margin-bottom:.5rem;">Privacy Policy</h1>
+    <p style="font-size:13px;color:#888780;margin-bottom:2.5rem;">Last updated: July 2026 &nbsp;·&nbsp; Medical Flow Systems Ltd &nbsp;·&nbsp; CAC No. 9444775</p>
+
+    <div style="font-size:14px;color:#3B6D11;background:#EAF3DE;border-radius:10px;padding:1rem 1.25rem;margin-bottom:2rem;line-height:1.6;">
+      DentalFlow HQ is committed to protecting your personal data in accordance with the <strong>Nigeria Data Protection Act 2023 (NDPA)</strong> and the Nigeria Data Protection Regulation (NDPR). This policy explains what we collect, why, and your rights.
+    </div>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">1. Who we are</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:1rem;">The data controller is <strong>Medical Flow Systems Ltd</strong>, registered in Nigeria (CAC No. 9444775), operating the DentalFlow HQ platform at dentalflowhq.io. For data protection queries, contact us at <strong>privacy@dentalflowhq.io</strong>.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">2. What data we collect</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>All users:</strong> Name or clinic name, email address, phone number, state/city, and account credentials.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Patients (additional):</strong> Date of birth, emergency contact details, dental and medical history, medical conditions (including diabetes, hypertension, heart conditions, pregnancy status), current medications, known allergies, and clinical notes from treating providers.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Clinics (additional):</strong> Clinic address, opening hours, services and pricing, staff names and regulatory licence numbers, payment methods accepted, and MDCN/DTHRBN licence numbers.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Dental professionals (additional):</strong> Regulatory body, registration number, annual practising licence, qualifications, university, graduation year, work preferences, day rates, and indemnity insurance details.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">3. Why we collect it (lawful basis)</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Contract performance:</strong> To provide the booking, scheduling, and practice management services you have signed up for.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Explicit consent (health data):</strong> Medical and health information is a special category of sensitive data under the NDPA. We only collect and process this data with your explicit, freely given, informed, and specific consent at the point of registration and profile completion.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Legitimate interests:</strong> To maintain platform security, prevent fraud, and improve our services — balanced against your rights.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">4. How we share your data</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>With dental providers you book:</strong> When you submit a booking request, your name, contact details, complaint, and health profile (medical history, conditions, medications, allergies) are shared with the clinic or professional you have selected. You control which providers you book with.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Service providers:</strong> We use Supabase (database and authentication, EU-based servers), Resend (transactional email), and Flutterwave (payment processing, when activated). Each is bound by data processing agreements.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>We do not sell your data</strong> to third parties, advertisers, or data brokers, under any circumstances.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">5. Data retention</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Account data is retained for as long as your account is active and for 7 years after account deletion to comply with Nigerian financial and medical record regulations. Health data can be deleted on written request (see Section 6). Anonymised, aggregated analytics data may be retained indefinitely.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">6. Your rights under the NDPA 2023</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.5rem;">You have the right to:</p>
+    <ul style="font-size:14px;color:#5F5E5A;line-height:1.9;padding-left:1.25rem;margin-bottom:1rem;">
+      <li><strong>Access</strong> — request a copy of all personal data we hold about you</li>
+      <li><strong>Rectification</strong> — correct inaccurate or incomplete data</li>
+      <li><strong>Erasure</strong> — request deletion of your data (subject to legal retention requirements)</li>
+      <li><strong>Portability</strong> — receive your data in a machine-readable format</li>
+      <li><strong>Withdraw consent</strong> — withdraw health data consent at any time (this will limit your ability to use the booking features)</li>
+      <li><strong>Object</strong> — object to processing based on legitimate interests</li>
+      <li><strong>Lodge a complaint</strong> — with the Nigeria Data Protection Commission (NDPC) at ndpc.gov.ng</li>
+    </ul>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">To exercise any right, email <strong>privacy@dentalflowhq.io</strong>. We will respond within 30 days.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">7. Security</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">All data is encrypted in transit (TLS 1.2+) and at rest. Access to health data is restricted to authorised platform staff and the treating providers you book with. We implement role-based access controls and conduct regular security reviews.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">8. Cookies</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">We use session storage and local storage to maintain your login session and remember your referral code. We do not use advertising or tracking cookies. No third-party cookies are placed on this platform.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">9. Changes to this policy</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">We will notify registered users by email of any material changes to this policy. Continued use of the platform after notification constitutes acceptance of the updated policy.</p>
+
+    <div style="margin-top:2.5rem;padding:1.25rem;background:#f7f6fb;border-radius:10px;">
+      <p style="font-size:13px;color:#888780;margin:0;">Questions? Contact us at <strong style="color:#534AB7;">privacy@dentalflowhq.io</strong> &nbsp;·&nbsp; Medical Flow Systems Ltd, Lagos, Nigeria &nbsp;·&nbsp; dentalflowhq.io</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN — TERMS OF SERVICE
+══════════════════════════════════════════════════════════ -->
+<div id="s-terms" class="screen">
+  <div style="max-width:780px;margin:0 auto;padding:3rem 1.5rem 5rem;">
+    <div style="margin-bottom:2rem;display:flex;align-items:center;gap:12px;">
+      <button onclick="history.back()" style="background:none;border:none;font-size:13px;color:#888780;cursor:pointer;">← Back</button>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:#534AB7;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;">Legal</div>
+    <h1 style="font-size:28px;font-weight:500;color:#0D1B3E;margin-bottom:.5rem;">Terms of Service</h1>
+    <p style="font-size:13px;color:#888780;margin-bottom:2.5rem;">Last updated: July 2026 &nbsp;·&nbsp; Medical Flow Systems Ltd &nbsp;·&nbsp; CAC No. 9444775</p>
+
+    <div style="font-size:14px;color:#185FA5;background:#E6F1FB;border-radius:10px;padding:1rem 1.25rem;margin-bottom:2rem;line-height:1.6;">
+      By creating an account on DentalFlow HQ, you agree to these Terms of Service in full. Please read them carefully. If you do not agree, do not register.
+    </div>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">1. The platform</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:1rem;">DentalFlow HQ is a dental ecosystem operated by Medical Flow Systems Ltd (CAC No. 9444775), connecting patients, dental clinics, and registered dental professionals in Nigeria. The platform provides appointment booking, practice management, professional recruitment, and dental health information. DentalFlow HQ is <strong>not a healthcare provider</strong> and does not provide medical advice.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">2. Eligibility</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">You must be at least 18 years old to register an account. By registering, you confirm that you are 18 or older and that the information you provide is accurate and complete. Minors may only use the platform with the express consent of a parent or legal guardian who has registered on their behalf.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;"><strong>Clinics</strong> must be duly registered and licensed dental facilities operating lawfully under Nigerian law. <strong>Professionals</strong> must hold a valid, current licence from MDCN, DTHRBN, or DTRBN and must maintain that licence for as long as they operate on the platform.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">3. Accounts and credentials</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must notify us immediately at support@dentalflowhq.io if you suspect unauthorised access. You may not share your account or create multiple accounts for the same person or entity.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">4. Booking and appointments</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Booking requests submitted through DentalFlow HQ are requests only — they are not confirmed appointments until the clinic or professional explicitly approves them through the platform. DentalFlow HQ is not party to the clinical relationship between patient and provider and is not liable for the quality, safety, or outcome of any dental treatment received.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Patients must attend appointments they have confirmed. Repeated no-shows may result in suspension of booking privileges. Clinics and professionals must honour confirmed appointments or provide reasonable notice of cancellation.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">5. Health data and patient safety</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Health information you provide on DentalFlow HQ is used solely to facilitate your dental care. By providing health information, you confirm it is accurate to the best of your knowledge. Providing false health information that results in harm to yourself or others may result in account termination and potential legal liability.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">The care guides provided on this platform are for general information only and do not constitute medical or dental advice. Always consult a registered dental professional for diagnosis and treatment.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">6. Professional conduct</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Clinics and professionals registered on DentalFlow HQ agree to: (a) maintain valid regulatory licences at all times; (b) provide services only within their scope of practice; (c) maintain appropriate indemnity insurance; (d) comply with all applicable Nigerian healthcare laws and regulations; and (e) treat patients with dignity and respect.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Misrepresentation of qualifications, licence status, or credentials will result in immediate account suspension and may be reported to the relevant regulatory body (MDCN, DTHRBN, or DTRBN).</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">7. Subscription and payments</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">Clinic and professional subscriptions are billed monthly or annually as selected. All subscriptions begin with a 30-day free trial. A success fee (as stated in your plan) applies to each completed case facilitated through the platform. Fees are non-refundable except where required by Nigerian consumer protection law.</p>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">The referral programme awards ₦500 per successful referral (a referred user who completes their first confirmed booking). Referral credits are subject to a minimum withdrawal threshold of ₦5,000. DentalFlow HQ reserves the right to modify the referral programme with 30 days' notice.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">8. Prohibited conduct</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.5rem;">You must not:</p>
+    <ul style="font-size:14px;color:#5F5E5A;line-height:1.9;padding-left:1.25rem;margin-bottom:1rem;">
+      <li>Submit false, misleading, or fraudulent information</li>
+      <li>Use the platform to harass, threaten, or discriminate against any user</li>
+      <li>Attempt to access accounts or data that do not belong to you</li>
+      <li>Use the platform for any unlawful purpose under Nigerian law</li>
+      <li>Scrape, copy, or redistribute platform content or user data</li>
+      <li>Circumvent or attempt to circumvent any security or access controls</li>
+      <li>Post or transmit any content that is defamatory, obscene, or infringes third-party rights</li>
+    </ul>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">9. Limitation of liability</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">DentalFlow HQ provides a platform to connect users. To the maximum extent permitted by Nigerian law, Medical Flow Systems Ltd is not liable for: the clinical outcomes of any treatment; disputes between patients and providers; loss of data beyond our reasonable control; or indirect, consequential, or incidental damages arising from use of the platform.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">10. Termination</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">You may close your account at any time by contacting support@dentalflowhq.io. We reserve the right to suspend or terminate accounts that violate these Terms, with or without notice, depending on the severity of the breach. On termination, your data will be handled in accordance with the Privacy Policy.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">11. Governing law</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">These Terms are governed by the laws of the Federal Republic of Nigeria. Any disputes arising from use of the platform shall be subject to the jurisdiction of the Nigerian courts. We encourage resolution through direct communication first — contact us at legal@dentalflowhq.io.</p>
+
+    <h2 style="font-size:16px;font-weight:600;color:#0D1B3E;margin:1.75rem 0 .75rem;">12. Changes to these Terms</h2>
+    <p style="font-size:14px;color:#5F5E5A;line-height:1.7;margin-bottom:.75rem;">We may update these Terms from time to time. Material changes will be notified by email at least 14 days before they take effect. Continued use of the platform after that date constitutes acceptance of the updated Terms.</p>
+
+    <div style="margin-top:2.5rem;padding:1.25rem;background:#f7f6fb;border-radius:10px;">
+      <p style="font-size:13px;color:#888780;margin:0;">Questions? Contact us at <strong style="color:#534AB7;">legal@dentalflowhq.io</strong> &nbsp;·&nbsp; Medical Flow Systems Ltd, Lagos, Nigeria &nbsp;·&nbsp; dentalflowhq.io</p>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

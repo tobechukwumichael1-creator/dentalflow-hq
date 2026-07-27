@@ -2053,7 +2053,7 @@ tr:last-child td { border-bottom: none; }
           <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
           Schedule
         </div>
-        <div class="sidebar-item bl" data-title="Patients" onclick="setTab('cd-patients',this)">
+        <div class="sidebar-item bl" data-title="Patients" onclick="setTab('cd-patients',this);loadPatients()">
           <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 14c0-2.761 2.239-5 5-5h1M11 10l2 2 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Patients
         </div>
@@ -2189,13 +2189,49 @@ tr:last-child td { border-bottom: none; }
 
       <!-- Patients -->
       <div id="cd-patients" class="tab-panel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Patient records</div>
-            <input style="padding:6px 12px;border:0.5px solid #e0daf5;border-radius:8px;font-size:12px;outline:none;width:180px;" placeholder="Search patients..." />
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-size:18px;font-weight:500;color:#26215C;margin-bottom:2px;">Patient directory</div>
+            <div style="font-size:13px;color:#888780;">All patients who have booked with your clinic. Click any row to view their full health profile.</div>
           </div>
-          <div style="padding:2.5rem 1.25rem;text-align:center;">
-            <div style="font-size:13px;color:#888780;">No patients registered yet. Patients will appear here once they book with your clinic.</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="cd-patient-search" type="text" placeholder="Search by name or email..." onkeyup="filterPatients()" style="padding:7px 12px;border:0.5px solid #d0e4f0;border-radius:8px;font-size:12px;outline:none;width:200px;"/>
+            <button class="btn btn-blue btn-sm" onclick="loadPatients()">Refresh</button>
+          </div>
+        </div>
+        <div class="stat-grid" style="margin-bottom:1.25rem;">
+          <div class="stat-card"><div class="stat-label">Total patients</div><div class="stat-value" id="cd-pat-total">—</div></div>
+          <div class="stat-card"><div class="stat-label">With full health profile</div><div class="stat-value" id="cd-pat-profiles">—</div></div>
+          <div class="stat-card"><div class="stat-label">Bookings this month</div><div class="stat-value" id="cd-pat-month">—</div></div>
+          <div class="stat-card"><div class="stat-label">Walk-in patients</div><div class="stat-value" id="cd-pat-walkin">—</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:28%;">Patient</th>
+              <th style="width:18%;">Last visit</th>
+              <th style="width:20%;">Chief complaint</th>
+              <th style="width:14%;">Bookings</th>
+              <th style="width:10%;">Profile</th>
+              <th style="width:10%;"></th>
+            </tr></thead>
+            <tbody id="cd-patients-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:2.5rem;color:#888780;font-size:13px;">Loading patients...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Patient detail modal -->
+        <div id="cd-patient-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.55);z-index:400;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">
+          <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:0.5px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0;">
+              <div>
+                <div style="font-size:16px;font-weight:500;color:#26215C;" id="cd-pm-name">Patient</div>
+                <div style="font-size:12px;color:#888780;margin-top:2px;" id="cd-pm-email"></div>
+              </div>
+              <button onclick="closePatientModal()" style="background:none;border:none;font-size:20px;color:#888;cursor:pointer;line-height:1;padding:2px 6px;">&#x2715;</button>
+            </div>
+            <div id="cd-patient-modal-body" style="padding:1.5rem;"></div>
           </div>
         </div>
       </div>
@@ -3966,7 +4002,7 @@ async function verifyPhoneOtp(pref, mode) {
   var role = (currentUser.user_metadata || {}).role || 'patient';
   if (role === 'clinic') {
     go('s-clinic-dash');
-    try { loadProfileIntoForms(currentUser.user_metadata||{}); renderClinicOverview(currentUser.user_metadata||{}); loadClinicBookings(); loadBookingRequests(); checkSubscription(currentUser); renderReferralData(currentUser); } catch(e){}
+    try { loadProfileIntoForms(currentUser.user_metadata||{}); renderClinicOverview(currentUser.user_metadata||{}); loadClinicBookings(); loadBookingRequests(); loadPatients(); checkSubscription(currentUser); renderReferralData(currentUser); } catch(e){}
   } else if (role === 'professional') {
     go('s-pro-dash');
     try { loadProfileIntoForms(currentUser.user_metadata||{}); renderProOverview(currentUser.user_metadata||{}); loadProBookings(); checkSubscription(currentUser); renderReferralData(currentUser); loadJobListings(); } catch(e){}
@@ -4666,7 +4702,7 @@ async function logWalkin() {
   };
 
   var record = {
-    patient_id:       currentUser.id,
+    patient_id:       null,
     patient_name:     name,
     patient_email:    val('wi-phone'),
     provider_id:      currentUser.id,
@@ -5518,7 +5554,7 @@ function enterDashboard(session) {
     var hn = document.getElementById('cd-hero-name'); if (hn) hn.textContent = name;
     var st = document.getElementById('cd-sidebar-tag'); if (st) st.textContent = name;
     go('s-clinic-dash');
-    try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); loadBookingRequests(); } catch(e) { console.warn('clinic init', e); }
+    try { loadProfileIntoForms(meta); renderClinicOverview(meta); loadClinicBookings(); loadAnalytics(); loadWalkins(); loadInventory(meta); loadStaffVac(meta); renderReferralData(currentUser); checkSubscription(currentUser); enforceAnalyticsGating(currentUser); loadBookingRequests(); loadPatients(); } catch(e) { console.warn('clinic init', e); }
   } else if (role === 'professional') {
     updateDashName('s-pro-dash', name);
     var sub = document.getElementById('pro-hero-sub');
@@ -5851,6 +5887,209 @@ function getStoredRefCode() {
 }
 
 // ── ITEM 3: Clinic booking requests (real data) ────────────
+
+// ══════════════════════════════════════════════════════════
+// CLINIC PATIENT DIRECTORY
+// ══════════════════════════════════════════════════════════
+var allPatientRows = []; // cache for client-side search
+
+async function loadPatients() {
+  var tbody = document.getElementById('cd-patients-tbody');
+  if (!tbody || !currentUser) return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:#888780;font-size:13px;">Loading...</td></tr>';
+
+  // Fetch all bookings for this clinic (includes walk-ins)
+  var res = await getSb()
+    .from('bookings')
+    .select('*')
+    .eq('provider_id', currentUser.id)
+    .order('preferred_date', { ascending: false });
+
+  if (res.error || !res.data) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:#888780;font-size:13px;">Could not load patients. Please try again.</td></tr>';
+    return;
+  }
+
+  // Deduplicate by patient — keep latest booking per patient_id (or by name for walk-ins)
+  var patientMap = {};
+  res.data.forEach(function(b) {
+    // Walk-ins have no DentalFlow account — key by name+contact to deduplicate
+    // Also handle legacy records where patient_id was incorrectly set to the clinic's own ID
+    var isLegacyWalkin = b.provider_type === 'walkin' && b.patient_id === b.provider_id;
+    var isWalkin = b.provider_type === 'walkin';
+    var key = (isWalkin || isLegacyWalkin)
+      ? ('walkin_' + b.patient_name.toLowerCase().replace(/[^a-z0-9]/g,'_') + '_' + (b.patient_email||'nophone'))
+      : (b.patient_id || ('anon_' + b.patient_name.toLowerCase().replace(/[^a-z0-9]/g,'_')));
+    if (!patientMap[key]) {
+      patientMap[key] = {
+        patient_id:    b.patient_id,
+        name:          b.patient_name,
+        email:         b.patient_email || '—',
+        last_date:     b.preferred_date,
+        last_complaint:b.complaint || '',
+        bookings:      [],
+        is_walkin:     isWalkin || isLegacyWalkin,
+        has_profile:   false
+      };
+    }
+    patientMap[key].bookings.push(b);
+    // Keep most recent date
+    if (b.preferred_date > patientMap[key].last_date) {
+      patientMap[key].last_date     = b.preferred_date;
+      patientMap[key].last_complaint = b.complaint || '';
+    }
+  });
+
+  // Try to fetch patient_profiles for patients who have user accounts
+  var patientIds = Object.values(patientMap)
+    .filter(function(p){ return p.patient_id; })
+    .map(function(p){ return p.patient_id; });
+
+  var profileMap = {};
+  if (patientIds.length) {
+    var pRes = await getSb().from('patient_profiles').select('*').in('user_id', patientIds);
+    if (pRes.data) {
+      pRes.data.forEach(function(p){ profileMap[p.user_id] = p; });
+    }
+  }
+
+  var patients = Object.values(patientMap);
+  patients.forEach(function(p) {
+    if (p.patient_id && profileMap[p.patient_id]) {
+      p.has_profile = true;
+      p.profile     = profileMap[p.patient_id];
+    }
+  });
+
+  // Stats
+  var now = new Date().toISOString().slice(0,7);
+  var thisMonthCount = res.data.filter(function(b){ return (b.preferred_date||'').slice(0,7) === now; }).length;
+  var walkinCount    = patients.filter(function(p){ return p.is_walkin; }).length;
+  var profileCount   = patients.filter(function(p){ return p.has_profile; }).length;
+
+  var setEl = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  setEl('cd-pat-total',    patients.length);
+  setEl('cd-pat-profiles', profileCount);
+  setEl('cd-pat-month',    thisMonthCount);
+  setEl('cd-pat-walkin',   walkinCount);
+
+  allPatientRows = patients;
+  renderPatientRows(patients);
+}
+
+function renderPatientRows(patients) {
+  var tbody = document.getElementById('cd-patients-tbody');
+  if (!tbody) return;
+  if (!patients.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2.5rem;color:#888780;font-size:13px;">No patients found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = patients.map(function(p, i) {
+    var ini  = p.name.split(' ').map(function(w){ return w[0]||''; }).join('').toUpperCase().slice(0,2) || '?';
+    var date = p.last_date ? new Date(p.last_date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    var complaint = p.last_complaint ? (p.last_complaint.length > 35 ? p.last_complaint.slice(0,35)+'...' : p.last_complaint) : '—';
+    var profileTag = p.has_profile
+      ? '<span class="tag tag-gr">Full profile</span>'
+      : (p.is_walkin ? '<span class="tag tag-neu">Walk-in</span>' : '<span class="tag tag-pu">Partial</span>');
+    return '<tr style="cursor:pointer;" onclick="viewPatient(' + i + ')">' +
+      '<td><div style="display:flex;align-items:center;gap:10px;">' +
+        '<div style="width:34px;height:34px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#185FA5;flex-shrink:0;">' + ini + '</div>' +
+        '<div><div style="font-size:13px;font-weight:500;color:#26215C;">' + sanitise(p.name) + '</div>' +
+        '<div style="font-size:11px;color:#888780;">' + sanitise(p.email) + '</div></div>' +
+      '</div></td>' +
+      '<td style="font-size:12px;color:#888780;">' + date + '</td>' +
+      '<td style="font-size:12px;color:#5F5E5A;">' + sanitise(complaint) + '</td>' +
+      '<td style="font-size:13px;font-weight:500;color:#26215C;">' + p.bookings.length + '</td>' +
+      '<td>' + profileTag + '</td>' +
+      '<td><button class="btn btn-sm" style="background:#E6F1FB;color:#185FA5;border:none;" onclick="event.stopPropagation();viewPatient(' + i + ')">View</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function filterPatients() {
+  var q = (document.getElementById('cd-patient-search').value || '').toLowerCase().trim();
+  if (!q) { renderPatientRows(allPatientRows); return; }
+  var filtered = allPatientRows.filter(function(p) {
+    return p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q);
+  });
+  renderPatientRows(filtered);
+}
+
+function viewPatient(idx) {
+  var p = allPatientRows[idx];
+  if (!p) return;
+  document.getElementById('cd-pm-name').textContent  = p.name;
+  document.getElementById('cd-pm-email').textContent = p.email;
+
+  var body = '';
+
+  // ── Health profile section ──────────────────────────────
+  if (p.has_profile && p.profile) {
+    var pr = p.profile;
+    var condLabels = { anxiety:'Dental anxiety', diabetes:'Diabetes', hbp:'High blood pressure', heart:'Heart condition', bleed:'Bleeding disorder', preg:'Currently pregnant' };
+    var conds = (pr.conditions || []).map(function(c){ return condLabels[c]||c; });
+
+    body += '<div style="font-size:12px;font-weight:600;color:#185FA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">Health profile</div>';
+    body += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">';
+    var fields = [
+      ['Date of birth', pr.dob ? new Date(pr.dob+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : null],
+      ['Phone', pr.phone],
+      ['Last dental visit', pr.last_visit],
+      ['Emergency contact', pr.ec_name ? pr.ec_name + (pr.ec_rel ? ' (' + pr.ec_rel + ')' : '') + (pr.ec_phone ? ' · ' + pr.ec_phone : '') : null],
+      ['Medications', pr.medications],
+      ['Allergies', pr.allergies],
+    ];
+    fields.forEach(function(f) {
+      if (!f[1]) return;
+      body += '<div style="background:#f9f9f9;border-radius:8px;padding:.625rem .875rem;">' +
+        '<div style="font-size:11px;color:#888780;margin-bottom:2px;">' + f[0] + '</div>' +
+        '<div style="font-size:13px;color:#26215C;">' + sanitise(f[1]) + '</div>' +
+        '</div>';
+    });
+    body += '</div>';
+    if (conds.length) {
+      body += '<div style="margin-bottom:1.25rem;"><div style="font-size:12px;color:#888780;margin-bottom:.5rem;">Medical conditions flagged</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+        conds.map(function(c){ return '<span class="tag tag-red">' + c + '</span>'; }).join('') +
+        '</div></div>';
+    }
+    if (pr.notes) {
+      body += '<div style="background:#fffdf0;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;">' +
+        '<div style="font-size:11px;color:#888780;margin-bottom:3px;">Additional notes</div>' +
+        '<div style="font-size:13px;color:#26215C;line-height:1.6;">' + sanitise(pr.notes) + '</div></div>';
+    }
+  } else {
+    body += '<div style="background:#f0f6fb;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:13px;color:#185FA5;">No health profile on file for this patient yet. They have not completed their profile, or this is a walk-in patient.</div>';
+  }
+
+  // ── Booking history ─────────────────────────────────────
+  body += '<div style="font-size:12px;font-weight:600;color:#185FA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">Visit history (' + p.bookings.length + ')</div>';
+  body += '<div style="border:0.5px solid #f0f0f0;border-radius:10px;overflow:hidden;">';
+  body += p.bookings.map(function(b, i) {
+    var notes = {};
+    try { notes = JSON.parse(b.notes || '{}'); } catch(e) {}
+    var isWalkin = b.provider_type === 'walkin';
+    var statusColors = { confirmed:'tag-gr', pending:'tag-pu', cancelled:'tag-red' };
+    return '<div style="padding:.875rem 1.125rem;' + (i < p.bookings.length - 1 ? 'border-bottom:0.5px solid #f0f0f0;' : '') + '">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
+        '<div style="font-size:13px;font-weight:500;color:#26215C;">' + (b.preferred_date ? new Date(b.preferred_date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—') + (isWalkin ? ' <span class="tag tag-neu" style="font-size:10px;">walk-in</span>' : '') + '</div>' +
+        '<span class="tag ' + (statusColors[b.status]||'tag-neu') + '">' + (b.status||'—') + '</span>' +
+      '</div>' +
+      (b.complaint ? '<div style="font-size:12px;color:#5F5E5A;margin-bottom:2px;"><span style="color:#888780;">Complaint: </span>' + sanitise(b.complaint.slice(0,80)) + '</div>' : '') +
+      (notes.diagnosis_1 ? '<div style="font-size:12px;color:#5F5E5A;margin-bottom:2px;"><span style="color:#888780;">Diagnosis: </span>' + sanitise(notes.diagnosis_1) + (notes.diagnosis_2 ? '; ' + sanitise(notes.diagnosis_2) : '') + '</div>' : '') +
+      (notes.treatment_done || b.service_requested ? '<div style="font-size:12px;color:#5F5E5A;"><span style="color:#888780;">Treatment: </span>' + sanitise(notes.treatment_done || b.service_requested || '') + '</div>' : '') +
+      '</div>';
+  }).join('');
+  body += '</div>';
+
+  document.getElementById('cd-patient-modal-body').innerHTML = body;
+  document.getElementById('cd-patient-modal').style.display = 'flex';
+}
+
+function closePatientModal() {
+  document.getElementById('cd-patient-modal').style.display = 'none';
+}
+
 async function loadBookingRequests() {
   if (!currentUser) return;
   var listEl  = document.getElementById('cd-requests-list');

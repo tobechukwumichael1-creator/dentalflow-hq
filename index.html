@@ -2222,7 +2222,7 @@ tr:last-child td { border-bottom: none; }
         </div>
 
         <!-- Patient detail modal -->
-        <div id="cd-patient-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.55);z-index:400;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">
+        <div id="cd-patient-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.55);z-index:900;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">
           <div style="background:#fff;border-radius:16px;width:100%;max-width:640px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">
             <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:0.5px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:1;border-radius:16px 16px 0 0;">
               <div>
@@ -4687,7 +4687,7 @@ async function logWalkin() {
     calculus:           val('wi-calculus'),
     sensitivity:        val('wi-sensitivity'),
     soft_tissues:       val('wi-soft'),
-    tooth_findings:     JSON.stringify(toothFindings),
+    tooth_findings:     toothFindings,
     standing_teeth:     val('wi-standing'),
     missing_text:       val('wi-missing-text'),
     findings:           val('wi-findings'),
@@ -6019,71 +6019,207 @@ function viewPatient(idx) {
   var p = allPatientRows[idx];
   if (!p) return;
   document.getElementById('cd-pm-name').textContent  = p.name;
-  document.getElementById('cd-pm-email').textContent = p.email;
+  document.getElementById('cd-pm-email').textContent = p.email !== '—' ? p.email : (p.is_walkin ? 'Walk-in patient' : '');
 
   var body = '';
 
-  // ── Health profile section ──────────────────────────────
+  // ── Patient summary strip ───────────────────────────────
+  var bookingCount = p.bookings.length;
+  var lastDate = p.last_date ? new Date(p.last_date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '—';
+  body += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;">' +
+    '<div style="background:#f7f6fb;border-radius:10px;padding:.75rem 1rem;text-align:center;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Total visits</div><div style="font-size:20px;font-weight:500;color:#26215C;">' + bookingCount + '</div></div>' +
+    '<div style="background:#f7f6fb;border-radius:10px;padding:.75rem 1rem;text-align:center;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Last visit</div><div style="font-size:13px;font-weight:500;color:#26215C;">' + lastDate + '</div></div>' +
+    '<div style="background:#f7f6fb;border-radius:10px;padding:.75rem 1rem;text-align:center;"><div style="font-size:11px;color:#888780;margin-bottom:3px;">Type</div><div style="font-size:13px;font-weight:500;color:#185FA5;">' + (p.is_walkin ? 'Walk-in' : 'Registered') + '</div></div>' +
+  '</div>';
+
+  // ── Registered patient health profile ──────────────────
   if (p.has_profile && p.profile) {
     var pr = p.profile;
     var condLabels = { anxiety:'Dental anxiety', diabetes:'Diabetes', hbp:'High blood pressure', heart:'Heart condition', bleed:'Bleeding disorder', preg:'Currently pregnant' };
     var conds = (pr.conditions || []).map(function(c){ return condLabels[c]||c; });
-
-    body += '<div style="font-size:12px;font-weight:600;color:#185FA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">Health profile</div>';
-    body += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem;">';
-    var fields = [
+    body += section('Patient health profile (self-reported)', '#185FA5');
+    body += grid2([
       ['Date of birth', pr.dob ? new Date(pr.dob+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : null],
       ['Phone', pr.phone],
       ['Last dental visit', pr.last_visit],
       ['Emergency contact', pr.ec_name ? pr.ec_name + (pr.ec_rel ? ' (' + pr.ec_rel + ')' : '') + (pr.ec_phone ? ' · ' + pr.ec_phone : '') : null],
-      ['Medications', pr.medications],
-      ['Allergies', pr.allergies],
-    ];
-    fields.forEach(function(f) {
-      if (!f[1]) return;
-      body += '<div style="background:#f9f9f9;border-radius:8px;padding:.625rem .875rem;">' +
-        '<div style="font-size:11px;color:#888780;margin-bottom:2px;">' + f[0] + '</div>' +
-        '<div style="font-size:13px;color:#26215C;">' + sanitise(f[1]) + '</div>' +
-        '</div>';
-    });
-    body += '</div>';
+      ['Current medications', pr.medications],
+      ['Known allergies', pr.allergies],
+    ]);
     if (conds.length) {
-      body += '<div style="margin-bottom:1.25rem;"><div style="font-size:12px;color:#888780;margin-bottom:.5rem;">Medical conditions flagged</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
-        conds.map(function(c){ return '<span class="tag tag-red">' + c + '</span>'; }).join('') +
-        '</div></div>';
+      body += '<div style="margin-bottom:1.25rem;"><div style="font-size:11px;color:#888780;margin-bottom:.5rem;">Medical conditions flagged</div>' +
+        conds.map(function(c){ return '<span class="tag tag-red" style="margin:0 4px 4px 0;">' + c + '</span>'; }).join('') + '</div>';
     }
-    if (pr.notes) {
-      body += '<div style="background:#fffdf0;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;">' +
-        '<div style="font-size:11px;color:#888780;margin-bottom:3px;">Additional notes</div>' +
-        '<div style="font-size:13px;color:#26215C;line-height:1.6;">' + sanitise(pr.notes) + '</div></div>';
-    }
-  } else {
-    body += '<div style="background:#f0f6fb;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:13px;color:#185FA5;">No health profile on file for this patient yet. They have not completed their profile, or this is a walk-in patient.</div>';
+    if (pr.notes) body += noteBox(pr.notes);
   }
 
-  // ── Booking history ─────────────────────────────────────
-  body += '<div style="font-size:12px;font-weight:600;color:#185FA5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;">Visit history (' + p.bookings.length + ')</div>';
-  body += '<div style="border:0.5px solid #f0f0f0;border-radius:10px;overflow:hidden;">';
-  body += p.bookings.map(function(b, i) {
+  // ── Visit history — each booking with full clinical record ──
+  body += section('Visit history', '#185FA5');
+  body += p.bookings.map(function(b, bi) {
     var notes = {};
     try { notes = JSON.parse(b.notes || '{}'); } catch(e) {}
-    var isWalkin = b.provider_type === 'walkin';
-    var statusColors = { confirmed:'tag-gr', pending:'tag-pu', cancelled:'tag-red' };
-    return '<div style="padding:.875rem 1.125rem;' + (i < p.bookings.length - 1 ? 'border-bottom:0.5px solid #f0f0f0;' : '') + '">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
-        '<div style="font-size:13px;font-weight:500;color:#26215C;">' + (b.preferred_date ? new Date(b.preferred_date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—') + (isWalkin ? ' <span class="tag tag-neu" style="font-size:10px;">walk-in</span>' : '') + '</div>' +
-        '<span class="tag ' + (statusColors[b.status]||'tag-neu') + '">' + (b.status||'—') + '</span>' +
-      '</div>' +
-      (b.complaint ? '<div style="font-size:12px;color:#5F5E5A;margin-bottom:2px;"><span style="color:#888780;">Complaint: </span>' + sanitise(b.complaint.slice(0,80)) + '</div>' : '') +
-      (notes.diagnosis_1 ? '<div style="font-size:12px;color:#5F5E5A;margin-bottom:2px;"><span style="color:#888780;">Diagnosis: </span>' + sanitise(notes.diagnosis_1) + (notes.diagnosis_2 ? '; ' + sanitise(notes.diagnosis_2) : '') + '</div>' : '') +
-      (notes.treatment_done || b.service_requested ? '<div style="font-size:12px;color:#5F5E5A;"><span style="color:#888780;">Treatment: </span>' + sanitise(notes.treatment_done || b.service_requested || '') + '</div>' : '') +
-      '</div>';
+    var isWI = b.provider_type === 'walkin';
+    var dateStr = b.preferred_date ? new Date(b.preferred_date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) : '—';
+    var statusColor = { confirmed:'#3B6D11', pending:'#534AB7', cancelled:'#A32D2D', paid:'#3B6D11', pending:'#B8860B', 'part-paid':'#185FA5', waived:'#888780' };
+    var col = statusColor[b.status] || '#888780';
+
+    var v = '<div style="border:0.5px solid #e8e8e8;border-radius:12px;margin-bottom:1rem;overflow:hidden;">';
+
+    // Visit header
+    v += '<div style="background:#f7f8fc;padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #e8e8e8;">' +
+      '<div><div style="font-size:13px;font-weight:600;color:#26215C;">' + dateStr + '</div>' +
+      (isWI ? '<span class="tag tag-neu" style="font-size:10px;margin-top:3px;display:inline-block;">Walk-in</span>' : '') + '</div>' +
+      '<span style="font-size:12px;font-weight:500;color:' + col + ';background:' + col + '18;padding:3px 10px;border-radius:20px;">' + (b.status||'recorded') + '</span>' +
+    '</div>';
+
+    v += '<div style="padding:1rem 1.25rem;">';
+
+    // Section A: Patient details (walk-in)
+    var hasPatDetails = notes.age || notes.gender || notes.dentist;
+    if (isWI && hasPatDetails) {
+      v += subsection('Patient details');
+      v += grid2([['Age', notes.age], ['Gender', notes.gender], ['Attending clinician', notes.dentist || notes.attending_clinician]]);
+    }
+
+    // Section B: Dental clinic investigation
+    var hasSecB = notes.chief_complaint || b.complaint || notes.history_of_illness || notes.medications || notes.allergies || notes.social_history;
+    if (hasSecB) {
+      v += subsection('Dental clinic investigation');
+      v += grid2([
+        ['Chief complaint', sanitise(notes.chief_complaint || b.complaint)],
+        ['History of illness', notes.history_of_illness],
+        ['Medications', notes.medications],
+        ['Allergies', notes.allergies],
+        ['Social history', notes.social_history],
+      ]);
+    }
+
+    // Section C: Clinical history
+    var hasSecC = notes.extraoral || notes.intraoral || notes.radiology || notes.radio_findings || notes.assessment || notes.plan || notes.clinical_notes;
+    if (hasSecC) {
+      v += subsection('Clinical history');
+      v += grid2([
+        ['Extraoral examination', notes.extraoral],
+        ['Intraoral examination', notes.intraoral],
+        ['Radiology', notes.radiology],
+        ['Radiology findings', notes.radio_findings],
+        ['Assessment', notes.assessment],
+        ['Treatment plan', notes.plan],
+        ['Clinical notes', notes.clinical_notes],
+      ]);
+    }
+
+    // Section D: Dental examination note
+    var hasSecD = notes.complaints || notes.freq || notes.hpc || notes.eoe_oh || notes.ioe_oh || notes.calculus || notes.sensitivity || notes.soft_tissues || notes.findings || notes.investigations || notes.standing_teeth || notes.missing_text;
+    if (hasSecD) {
+      v += subsection('Dental examination note');
+      v += grid2([
+        ['Complaints', notes.complaints],
+        ['Frequency', notes.freq],
+        ['History of presenting complaint', notes.hpc],
+        ['EOE — Oral hygiene', notes.eoe_oh],
+        ['IOE — Oral hygiene', notes.ioe_oh],
+        ['Calculus', notes.calculus],
+        ['Sensitivity', notes.sensitivity],
+        ['Soft tissues', notes.soft_tissues],
+        ['Standing teeth', notes.standing_teeth],
+        ['Missing teeth', notes.missing_text],
+        ['Findings', notes.findings],
+        ['Investigations', notes.investigations],
+      ]);
+    }
+
+    // Tooth chart findings
+    if (notes.tooth_findings) {
+      var tf = {};
+      try {
+        // Handle both formats:
+        // new records: already an object (embedded in JSON)
+        // old records: double-encoded string from JSON.stringify inside JSON.stringify
+        var raw = notes.tooth_findings;
+        if (typeof raw === 'string') raw = JSON.parse(raw);
+        if (typeof raw === 'string') raw = JSON.parse(raw); // handle double-encoding
+        tf = raw || {};
+      } catch(e){ tf = {}; }
+      var teethWithFindings = Object.keys(tf).filter(function(k){ return tf[k] && tf[k].length; });
+      if (teethWithFindings.length) {
+        v += subsection('FDI tooth chart findings');
+        v += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;">';
+        teethWithFindings.sort(function(a,b){return a-b;}).forEach(function(tooth) {
+          v += '<div style="background:#f7f8fc;border:0.5px solid #e0e4f0;border-radius:8px;padding:5px 10px;font-size:12px;">' +
+            '<span style="font-weight:600;color:#185FA5;">T' + tooth + '</span>' +
+            '<span style="color:#5F5E5A;"> — ' + tf[tooth].join(', ') + '</span></div>';
+        });
+        v += '</div>';
+      }
+    }
+
+    // Diagnoses
+    var hasDx = notes.diagnosis_1 || notes.diagnosis_2 || notes.diagnosis_3 || notes.dx_comment;
+    if (hasDx) {
+      v += subsection('Diagnoses');
+      v += grid2([
+        ['Diagnosis 1', notes.diagnosis_1],
+        ['Diagnosis 2', notes.diagnosis_2],
+        ['Diagnosis 3', notes.diagnosis_3],
+        ['Comment', notes.dx_comment],
+      ]);
+    }
+
+    // Treatment
+    var hasTx = notes.treatment_plan || notes.treatment_done || notes.tx_plan || notes.tx_done || b.service_requested;
+    if (hasTx) {
+      v += subsection('Treatment');
+      v += grid2([
+        ['Treatment plan', notes.treatment_plan || notes.tx_plan],
+        ['Treatment done today', notes.treatment_done || notes.tx_done || b.service_requested],
+        ['Next appointment', notes.next ? new Date(notes.next+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : null],
+      ]);
+    }
+
+    // Payment
+    var hasPayment = notes.amount || b.status;
+    if (isWI && hasPayment) {
+      v += subsection('Payment');
+      v += grid2([
+        ['Amount charged', notes.amount ? '&#8358;' + Number(notes.amount).toLocaleString() : null],
+        ['Payment status', b.status],
+      ]);
+    }
+
+    // Extra notes
+    if (notes.extra_notes) {
+      v += subsection('Additional notes');
+      v += noteBox(notes.extra_notes);
+    }
+
+    v += '</div></div>';
+    return v;
   }).join('');
-  body += '</div>';
 
   document.getElementById('cd-patient-modal-body').innerHTML = body;
   document.getElementById('cd-patient-modal').style.display = 'flex';
+}
+
+// ── Clinical record rendering helpers ─────────────────────
+function section(title, color) {
+  return '<div style="font-size:12px;font-weight:600;color:' + (color||'#185FA5') + ';text-transform:uppercase;letter-spacing:.5px;margin:1.25rem 0 .75rem;padding-bottom:.5rem;border-bottom:1.5px solid #f0f0f0;">' + title + '</div>';
+}
+function subsection(title) {
+  return '<div style="font-size:11px;font-weight:600;color:#888780;text-transform:uppercase;letter-spacing:.4px;margin:.875rem 0 .5rem;">' + title + '</div>';
+}
+function grid2(fields) {
+  var rows = fields.filter(function(f){ return f[1] && f[1].toString().trim() !== ''; });
+  if (!rows.length) return '';
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem;">' +
+    rows.map(function(f){
+      return '<div style="background:#f9f9f9;border-radius:8px;padding:.625rem .875rem;">' +
+        '<div style="font-size:11px;color:#888780;margin-bottom:2px;">' + f[0] + '</div>' +
+        '<div style="font-size:13px;color:#26215C;line-height:1.5;">' + sanitise(String(f[1])) + '</div></div>';
+    }).join('') + '</div>';
+}
+function noteBox(text) {
+  return '<div style="background:#fffdf0;border-left:3px solid #e8c84a;border-radius:0 8px 8px 0;padding:.75rem 1rem;margin-bottom:.75rem;font-size:13px;color:#26215C;line-height:1.6;">' + sanitise(text) + '</div>';
 }
 
 function closePatientModal() {

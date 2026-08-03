@@ -1826,6 +1826,7 @@ tr:last-child td { border-bottom: none; }
               <label class="f-label" style="color:#534AB7;">Specific service requested <span style="font-weight:400;color:#888780;">(optional — leave blank if unsure)</span></label>
               <input id="book-service" class="f-input f-input-purple" type="text" placeholder="e.g. Tooth extraction, whitening, check-up..."/>
             </div>
+            <div id="booking-fee-strip" style="display:none;font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:8px 12px;margin-bottom:.75rem;">&#10003; Consultation fee paid</div>
             <div id="book-error" style="font-size:12px;color:#A32D2D;margin-bottom:.75rem;display:none;"></div>
             <div id="book-success" style="font-size:12px;color:#3B6D11;background:#EAF3DE;border-radius:8px;padding:10px 14px;margin-bottom:.75rem;display:none;"></div>
             <button class="btn btn-purple" style="width:100%;" onclick="submitBooking()">Send booking request</button>
@@ -3459,7 +3460,8 @@ var SCREEN_TO_PATH = {
   's-set-password':   '/reset-password',
   's-pricing':         '/pricing',
   's-privacy':         '/privacy-policy',
-  's-terms':           '/terms-of-service'
+  's-terms':           '/terms-of-service',
+  's-locked':          '/account-locked'
 };
 var PATH_TO_SCREEN = {};
 Object.keys(SCREEN_TO_PATH).forEach(function(screenId) {
@@ -3571,7 +3573,8 @@ function screenTitle(screenId) {
     's-set-password':   'Reset password — DentalFlow HQ',
     's-pricing':         'Pricing — DentalFlow HQ',
     's-privacy':         'Privacy Policy — DentalFlow HQ',
-    's-terms':           'Terms of Service — DentalFlow HQ'
+    's-terms':           'Terms of Service — DentalFlow HQ',
+    's-locked':          'Account locked — DentalFlow HQ'
   };
   return names[screenId] || 'DentalFlow HQ';
 }
@@ -4294,6 +4297,7 @@ async function saveClinicProfile() {
     days_open: days, services: services, payments: payments,
     mdcn_no: document.getElementById('cd-mdcn').value.trim(),
     dthrbn_no: document.getElementById('cd-dthrbn').value.trim(),
+    consultation_fee: document.getElementById('cd-consult-fee').value ? Number(document.getElementById('cd-consult-fee').value) : 0,
     staff: staff, role: 'clinic', profile_complete: true
   };
   const res = await getSb().auth.updateUser({ data: profile });
@@ -4328,6 +4332,7 @@ async function saveProProfile() {
     work_prefs: workPrefs,
     rate_day: document.getElementById('pro-rate-day').value,
     rate_home: document.getElementById('pro-rate-home').value,
+    consultation_fee: document.getElementById('pro-consult-fee').value ? Number(document.getElementById('pro-consult-fee').value) : 0,
     insurer: document.getElementById('pro-insurer').value.trim(),
     ins_expiry: document.getElementById('pro-ins-exp').value,
     role: 'professional', profile_complete: true
@@ -4372,7 +4377,7 @@ async function loadProfileIntoForms(meta) {
   if (meta.role === 'clinic') {
     set('cd-name', meta.clinic_name); set('cd-phone', meta.phone); set('cd-location', meta.location);
     set('cd-address', meta.address); set('cd-open', meta.open_time); set('cd-close', meta.close_time);
-    set('cd-mdcn', meta.mdcn_no); set('cd-dthrbn', meta.dthrbn_no);
+    set('cd-mdcn', meta.mdcn_no); set('cd-dthrbn', meta.dthrbn_no); set('cd-consult-fee', meta.consultation_fee || '');
     (meta.days_open || []).forEach(function(d){ chk('cd-d-'+d, true); });
     (meta.payments  || []).forEach(function(p){ chk('cd-pay-'+p, true); });
     (meta.services  || []).forEach(function(s){ addService(); });
@@ -4388,7 +4393,7 @@ async function loadProfileIntoForms(meta) {
     set('pro-exp', meta.experience); set('pro-regbody', meta.regulator); set('pro-regno', meta.reg_no);
     set('pro-apl', meta.apl_year); set('pro-degree', meta.degree); set('pro-uni', meta.university);
     set('pro-gradyr', meta.grad_year); set('pro-nysc', meta.nysc_year); set('pro-extra', meta.extra_quals);
-    set('pro-rate-day', meta.rate_day); set('pro-rate-home', meta.rate_home);
+    set('pro-rate-day', meta.rate_day); set('pro-rate-home', meta.rate_home); set('pro-consult-fee', meta.consultation_fee || '');
     set('pro-insurer', meta.insurer); set('pro-ins-exp', meta.ins_expiry);
     (meta.work_prefs || []).forEach(function(w){ chk('pro-w-'+w, true); });
   }
@@ -5011,8 +5016,10 @@ async function submitBooking() {
     preferred_time:    time,
     complaint:         complaint,
     service_requested: service || null,
-    status:            'pending',
-    notes:             null
+    status:              'pending',
+    consultation_fee:    selectedProvider.consultFeePaid || 0,
+    consultation_fee_ref: selectedProvider.consultFeeRef || null,
+    notes:               null
   };
 
   var submitBtn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
@@ -5049,14 +5056,23 @@ async function loadPatientBookings() {
 
   var statusStyle = { confirmed:'tag-gr', pending:'tag-pu', cancelled:'tag-red' };
   listEl.innerHTML = res.data.map(function(b) {
-    return '<div class="card-row">' +
+    // Check if booking is cancellable: must be pending/confirmed AND more than 24hrs away
+    var apptDate  = new Date(b.preferred_date + 'T' + (b.preferred_time || '08:00'));
+    var hoursAway = (apptDate - new Date()) / (1000 * 60 * 60);
+    var canCancel = (b.status === 'pending' || b.status === 'confirmed') && hoursAway > 24 && b.status !== 'cancelled';
+    var feeTag    = b.consultation_fee ? '<span style="font-size:10px;background:#E6F1FB;color:#185FA5;padding:2px 8px;border-radius:20px;margin-left:4px;">Fee paid: &#8358;' + Number(b.consultation_fee).toLocaleString() + '</span>' : '';
+    var cancelBtn = canCancel
+      ? '<button onclick="cancelBooking(\'' + b.id + '\',\'' + (b.consultation_fee||0) + '\')" style="font-size:11px;color:#A32D2D;background:none;border:1px solid #A32D2D;border-radius:6px;padding:3px 10px;cursor:pointer;margin-top:6px;">Cancel booking</button>'
+      : '';
+    return '<div class="card-row" style="flex-wrap:wrap;gap:8px;">' +
       '<div style="flex-shrink:0;width:42px;height:42px;border-radius:9px;background:#EEEDFE;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
       '<div style="font-size:13px;font-weight:500;color:#534AB7;line-height:1;">' + new Date(b.preferred_date+'T00:00:00').getDate() + '</div>' +
       '<div style="font-size:9px;color:#7F77DD;">' + new Date(b.preferred_date+'T00:00:00').toLocaleString('en',{month:'short'}).toUpperCase() + '</div>' +
       '</div>' +
-      '<div style="flex:1;">' +
-      '<div style="font-size:13px;font-weight:500;color:#26215C;">' + b.provider_name + '</div>' +
-      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' - ' + (b.complaint.length > 40 ? b.complaint.slice(0,40)+'...' : b.complaint) + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+      '<div style="font-size:13px;font-weight:500;color:#26215C;">' + sanitise(b.provider_name) + feeTag + '</div>' +
+      '<div style="font-size:11px;color:#888780;">' + fmtTime(b.preferred_time) + ' · ' + (b.complaint ? (b.complaint.length > 40 ? b.complaint.slice(0,40)+'...' : b.complaint) : '') + '</div>' +
+      (cancelBtn ? '<div>' + cancelBtn + '</div>' : '') +
       '</div>' +
       '<span class="tag ' + (statusStyle[b.status]||'tag-neu') + '">' + b.status + '</span>' +
       '</div>';
@@ -5069,6 +5085,39 @@ async function loadPatientBookings() {
     nextEl.textContent = fmtDate(next.preferred_date);
     nextEl.className = 'stat-value';
     nextEl.style.fontSize = '14px';
+  }
+}
+
+
+// ── Patient cancels a booking (refund if consultation fee paid) ─
+async function cancelBooking(bookingId, consultFee) {
+  var fee = Number(consultFee) || 0;
+  var msg = fee > 0
+    ? 'Cancel this booking? Since you paid a \u20A6' + fee.toLocaleString() + ' consultation fee, a refund will be processed to your original payment method within 3-5 business days.'
+    : 'Cancel this booking?';
+  if (!confirm(msg)) return;
+
+  // Update booking status to cancelled
+  var res = await getSb().from('bookings').update({ status: 'cancelled' }).eq('id', bookingId).eq('patient_id', currentUser.id);
+  if (res.error) { alert('Could not cancel booking: ' + res.error.message); return; }
+
+  // If a consultation fee was paid, log a refund request
+  if (fee > 0) {
+    await getSb().from('refund_requests').insert([{
+      booking_id:  bookingId,
+      patient_id:  currentUser.id,
+      patient_email: currentUser.email,
+      amount:      fee,
+      reason:      'Patient cancellation (>24hrs before appointment)',
+      status:      'pending',
+      created_at:  new Date().toISOString()
+    }]);
+  }
+
+  // Reload bookings
+  loadPatientBookings();
+  if (fee > 0) {
+    alert('Booking cancelled. Your \u20A6' + fee.toLocaleString() + ' refund has been requested and will be processed within 3-5 business days.');
   }
 }
 
@@ -6560,7 +6609,8 @@ function renderProviders(providers, type) {
       var safeId   = p.id.replace(/'/g, '');
       var safeName = sanitise(name);
       var safeSub  = sanitise(sub);
-      var hours = (m.open_time && m.close_time) ? m.open_time + ' \u2013 ' + m.close_time : '';
+      var hours    = (m.open_time && m.close_time) ? m.open_time + '\u2013' + m.close_time : '';
+      var consultFee = m.consultation_fee ? '\u20A6' + Number(m.consultation_fee).toLocaleString() + ' consultation fee' : '';
 
       return '<div style="background:#fff;border:0.5px solid ' + (tier==='enterprise'?'#185FA5':'#e0daf5') + ';border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:.75rem;">' +
         '<div style="display:flex;align-items:center;gap:10px;">' +
@@ -6577,6 +6627,7 @@ function renderProviders(providers, type) {
           (hours ? '<span style="font-size:11px;color:#888780;">\uD83D\uDD50 ' + hours + '</span>' : '<span></span>') +
           '<span style="font-size:11px;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:20px;">\u2713 Verified</span>' +
         '</div>' +
+        (consultFee ? '<div style="font-size:12px;color:#185FA5;background:#E6F1FB;border-radius:8px;padding:5px 10px;">' + consultFee + ' required to book</div>' : '') +
         '<div style="display:flex;gap:8px;">' +
           '<button onclick="viewProviderProfile(\'' + safeId + '\')" style="flex:1;padding:8px 0;border-radius:8px;border:1.5px solid ' + col + ';background:#fff;color:' + col + ';font-size:13px;font-weight:500;cursor:pointer;">View profile</button>' +
           '<button onclick="openBookingModal(\'' + safeId + '\',\'' + safeName + '\',\'' + safeSub + '\')" style="flex:1;padding:8px 0;border-radius:8px;border:none;background:' + col + ';color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Book \u2192</button>' +
@@ -6713,20 +6764,205 @@ function toggleBilling() {
   document.querySelectorAll('.pricing-annual').forEach(function(el){ el.style.display = billingAnnual ? 'block' : 'none'; });
 }
 
+
+// ══════════════════════════════════════════════════════════
+// FLUTTERWAVE BANK TRANSFER PAYMENT SYSTEM
+// ══════════════════════════════════════════════════════════
+var FLW_PUBLIC_KEY = 'FLWPUBK-REPLACE-WITH-YOUR-PUBLIC-KEY'; // set via Supabase env in Edge Function
+
+var PLAN_PRICES = {
+  clinic: {
+    foundation: { monthly: 150000, annual: 1440000 },
+    principal:  { monthly: 275000, annual: 2640000 },
+    enterprise: { monthly: 425000, annual: 4080000 }
+  },
+  professional: {
+    foundation: { monthly: 20000,  annual: 192000 },
+    principal:  { monthly: 30000,  annual: 288000 },
+    enterprise: { monthly: 45000,  annual: 432000 }
+  }
+};
+
+var _currentPaymentRef  = null;
+var _currentPaymentPlan = null;
+var _currentPaymentRole = null;
+var _paymentCheckTimer  = null;
+var _onPaymentSuccess   = null;
+
 function selectPlan(portalType, tier) {
   if (!currentUser) { go(portalType === 'clinic' ? 's-clinic-login' : 's-pro-login'); return; }
-  var billing    = billingAnnual ? 'annual' : 'monthly';
-  var role       = portalType === 'clinic' ? 'clinic' : 'professional';
-  var successFee = (PLAN_SUCCESS_FEE[role] || {})[tier] || 10;
-  getSb().auth.updateUser({ data: {
-    subscription_plan:     tier,
-    subscription_billing:  billing,
-    subscription_selected: new Date().toISOString(),
-    success_fee:           successFee
-  }});
-  alert('Plan selected: ' + tier.charAt(0).toUpperCase() + tier.slice(1) + ' (' + billing + '). Success fee: ' + successFee + '%. Payment will be enabled once Flutterwave is connected. Your 30-day trial continues.');
-  goBackFromPricing();
+  var meta    = currentUser.user_metadata || {};
+  var billing = billingAnnual ? 'annual' : 'monthly';
+  var role    = portalType === 'clinic' ? 'clinic' : 'professional';
+  var prices  = (PLAN_PRICES[role] || {})[tier] || {};
+  var amount  = prices[billing] || 0;
+
+  _currentPaymentPlan = tier;
+  _currentPaymentRole = role;
+
+  // Update modal header
+  var tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+  var billingLabel = billingAnnual ? 'annual' : 'monthly';
+  document.getElementById('pm-title').textContent    = tierLabel + ' plan — ' + fmtNaira(amount);
+  document.getElementById('pm-subtitle').textContent = billingLabel + ' subscription · pay by bank transfer';
+
+  // Show modal in loading state
+  showPmStep('loading');
+  document.getElementById('payment-modal').style.display = 'flex';
+
+  // Call Edge Function to create virtual account
+  initFlutterwavePayment(amount, billing, tier, role, meta);
 }
+
+async function initFlutterwavePayment(amount, billing, tier, role, meta) {
+  try {
+    var name  = meta.full_name || meta.clinic_name || currentUser.email;
+    var email = currentUser.email;
+    var ref   = 'DFHQ-' + Date.now() + '-' + currentUser.id.slice(0,8).toUpperCase();
+    _currentPaymentRef = ref;
+
+    // Call Supabase Edge Function which holds the secret key
+    var res = await fetch(
+      'https://dqbdwsidubucpeimowwz.supabase.co/functions/v1/create-payment',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (await getSb().auth.getSession()).data.session.access_token
+        },
+        body: JSON.stringify({
+          amount:  amount,
+          email:   email,
+          name:    name,
+          ref:     ref,
+          tier:    tier,
+          billing: billing,
+          role:    role,
+          user_id: currentUser.id
+        })
+      }
+    );
+
+    if (!res.ok) throw new Error('Payment service error ' + res.status);
+    var data = await res.json();
+
+    if (!data.account_number) throw new Error(data.message || 'Could not generate account');
+
+    // Show transfer details
+    document.getElementById('pm-amount').textContent    = fmtNaira(amount);
+    document.getElementById('pm-bank').textContent      = data.bank_name    || 'Wema Bank';
+    document.getElementById('pm-acct').textContent      = data.account_number;
+    document.getElementById('pm-acct-name').textContent = data.account_name || 'Flutterwave/DentalFlow';
+    document.getElementById('pm-ref').textContent       = 'Reference: ' + ref;
+    showPmStep('details');
+
+    // Auto-poll for payment every 30s for up to 10 minutes
+    startPaymentPolling();
+
+  } catch(e) {
+    document.getElementById('pm-error-msg').textContent = 'Could not generate payment details: ' + e.message + '. Please try again or contact support@dentalflowhq.io';
+    showPmStep('error');
+  }
+}
+
+function startPaymentPolling() {
+  if (_paymentCheckTimer) clearInterval(_paymentCheckTimer);
+  var attempts = 0;
+  _paymentCheckTimer = setInterval(async function() {
+    attempts++;
+    if (attempts > 20) { clearInterval(_paymentCheckTimer); return; } // stop after 10 min
+    var paid = await pollPaymentStatus();
+    if (paid) clearInterval(_paymentCheckTimer);
+  }, 30000); // every 30 seconds
+}
+
+async function checkPaymentStatus() {
+  showPmStep('checking');
+  var paid = await pollPaymentStatus();
+  if (!paid) showPmStep('error');
+}
+
+async function pollPaymentStatus() {
+  try {
+    var res = await fetch(
+      'https://dqbdwsidubucpeimowwz.supabase.co/functions/v1/verify-payment',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (await getSb().auth.getSession()).data.session.access_token
+        },
+        body: JSON.stringify({ ref: _currentPaymentRef })
+      }
+    );
+    var data = await res.json();
+    if (data.status === 'successful') {
+      if (_currentPaymentPlan === 'consultation' && typeof _onPaymentSuccess === 'function') {
+        // Consultation fee — run custom callback instead of activating subscription
+        var cb = _onPaymentSuccess;
+        _onPaymentSuccess = null;
+        if (_paymentCheckTimer) clearInterval(_paymentCheckTimer);
+        cb();
+      } else {
+        // Subscription payment — activate subscription
+        await activateSubscription(_currentPaymentPlan, _currentPaymentRole, data.billing);
+        showPmStep('success');
+        if (_paymentCheckTimer) clearInterval(_paymentCheckTimer);
+      }
+      return true;
+    }
+    return false;
+  } catch(e) {
+    return false;
+  }
+}
+
+async function activateSubscription(tier, role, billing) {
+  var now          = new Date();
+  var nextRenewal  = new Date(now);
+  nextRenewal.setMonth(nextRenewal.getMonth() + (billing === 'annual' ? 12 : 1));
+  var successFee   = (PLAN_SUCCESS_FEE[role] || {})[tier] || 10;
+  await getSb().auth.updateUser({ data: {
+    subscription_plan:     tier,
+    subscription_status:   'active',
+    subscription_billing:  billing || (billingAnnual ? 'annual' : 'monthly'),
+    subscription_start:    now.toISOString(),
+    subscription_renewal:  nextRenewal.toISOString(),
+    success_fee:           successFee,
+    account_locked:        false
+  }});
+  // Refresh currentUser
+  var { data } = await getSb().auth.getUser();
+  if (data && data.user) currentUser = data.user;
+}
+
+function showPmStep(step) {
+  ['loading','details','checking','success','error'].forEach(function(s) {
+    var el = document.getElementById('pm-' + s);
+    if (el) el.style.display = s === step ? 'block' : 'none';
+  });
+}
+
+function closePaymentModal() {
+  document.getElementById('payment-modal').style.display = 'none';
+  if (_paymentCheckTimer) clearInterval(_paymentCheckTimer);
+  _currentPaymentRef = null;
+}
+
+function copyPaymentDetail(elId) {
+  var el = document.getElementById(elId);
+  if (!el) return;
+  navigator.clipboard && navigator.clipboard.writeText(el.textContent).then(function() {
+    var btn = el.previousElementSibling && el.previousElementSibling.querySelector('button');
+    // find the copy button in parent
+    el.parentElement.querySelectorAll('button').forEach(function(b){
+      var orig = b.textContent;
+      b.textContent = 'Copied!';
+      setTimeout(function(){ b.textContent = orig; }, 1500);
+    });
+  });
+}
+
 
 // ── TRIAL & SUBSCRIPTION MANAGEMENT ───────────────────────
 function checkSubscription(user) {
@@ -6737,9 +6973,10 @@ function checkSubscription(user) {
   var createdAt  = new Date(user.created_at);
   var now        = new Date();
   var daysSince  = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
-  var daysLeft   = 30 - daysSince;
+  var TRIAL_DAYS = 60; // extended from 30 — testing period
+  var daysLeft   = TRIAL_DAYS - daysSince;
   var hasPlan    = meta.subscription_plan && meta.subscription_status === 'active';
-  var trialActive = daysSince < 30;
+  var trialActive = daysSince < TRIAL_DAYS;
   var prefix     = role === 'clinic' ? 'cd' : 'pro';
   var banner     = document.getElementById(prefix + '-trial-banner');
   var msg        = document.getElementById(prefix + '-trial-msg');
@@ -6758,8 +6995,12 @@ function checkSubscription(user) {
     }
     if (paywall) paywall.style.display = 'none';
   } else {
+    // Trial expired — lock the account
     if (banner) banner.style.display = 'none';
-    if (paywall) paywall.style.display = 'flex';
+    if (paywall) paywall.style.display = 'none';
+    go('s-locked');
+    var lockedMsg = document.getElementById('locked-msg');
+    if (lockedMsg) lockedMsg.textContent = 'Your 30-day free trial has ended. Subscribe to a plan to restore full access to your ' + role + ' dashboard.';
   }
 }
 
@@ -6811,7 +7052,16 @@ function openBookingModal(providerId, providerName, providerSub) {
   if (!currentUser) { alert('Please sign in to book an appointment.'); return; }
   var cached = providerCache[providerId];
   var providerType = cached ? ((cached.user_metadata || {}).role || 'clinic') : 'clinic';
-  selectedProvider = { id: providerId, name: providerName, sub: providerSub, type: providerType };
+  var consultFee   = cached ? (Number((cached.user_metadata || {}).consultation_fee) || 0) : 0;
+  selectedProvider = { id: providerId, name: providerName, sub: providerSub, type: providerType, consultFee: consultFee };
+
+  // If a consultation fee is set, show payment step first
+  if (consultFee > 0) {
+    openConsultationPayment(providerId, providerName, providerSub, consultFee);
+    return;
+  }
+
+  // No fee — open booking form directly
   var nameEl = document.getElementById('modal-provider-name');
   var subEl  = document.getElementById('modal-provider-sub');
   if (nameEl) nameEl.textContent = providerName;
@@ -6822,6 +7072,86 @@ function openBookingModal(providerId, providerName, providerSub) {
   if (submitBtn) submitBtn.style.display = 'block';
   var modal = document.getElementById('booking-modal');
   if (modal) modal.style.display = 'flex';
+}
+
+// ── Consultation fee payment before booking ─────────────────
+async function openConsultationPayment(providerId, providerName, providerSub, fee) {
+  // Reuse the payment modal — configure it for consultation fee
+  document.getElementById('pm-title').textContent    = 'Pay consultation fee';
+  document.getElementById('pm-subtitle').textContent = fee ? ('\u20A6' + Number(fee).toLocaleString() + ' to book with ' + providerName) : '';
+  showPmStep('loading');
+  document.getElementById('payment-modal').style.display = 'flex';
+
+  try {
+    var meta  = currentUser.user_metadata || {};
+    var name  = meta.full_name || currentUser.email;
+    var email = currentUser.email;
+    var ref   = 'CONSULT-' + Date.now() + '-' + currentUser.id.slice(0,8).toUpperCase();
+    _currentPaymentRef  = ref;
+    _currentPaymentPlan = 'consultation';
+    _currentPaymentRole = 'patient';
+
+    var res = await fetch(
+      'https://dqbdwsidubucpeimowwz.supabase.co/functions/v1/create-payment',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + (await getSb().auth.getSession()).data.session.access_token
+        },
+        body: JSON.stringify({
+          amount:       fee * 100,  // kobo
+          email:        email,
+          name:         name,
+          ref:          ref,
+          tier:         'consultation',
+          billing:      'once',
+          role:         'patient',
+          user_id:      currentUser.id,
+          provider_id:  providerId,
+          provider_name: providerName
+        })
+      }
+    );
+
+    if (!res.ok) throw new Error('Payment service error');
+    var data = await res.json();
+    if (!data.account_number) throw new Error(data.message || 'Could not generate account');
+
+    document.getElementById('pm-amount').textContent    = '\u20A6' + Number(fee).toLocaleString();
+    document.getElementById('pm-bank').textContent      = data.bank_name || 'Wema Bank';
+    document.getElementById('pm-acct').textContent      = data.account_number;
+    document.getElementById('pm-acct-name').textContent = data.account_name || 'DentalFlow HQ / Flutterwave';
+    document.getElementById('pm-ref').textContent       = 'Reference: ' + ref;
+    showPmStep('details');
+
+    // When payment confirmed, open booking form with fee pre-confirmed
+    _onPaymentSuccess = function() {
+      closePaymentModal();
+      selectedProvider.consultFeeRef  = ref;
+      selectedProvider.consultFeePaid = fee;
+      // Now open the actual booking modal
+      var nameEl = document.getElementById('modal-provider-name');
+      var subEl  = document.getElementById('modal-provider-sub');
+      if (nameEl) nameEl.textContent = providerName;
+      if (subEl)  subEl.textContent  = providerSub;
+      ['book-date','book-time','book-complaint','book-service'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      ['book-error','book-success'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+      var submitBtn = document.querySelector('#booking-modal button[onclick="submitBooking()"]');
+      if (submitBtn) submitBtn.style.display = 'block';
+      // Show a paid confirmation strip in the modal
+      var feeStrip = document.getElementById('booking-fee-strip');
+      if (feeStrip) { feeStrip.textContent = '\u2713 Consultation fee of \u20A6' + Number(fee).toLocaleString() + ' paid'; feeStrip.style.display = 'block'; }
+      var modal = document.getElementById('booking-modal');
+      if (modal) modal.style.display = 'flex';
+    };
+
+    startPaymentPolling();
+
+  } catch(e) {
+    document.getElementById('pm-error-msg').textContent = 'Could not generate payment details: ' + e.message;
+    showPmStep('error');
+  }
 }
 
 function closeBookingModal() {
@@ -7452,6 +7782,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div style="margin-top:2.5rem;padding:1.25rem;background:#f7f6fb;border-radius:10px;">
       <p style="font-size:13px;color:#888780;margin:0;">Questions? Contact us at <strong style="color:#534AB7;">legal@dentalflowhq.io</strong> &nbsp;·&nbsp; Medical Flow Systems Ltd, Lagos, Nigeria &nbsp;·&nbsp; dentalflowhq.io</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     PAYMENT MODAL — Bank transfer via Flutterwave
+══════════════════════════════════════════════════════ -->
+<div id="payment-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,62,.6);z-index:2000;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+    <div style="background:#0D1B3E;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:16px;font-weight:500;color:#fff;" id="pm-title">Subscribe to DentalFlow HQ</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;" id="pm-subtitle">Pay by bank transfer</div>
+      </div>
+      <button onclick="closePaymentModal()" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;line-height:1;padding:4px;">&#x2715;</button>
+    </div>
+    <div style="padding:1.5rem;">
+      <!-- Step 1: loading -->
+      <div id="pm-loading" style="text-align:center;padding:2rem;">
+        <div style="font-size:13px;color:#888780;margin-bottom:.5rem;">Generating your payment details...</div>
+        <div style="width:32px;height:32px;border:3px solid #e0daf5;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto;"></div>
+      </div>
+      <!-- Step 2: transfer details -->
+      <div id="pm-details" style="display:none;">
+        <div style="background:#EAF3DE;border-radius:10px;padding:.875rem 1rem;margin-bottom:1.25rem;">
+          <div style="font-size:12px;color:#3B6D11;font-weight:500;margin-bottom:2px;">&#10003; Transfer exactly this amount to activate your plan</div>
+          <div style="font-size:11px;color:#639922;">Your account will activate automatically within 5 minutes of payment</div>
+        </div>
+        <div style="border:0.5px solid #e0daf5;border-radius:12px;overflow:hidden;margin-bottom:1.25rem;">
+          <div style="padding:.875rem 1.25rem;border-bottom:0.5px solid #e0daf5;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:#888780;">Amount</span>
+            <span style="font-size:18px;font-weight:600;color:#0D1B3E;" id="pm-amount">—</span>
+          </div>
+          <div style="padding:.875rem 1.25rem;border-bottom:0.5px solid #e0daf5;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:#888780;">Bank</span>
+            <span style="font-size:14px;font-weight:500;color:#26215C;" id="pm-bank">—</span>
+          </div>
+          <div style="padding:.875rem 1.25rem;border-bottom:0.5px solid #e0daf5;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:#888780;">Account number</span>
+              <button onclick="copyPaymentDetail('pm-acct')" style="font-size:11px;color:#534AB7;background:none;border:none;cursor:pointer;">Copy</button>
+            </div>
+            <div style="font-size:20px;font-weight:700;color:#0D1B3E;letter-spacing:2px;margin-top:3px;" id="pm-acct">—</div>
+          </div>
+          <div style="padding:.875rem 1.25rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:#888780;">Account name</span>
+            </div>
+            <div style="font-size:14px;font-weight:500;color:#26215C;margin-top:3px;" id="pm-acct-name">—</div>
+          </div>
+        </div>
+        <div style="background:#FFF8E6;border-radius:10px;padding:.875rem 1rem;margin-bottom:1.25rem;font-size:12px;color:#B8860B;line-height:1.6;">
+          &#9888; This account number expires in <strong>30 minutes</strong>. Transfer the <strong>exact amount</strong> — do not add or subtract any value. Do not transfer to this account again after payment is confirmed.
+        </div>
+        <div id="pm-ref" style="font-size:11px;color:#888780;text-align:center;margin-bottom:1rem;"></div>
+        <button onclick="checkPaymentStatus()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#0D1B3E;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">I have made the transfer &#8594;</button>
+      </div>
+      <!-- Step 3: checking -->
+      <div id="pm-checking" style="display:none;text-align:center;padding:2rem;">
+        <div style="font-size:13px;color:#888780;margin-bottom:.5rem;">Checking payment status...</div>
+        <div style="font-size:12px;color:#B4B2A9;">This usually takes under 5 minutes</div>
+        <div style="width:32px;height:32px;border:3px solid #e0daf5;border-top-color:#3B6D11;border-radius:50%;animation:spin .8s linear infinite;margin:1rem auto 0;"></div>
+      </div>
+      <!-- Step 4: success -->
+      <div id="pm-success" style="display:none;text-align:center;padding:2rem;">
+        <div style="font-size:2.5rem;margin-bottom:.75rem;">&#127881;</div>
+        <div style="font-size:16px;font-weight:500;color:#26215C;margin-bottom:.5rem;">Payment confirmed!</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;">Your subscription is now active. Welcome to DentalFlow HQ.</div>
+        <button onclick="closePaymentModal();goBackFromPricing();" style="padding:10px 24px;border-radius:10px;border:none;background:#3B6D11;color:#fff;font-size:13px;font-weight:500;cursor:pointer;">Go to dashboard</button>
+      </div>
+      <!-- Step 5: error -->
+      <div id="pm-error" style="display:none;text-align:center;padding:2rem;">
+        <div style="font-size:2.5rem;margin-bottom:.75rem;">&#128531;</div>
+        <div style="font-size:16px;font-weight:500;color:#A32D2D;margin-bottom:.5rem;">Payment not found yet</div>
+        <div style="font-size:13px;color:#888780;margin-bottom:1.5rem;" id="pm-error-msg">If you have transferred, it may take a few more minutes. Check again or contact support.</div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <button onclick="showPmStep('details')" style="padding:10px 20px;border-radius:10px;border:1.5px solid #185FA5;background:#fff;color:#185FA5;font-size:13px;cursor:pointer;">Check again</button>
+          <button onclick="closePaymentModal()" style="padding:10px 20px;border-radius:10px;border:none;background:#f0f0f0;color:#5F5E5A;font-size:13px;cursor:pointer;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+
+
+<!-- ══════════════════════════════════════════════════════
+     ACCOUNT LOCKED SCREEN
+══════════════════════════════════════════════════════ -->
+<div id="s-locked" class="screen">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0D1B3E 0%,#1a1f4e 100%);padding:2rem;">
+    <div style="background:#fff;border-radius:16px;padding:2.5rem;width:100%;max-width:440px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:1rem;">&#128274;</div>
+      <div style="font-size:22px;font-weight:500;color:#0D1B3E;margin-bottom:.5rem;">Account locked</div>
+      <div style="font-size:14px;color:#888780;line-height:1.6;margin-bottom:1.5rem;" id="locked-msg">Your free trial has ended. Subscribe to a plan to restore full access to your dashboard.</div>
+      <button onclick="go('s-pricing')" style="width:100%;padding:12px;border-radius:10px;border:none;background:#0D1B3E;color:#fff;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:.75rem;">View plans &#8594;</button>
+      <button onclick="signOut()" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;color:#888780;font-size:13px;cursor:pointer;">Sign out</button>
+      <div style="margin-top:1.25rem;font-size:12px;color:#B4B2A9;">Questions? Email <a href="mailto:support@dentalflowhq.io" style="color:#534AB7;">support@dentalflowhq.io</a></div>
     </div>
   </div>
 </div>
